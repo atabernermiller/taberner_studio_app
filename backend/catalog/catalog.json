@@ -1,0 +1,650 @@
+[
+    {
+        "id": "b63326ec-f624-4a96-a700-0048ddd8abe5",
+        "filename": "ThreeSisters.jpeg",
+        "title": "Artwork ThreeSisters",
+        "artist": "Taberner Studio",
+        "description": "A beautiful piece of art from Taberner Studio. This piece explores themes of color and form, creating a vibrant and engaging visual experience.",
+        "price": "12.95",
+        "product_url": "https://www.tabernerstudio.com/shop",
+        "attributes": {
+            "dominant_colors": [
+                {
+                    "color": "#c4bfad",
+                    "percentage": 0.26026666666666665
+                },
+                {
+                    "color": "#55514e",
+                    "percentage": 0.244
+                },
+                {
+                    "color": "#1a1717",
+                    "percentage": 0.20426666666666668
+                },
+                {
+                    "color": "#9d9989",
+                    "percentage": 0.16333333333333333
+                },
+                {
+                    "color": "#eceaea",
+                    "percentage": 0.12813333333333332
+                }
+            ],
+            "mood": "Calm",
+            "style": "Black and White",
+            "subject": "Animals"
+        }
+    },
+    {
+        "id": "32440c32-e3e9-4eb6-ba84-d342b231833c",
+        "filename": "Red_Rocks_Sedona.jpg",
+        "title": "Artwork Red_Rocks_Sedona",
+        "artist": "Taberner Studio",
+        "description": "A beautiful piece of art from Taberner Studio. This piece explores themes of color and form, creating a vibrant and engaging visual experience.",
+        "price": "12.95",
+        "product_url": "https://www.tabernerstudio.com/shop",
+        "attributes": {
+            "dominant_colors": [
+                {
+                    "color": "#547ab6",
+                    "percentage": 0.3330666666666667
+                },
+                {
+                    "color": "#815b38",
+                    "percentage": 0.23146666666666665
+                },
+                {
+                    "color": "#b87d48",
+                    "percentage": 0.19106666666666666
+                },
+                {
+                    "color": "#4a3424",
+                    "percentage": 0.15053333333333332
+                },
+                {
+                    "color": "#b8c9e2",
+                    "percentage": 0.09386666666666667
+                }
+            ],
+            "mood": "Calm",
+            "style": "Nature",
+            "subject": "Landscape"
+        }
+    },
+    {
+        "id": "8e2313a0-8ff7-4fa4-a1c0-402b498be1b5",
+        "filename": "Gold_Creek_Pond.jpg",
+        "title": "Artwork Gold_Creek_Pond",
+        "artist": "Taberner Studio",
+        "description": "A beautiful piece of art from Taberner Studio. This piece explores themes of color and form, creating a vibrant and engaging visual experience.",
+        "price": "12.95",
+        "product_url": "https://www.tabernerstudio.com/shop",
+        "attributes": {
+            "dominant_colors": [
+                {
+                    "color": "#324a23",
+                    "percentage": 0.2484
+                },
+                {
+                    "color": "#789bc4",
+                    "percentage": 0.21973333333333334
+                },
+                {
+                    "color": "#b0c0d3",
+                    "percentage": 0.1976
+                },
+                {
+                    "color": "#748255",
+                    "percentage": 0.17586666666666667
+                },
+                {
+                    "color": "#3879b4",
+                    "percentage": 0.1584
+                }
+            ],
+            "mood": "Calm",
+            "style": "Nature",
+            "subject": "Landscape"
+        }
+    },
+    {
+        "id": "d3db68d2-a70c-4e6b-b1ce-bac9be696b50",
+        "filename": "Horse_Sillouette1.jpg",
+        "title": "Artwork Horse_Sillouette1",
+        "artist": "Taberner Studio",
+        "description": "A beautiful piece of art from Taberner Studio. This piece explores themes of color and form, creating a vibrant and engaging visual experience.",
+        "price": "12.95",
+        "product_url": "https://www.tabernerstudio.com/shop",
+        "attributes": {
+            "dominant_colors": [
+                {
+                    "color": "#fa9a01",
+                    "percentage": 0.3038666666666667
+                },
+                {
+                    "color": "#8b4201",
+                    "percentage": 0.30106666666666665
+                },
+                {
+                    "color": "#c56701",
+                    "percentage": 0.26213333333333333
+                },
+                {
+                    "color": "#502200",
+                    "percentage": 0.12
+                },
+                {
+                    "color": "#fecd65",
+                    "percentage": 0.012933333333333333
+                }
+            ],
+            "mood": "Calm",
+            "style": "Nature",
+            "subject": "Landscape"
+        }
+    },
+    {
+        "id": "104b5f85-3f5c-4b56-b33e-2e1f3f70386b",
+        "filename": "Sunset_Long_Beach_WA.jpg",
+        "title": "Artwork Sunset_Long_Beach_WA",
+        "artist": "Taberner Studio",
+        "description": "A beautiful piece of art from Taberner Studio. This piece explores themes of color and form, creating a vibrant and engaging visual experience.",
+        "price": "12.95",
+        "product_url": "https://www.tabernerstudio.com/shop",
+        "attributes": {
+            "dominant_colors": [
+                {
+                    "color": "#1770cc",
+                    "percentage": 0.2964
+                },
+                {
+                    "color": "#a86541",
+                    "percentage": 0.264
+                },
+                {
+                    "color": "#c99f8c",
+                    "percentage": 0.18306666666666666
+                },
+                {
+                    "color": "#afc4d7",
+                    "percentage": 0.16733333333333333
+                },
+                {
+                    "color": "#323d77",
+                    "percentage": 0.0892
+                }
+            ],
+            "mood": "Calm",
+            "style": "Nature",
+            "subject": "Seascape"
+        }
+    },
+    {
+        "id": "bc76a366-393f-4318-8f2c-05266258c25d",
+        "filename": "Palouse_Landscape_1.jpg",
+        "title": "Artwork Palouse_Landscape_1",
+        "artist": "Taberner Studio",
+        "description": "A beautiful piece of art from Taberner Studio. This piece explores themes of color and form, creating a vibrant and engaging visual experience.",
+        "price": "12.95",
+        "product_url": "https://www.tabernerstudio.com/shop",
+        "attributes": {
+            "dominant_colors": [
+                {
+                    "color": "#15272f",
+                    "percentage": 0.334
+                },
+                {
+                    "color": "#2d3c61",
+                    "percentage": 0.2968
+                },
+                {
+                    "color": "#69666d",
+                    "percentage": 0.1604
+                },
+                {
+                    "color": "#35499d",
+                    "percentage": 0.1076
+                },
+                {
+                    "color": "#9d9875",
+                    "percentage": 0.1012
+                }
+            ],
+            "mood": "Calm and peaceful",
+            "style": "Long Exposure",
+            "subject": "Landscape"
+        }
+    },
+    {
+        "id": "7ea8688e-855d-411f-9e31-067f04e9c7ee",
+        "filename": "Palouse_Landscape_2.jpg",
+        "title": "Artwork Palouse_Landscape_2",
+        "artist": "Taberner Studio",
+        "description": "A beautiful piece of art from Taberner Studio. This piece explores themes of color and form, creating a vibrant and engaging visual experience.",
+        "price": "12.95",
+        "product_url": "https://www.tabernerstudio.com/shop",
+        "attributes": {
+            "dominant_colors": [
+                {
+                    "color": "#4e6356",
+                    "percentage": 0.29013333333333335
+                },
+                {
+                    "color": "#0e6851",
+                    "percentage": 0.28373333333333334
+                },
+                {
+                    "color": "#818450",
+                    "percentage": 0.17893333333333333
+                },
+                {
+                    "color": "#486f14",
+                    "percentage": 0.1244
+                },
+                {
+                    "color": "#bd9e6f",
+                    "percentage": 0.1228
+                }
+            ],
+            "mood": "Calm",
+            "style": "Nature",
+            "subject": "Landscape"
+        }
+    },
+    {
+        "id": "07633297-affb-4df6-b329-3fcddbecadf3",
+        "filename": "Horse_Family.jpg",
+        "title": "Artwork Horse_Family",
+        "artist": "Taberner Studio",
+        "description": "A beautiful piece of art from Taberner Studio. This piece explores themes of color and form, creating a vibrant and engaging visual experience.",
+        "price": "12.95",
+        "product_url": "https://www.tabernerstudio.com/shop",
+        "attributes": {
+            "dominant_colors": [
+                {
+                    "color": "#452d12",
+                    "percentage": 0.3290666666666667
+                },
+                {
+                    "color": "#6c4016",
+                    "percentage": 0.27613333333333334
+                },
+                {
+                    "color": "#985416",
+                    "percentage": 0.14266666666666666
+                },
+                {
+                    "color": "#c76e18",
+                    "percentage": 0.13853333333333334
+                },
+                {
+                    "color": "#e59321",
+                    "percentage": 0.1136
+                }
+            ],
+            "mood": "Calm",
+            "style": "Nature",
+            "subject": "Animals"
+        }
+    },
+    {
+        "id": "64ec3a07-6525-41d3-82d4-942811439c3d",
+        "filename": "Palouse_Landscape_3.jpg",
+        "title": "Artwork Palouse_Landscape_3",
+        "artist": "Taberner Studio",
+        "description": "A beautiful piece of art from Taberner Studio. This piece explores themes of color and form, creating a vibrant and engaging visual experience.",
+        "price": "12.95",
+        "product_url": "https://www.tabernerstudio.com/shop",
+        "attributes": {
+            "dominant_colors": [
+                {
+                    "color": "#2c4359",
+                    "percentage": 0.35133333333333333
+                },
+                {
+                    "color": "#607061",
+                    "percentage": 0.24453333333333332
+                },
+                {
+                    "color": "#8a9e4d",
+                    "percentage": 0.13893333333333333
+                },
+                {
+                    "color": "#182d24",
+                    "percentage": 0.13733333333333334
+                },
+                {
+                    "color": "#516f20",
+                    "percentage": 0.12786666666666666
+                }
+            ],
+            "mood": "Calm and peaceful",
+            "style": "Nature",
+            "subject": "Landscape"
+        }
+    },
+    {
+        "id": "06c572a6-b5b6-4717-886e-9b79964d1cc1",
+        "filename": "Maui_Beach.jpg",
+        "title": "Artwork Maui_Beach",
+        "artist": "Taberner Studio",
+        "description": "A beautiful piece of art from Taberner Studio. This piece explores themes of color and form, creating a vibrant and engaging visual experience.",
+        "price": "12.95",
+        "product_url": "https://www.tabernerstudio.com/shop",
+        "attributes": {
+            "dominant_colors": [
+                {
+                    "color": "#0a6dc3",
+                    "percentage": 0.25933333333333336
+                },
+                {
+                    "color": "#a8c2de",
+                    "percentage": 0.2352
+                },
+                {
+                    "color": "#313736",
+                    "percentage": 0.2312
+                },
+                {
+                    "color": "#e6c08d",
+                    "percentage": 0.14826666666666666
+                },
+                {
+                    "color": "#7b7976",
+                    "percentage": 0.126
+                }
+            ],
+            "mood": "Calm",
+            "style": "Modern",
+            "subject": "Seascape"
+        }
+    },
+    {
+        "id": "0551a6ee-d356-41d0-96f5-529cadbcc4ad",
+        "filename": "Crater_Lake.jpg",
+        "title": "Artwork Crater_Lake",
+        "artist": "Taberner Studio",
+        "description": "A beautiful piece of art from Taberner Studio. This piece explores themes of color and form, creating a vibrant and engaging visual experience.",
+        "price": "12.95",
+        "product_url": "https://www.tabernerstudio.com/shop",
+        "attributes": {
+            "dominant_colors": [
+                {
+                    "color": "#184d97",
+                    "percentage": 0.28933333333333333
+                },
+                {
+                    "color": "#dde5f2",
+                    "percentage": 0.228
+                },
+                {
+                    "color": "#1595f0",
+                    "percentage": 0.21693333333333334
+                },
+                {
+                    "color": "#78a2dd",
+                    "percentage": 0.1944
+                },
+                {
+                    "color": "#4c4941",
+                    "percentage": 0.07133333333333333
+                }
+            ],
+            "mood": "Calm",
+            "style": "Nature",
+            "subject": "Landscape"
+        }
+    },
+    {
+        "id": "940f387d-7c7f-4e2b-ab39-f8c92148fc78",
+        "filename": "BabyHorse.jpg",
+        "title": "Artwork BabyHorse",
+        "artist": "Taberner Studio",
+        "description": "A beautiful piece of art from Taberner Studio. This piece explores themes of color and form, creating a vibrant and engaging visual experience.",
+        "price": "12.95",
+        "product_url": "https://www.tabernerstudio.com/shop",
+        "attributes": {
+            "dominant_colors": [
+                {
+                    "color": "#672d00",
+                    "percentage": 0.23466666666666666
+                },
+                {
+                    "color": "#8e4000",
+                    "percentage": 0.22706666666666667
+                },
+                {
+                    "color": "#431c00",
+                    "percentage": 0.21906666666666666
+                },
+                {
+                    "color": "#b65500",
+                    "percentage": 0.1908
+                },
+                {
+                    "color": "#ec7900",
+                    "percentage": 0.1284
+                }
+            ],
+            "mood": "Calm",
+            "style": "Nature",
+            "subject": "Animals"
+        }
+    },
+    {
+        "id": "00c6caf7-1cbf-4cc0-bdf7-77fa82fba90c",
+        "filename": "Wildhorse_Silhouette_Utah_2.jpg",
+        "title": "Artwork Wildhorse_Silhouette_Utah_2",
+        "artist": "Taberner Studio",
+        "description": "A beautiful piece of art from Taberner Studio. This piece explores themes of color and form, creating a vibrant and engaging visual experience.",
+        "price": "12.95",
+        "product_url": "https://www.tabernerstudio.com/shop",
+        "attributes": {
+            "dominant_colors": [
+                {
+                    "color": "#010100",
+                    "percentage": 0.41746666666666665
+                },
+                {
+                    "color": "#7a593a",
+                    "percentage": 0.15333333333333332
+                },
+                {
+                    "color": "#ad8150",
+                    "percentage": 0.1524
+                },
+                {
+                    "color": "#533c2b",
+                    "percentage": 0.14733333333333334
+                },
+                {
+                    "color": "#f9cd76",
+                    "percentage": 0.12946666666666667
+                }
+            ],
+            "mood": "Calm",
+            "style": "Nature",
+            "subject": "Landscape"
+        }
+    },
+    {
+        "id": "ebd6d08c-d278-484a-a588-97a0641952eb",
+        "filename": "Horse_Waltz.jpg",
+        "title": "Artwork Horse_Waltz",
+        "artist": "Taberner Studio",
+        "description": "A beautiful piece of art from Taberner Studio. This piece explores themes of color and form, creating a vibrant and engaging visual experience.",
+        "price": "12.95",
+        "product_url": "https://www.tabernerstudio.com/shop",
+        "attributes": {
+            "dominant_colors": [
+                {
+                    "color": "#bfa98b",
+                    "percentage": 0.33093333333333336
+                },
+                {
+                    "color": "#756857",
+                    "percentage": 0.2024
+                },
+                {
+                    "color": "#9f8d6c",
+                    "percentage": 0.19706666666666667
+                },
+                {
+                    "color": "#495775",
+                    "percentage": 0.18186666666666668
+                },
+                {
+                    "color": "#543a2e",
+                    "percentage": 0.08773333333333333
+                }
+            ],
+            "mood": "Calm",
+            "style": "Nature",
+            "subject": "Animals"
+        }
+    },
+    {
+        "id": "49a603ac-8cdf-466b-b210-5978b52d8874",
+        "filename": "Seattle_Skyline.jpg",
+        "title": "Artwork Seattle_Skyline",
+        "artist": "Taberner Studio",
+        "description": "A beautiful piece of art from Taberner Studio. This piece explores themes of color and form, creating a vibrant and engaging visual experience.",
+        "price": "12.95",
+        "product_url": "https://www.tabernerstudio.com/shop",
+        "attributes": {
+            "dominant_colors": [
+                {
+                    "color": "#0b0c0f",
+                    "percentage": 0.3164
+                },
+                {
+                    "color": "#1d1f24",
+                    "percentage": 0.30866666666666664
+                },
+                {
+                    "color": "#413b39",
+                    "percentage": 0.19186666666666666
+                },
+                {
+                    "color": "#666155",
+                    "percentage": 0.1248
+                },
+                {
+                    "color": "#9e9678",
+                    "percentage": 0.05826666666666667
+                }
+            ],
+            "mood": "Calm",
+            "style": "Architectural",
+            "subject": "Cityscape"
+        }
+    },
+    {
+        "id": "16894b2d-c8b2-460c-b344-03dab5f2d932",
+        "filename": "Church_Switzerland.jpg",
+        "title": "Artwork Church_Switzerland",
+        "artist": "Taberner Studio",
+        "description": "A beautiful piece of art from Taberner Studio. This piece explores themes of color and form, creating a vibrant and engaging visual experience.",
+        "price": "12.95",
+        "product_url": "https://www.tabernerstudio.com/shop",
+        "attributes": {
+            "dominant_colors": [
+                {
+                    "color": "#dde1e8",
+                    "percentage": 0.21893333333333334
+                },
+                {
+                    "color": "#365934",
+                    "percentage": 0.21093333333333333
+                },
+                {
+                    "color": "#779c2c",
+                    "percentage": 0.20933333333333334
+                },
+                {
+                    "color": "#9fb8cd",
+                    "percentage": 0.20693333333333333
+                },
+                {
+                    "color": "#2a7ba7",
+                    "percentage": 0.15386666666666668
+                }
+            ],
+            "mood": "Calm",
+            "style": "Nature",
+            "subject": "Landscape"
+        }
+    },
+    {
+        "id": "0c025d52-1714-4743-a2bf-e203f271c68a",
+        "filename": "Seattle_Space_Needle.jpg",
+        "title": "Artwork Seattle_Space_Needle",
+        "artist": "Taberner Studio",
+        "description": "A beautiful piece of art from Taberner Studio. This piece explores themes of color and form, creating a vibrant and engaging visual experience.",
+        "price": "12.95",
+        "product_url": "https://www.tabernerstudio.com/shop",
+        "attributes": {
+            "dominant_colors": [
+                {
+                    "color": "#050506",
+                    "percentage": 0.7581333333333333
+                },
+                {
+                    "color": "#1e1910",
+                    "percentage": 0.1356
+                },
+                {
+                    "color": "#403624",
+                    "percentage": 0.05506666666666667
+                },
+                {
+                    "color": "#6a5f47",
+                    "percentage": 0.030266666666666667
+                },
+                {
+                    "color": "#9c9682",
+                    "percentage": 0.020933333333333335
+                }
+            ],
+            "mood": "Calm",
+            "style": "Abstract",
+            "subject": "Cityscape"
+        }
+    },
+    {
+        "id": "8ad30084-df33-4ccc-ac4d-d2f0dcb2e727",
+        "filename": "RunningFreeFiullSize.jpg",
+        "title": "Artwork RunningFreeFiullSize",
+        "artist": "Taberner Studio",
+        "description": "A beautiful piece of art from Taberner Studio. This piece explores themes of color and form, creating a vibrant and engaging visual experience.",
+        "price": "12.95",
+        "product_url": "https://www.tabernerstudio.com/shop",
+        "attributes": {
+            "dominant_colors": [
+                {
+                    "color": "#a98e6c",
+                    "percentage": 0.4028
+                },
+                {
+                    "color": "#37a4e8",
+                    "percentage": 0.2404
+                },
+                {
+                    "color": "#5578aa",
+                    "percentage": 0.13026666666666667
+                },
+                {
+                    "color": "#5e4c3a",
+                    "percentage": 0.12226666666666666
+                },
+                {
+                    "color": "#c6cfdc",
+                    "percentage": 0.10426666666666666
+                }
+            ],
+            "mood": "Calm",
+            "style": "Nature",
+            "subject": "Landscape"
+        }
+    }
+]

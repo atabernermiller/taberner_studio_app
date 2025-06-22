@@ -1,0 +1,21 @@
+# Flask and web server
+Flask==2.1.2
+Werkzeug==2.1.2
+python-dotenv==0.20.0
+Flask-Cors
+flask-limiter
+
+# Image Processing & ML
+Pillow==9.2.0
+pillow-heif==0.7.0
+scikit-learn==1.4.2
+numpy==1.26.4
+torch==2.1.2
+transformers==4.36.2
+accelerate==0.25.0
+sentence-transformers==2.2.2
+PyYAML==6.0.1
+
+# AWS
+botocore==1.38.41
+boto3==1.38.41
