@@ -1,0 +1,11 @@
+{
+  "name": "taberner-studio-frontend",
+  "version": "1.0.0",
+  "description": "Frontend for the Taberner Studio recommendation app.",
+  "main": "script.js",
+  "scripts": {
+    "start": "echo \"Error: no start script specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC"
+}

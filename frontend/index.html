@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Taberner Studio - AI Art Recommendations</title>
+    <meta name="description" content="Transform your space with AI-powered art recommendations. Upload a photo of your room or tell us your preferences to discover perfect artwork matches.">
+    <meta name="keywords" content="AI art, interior design, artwork recommendations, room decoration, Taberner Studio">
+    <meta name="author" content="Taberner Studio">
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Font Awesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Interact.js for Drag & Resize -->
+    <script src="https://cdn.jsdelivr.net/npm/interactjs/dist/interact.min.js"></script>
+    
+    <!-- Custom Styles -->
+    <link rel="stylesheet" href="style.css?v=20250622g">
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="assets/Taberner-Studio-logo.png">
+</head>
+<body>
+    <!-- Header -->
+    <header>
+        <div class="header-content">
+            <img src="assets/Taberner-Studio-logo.png" alt="Taberner Studio Logo" id="logo">
+            <h1 class="header-title">AI Art Recommendations</h1>
+            <div></div> <!-- Spacer for flex layout -->
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="content">
+        <!-- Upload View -->
+        <section id="upload-view" class="view active">
+            <div class="search-box">
+                <div class="upload-header">
+                    <button class="back-button" id="back-to-search-top">
+                        <i class="fas fa-arrow-left"></i>
+                        Back to Options
+                    </button>
+                    <h2 class="main-title" id="main-title-text">Transform Your Space</h2>
+                    <p class="main-subtitle" id="main-subtitle-text">Discover the perfect artwork that speaks to your style and enhances your environment</p>
+                    <div class="divider"></div>
+                </div>
+                
+                <!-- Option Cards Container -->
+                <div class="options-container">
+                    <!-- Option 1: Upload Room Photo -->
+                    <div class="option-card" id="upload-option">
+                        <div class="option-icon">
+                            <i class="fas fa-camera"></i>
+                        </div>
+                        <h3>Upload Room Photo</h3>
+                        <p>Get recommendations based on your actual room's style, colors, and layout.</p>
+                        <div class="option-features">
+                            <span class="feature-tag">Most Accurate</span>
+                            <span class="feature-tag">Visual Preview</span>
+                        </div>
+                        <button class="button option-button" onclick="showUploadForm()">
+                            <i class="fas fa-upload"></i>
+                            Upload Photo
+                        </button>
+                    </div>
+
+                    <!-- Option 2: Art Preferences -->
+                    <div class="option-card" id="preferences-option">
+                        <div class="option-icon">
+                            <i class="fas fa-palette"></i>
+                        </div>
+                        <h3>Art Preferences</h3>
+                        <p>Tell us your style preferences and get curated recommendations.</p>
+                        <div class="option-features">
+                            <span class="feature-tag">No Photo Required</span>
+                            <span class="feature-tag">Style-Based</span>
+                        </div>
+                        <button class="button option-button" onclick="showPreferencesForm()">
+                            <i class="fas fa-sliders-h"></i>
+                            Set Preferences
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Upload Form (Hidden by default) -->
+                <div id="upload-form-container" class="form-container" style="display: none;">
+                    <div class="form-header">
+                        <h3 class="form-title">Upload Your Room Photo</h3>
+                    </div>
+                    
+                    <form id="upload-form">
+                        <div class="upload-area" id="upload-area">
+                            <i class="fas fa-cloud-upload-alt upload-icon"></i>
+                            <div class="upload-text">Drop your room photo here</div>
+                            <div class="upload-hint">or click to browse files</div>
+                            <input type="file" id="room-photo" accept="image/*" style="display: none;">
+                        </div>
+                        
+                        <div class="filter-group">
+                            <label for="style-filter">Art Style Preference:</label>
+                            <select id="style-filter">
+                                <option value="">Any Style</option>
+                                <option value="modern">Modern</option>
+                                <option value="classical">Classical</option>
+                                <option value="abstract">Abstract</option>
+                                <option value="landscape">Landscape</option>
+                                <option value="portrait">Portrait</option>
+                            </select>
+                        </div>
+                        
+                        <!-- Recommendations will be generated automatically after upload -->
+                    </form>
+                </div>
+
+                <!-- Preferences Form (Hidden by default) -->
+                <div id="preferences-form-container" class="form-container" style="display: none;">
+                    <div class="form-header">
+                        <h3 class="form-title">Tell Us Your Preferences</h3>
+                    </div>
+                    
+                    <form id="preferences-form">
+                        <div class="filter-group">
+                            <label for="mood-select">Mood:</label>
+                            <select id="mood-select">
+                                <option value="">Any Mood</option>
+                                <option value="calm">Calm & Serene</option>
+                                <option value="energetic">Energetic & Vibrant</option>
+                                <option value="sophisticated">Sophisticated & Elegant</option>
+                                <option value="cozy">Cozy & Warm</option>
+                                <option value="minimalist">Minimalist & Clean</option>
+                            </select>
+                        </div>
+                        
+                        <div class="filter-group">
+                            <label for="style-select">Art Style:</label>
+                            <select id="style-select">
+                                <option value="">Any Style</option>
+                                <option value="modern">Modern</option>
+                                <option value="classical">Classical</option>
+                                <option value="abstract">Abstract</option>
+                                <option value="impressionist">Impressionist</option>
+                                <option value="contemporary">Contemporary</option>
+                            </select>
+                        </div>
+                        
+                        <div class="filter-group">
+                            <label for="subject-select">Subject:</label>
+                            <select id="subject-select">
+                                <option value="">Any Subject</option>
+                                <option value="landscape">Landscape</option>
+                                <option value="portrait">Portrait</option>
+                                <option value="still-life">Still Life</option>
+                                <option value="abstract">Abstract</option>
+                                <option value="nature">Nature</option>
+                            </select>
+                        </div>
+                        
+                        <div class="filter-group">
+                            <label for="color-preference">Color Preference:</label>
+                            <select id="color-preference">
+                                <option value="">Any Colors</option>
+                                <option value="warm">Warm Tones</option>
+                                <option value="cool">Cool Tones</option>
+                                <option value="neutral">Neutral</option>
+                                <option value="bold">Bold & Bright</option>
+                                <option value="pastel">Soft & Pastel</option>
+                            </select>
+                        </div>
+                        
+                        <button type="submit" class="button">
+                            <i class="fas fa-search"></i>
+                            Find Artwork
+                        </button>
+                    </form>
+                </div>
+
+                <!-- Results Area (initially hidden) -->
+                <div id="results-area" style="display: none;">
+                    <div class="showroom-block">
+                        <!-- Virtual Showroom -->
+                        <div id="virtual-showroom">
+                            <img id="room-image" src="" alt="Your room" style="display: none;">
+                            <div id="artwork-overlay" style="display: none;">
+                                <img id="artwork-image" src="" alt="Recommended artwork">
+                            </div>
+                        </div>
+
+                        <!-- Artwork Details -->
+                        <div id="artwork-details" class="details-container" style="display: none;">
+                            <h3 id="artwork-title"></h3>
+                            <p id="artwork-description"></p>
+                            <div class="price-line">
+                                <div id="artwork-price"></div>
+                                <button id="view-details-button" class="button" onclick="window.open('#', '_blank')">
+                                    <i class="fas fa-shopping-cart"></i>
+                                    View Details
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Thumbnails -->
+                        <div id="thumbnails-section" style="display: none;">
+                            <h3>More Recommendations</h3>
+                            <div class="thumbnail-wrapper">
+                                <div id="thumbnail-gallery"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- This button is being replaced by the one in the header -->
+                    <div class="new-search-wrapper" style="display: none;">
+                        <button class="button" onclick="resetToOptions()">Try Another Search</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Results View (Now Deprecated/Removed) -->
+        <!-- 
+        <section id="results-view" class="view">
+            ...
+        </section>
+        -->
+    </main>
+
+    <!-- Mobile Navigation -->
+    <nav class="mobile-nav">
+        <button id="home-button" class="nav-button active">
+            <i class="fas fa-home"></i>
+            <span>Home</span>
+        </button>
+        <button id="upload-nav-button" class="nav-button">
+            <i class="fas fa-camera"></i>
+            <span>Upload</span>
+        </button>
+        <button id="preferences-nav-button" class="nav-button">
+            <i class="fas fa-sliders-h"></i>
+            <span>Preferences</span>
+        </button>
+        <button id="refine-search-button" class="nav-button" style="display: none;">
+            <i class="fas fa-filter"></i>
+            <span>Refine</span>
+        </button>
+    </nav>
+
+    <!-- Loading Spinner -->
+    <div id="loading-spinner" style="display: none;">
+        <div class="spinner"></div>
+    </div>
+
+    <!-- Configuration -->
+    <script src="config.js"></script>
+    
+    <!-- Main Script -->
+    <script src="script.js?v=20250622p"></script>
+</body>
+</html>
