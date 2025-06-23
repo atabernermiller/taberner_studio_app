@@ -31,38 +31,74 @@
         <div class="header-content">
             <img src="assets/Taberner-Studio-logo.png" alt="Taberner Studio Logo" id="logo">
             <h1 class="header-title">AI Art Recommendations</h1>
-            <div></div> <!-- Spacer for flex layout -->
+            <button class="back-button" id="back-button" onclick="goBackToLanding()" style="display: none;">
+                <i class="fas fa-arrow-left"></i>
+                Back to Start
+            </button>
         </div>
     </header>
-
-    <!-- Hero Section -->
-    <section class="hero-section">
-        <div class="hero-content">
-            <h2 class="hero-title">Find Your Perfect Wall Art</h2>
-            <p class="hero-subtitle">Transform any room with AI-powered artwork recommendations that match your style, colors, and mood</p>
-            <div class="hero-features">
-                <div class="hero-feature">
-                    <i class="fas fa-magic"></i>
-                    <span>AI Color Matching</span>
-                </div>
-                <div class="hero-feature">
-                    <i class="fas fa-camera"></i>
-                    <span>Room Photo Analysis</span>
-                </div>
-                <div class="hero-feature">
-                    <i class="fas fa-eye"></i>
-                    <span>Virtual Preview</span>
-                </div>
-            </div>
-        </div>
-    </section>
 
     <!-- Main Content -->
     <main class="content">
         <!-- Upload View -->
         <section id="upload-view" class="view active">
             <div class="search-box">
-                <div class="upload-header">
+                <!-- Enhanced Hero Section -->
+                <div class="hero-section">
+                    <div class="hero-content">
+                        <div class="hero-badge">
+                            <i class="fas fa-sparkles"></i>
+                            AI-Powered Matching
+                        </div>
+                        <h2 class="hero-title">Transform Your Space with Perfect Art</h2>
+                        <p class="hero-subtitle">Discover existing Taberner Studio artwork that matches your style, complements your space, and speaks to your soul. Our AI analyzes your room or preferences to find the perfect pieces from our curated collection.</p>
+                        
+                        <div class="hero-features">
+                            <div class="feature-item">
+                                <i class="fas fa-magic"></i>
+                                <span>AI-Powered Matching</span>
+                            </div>
+                            <div class="feature-item">
+                                <i class="fas fa-eye"></i>
+                                <span>Visual Preview</span>
+                            </div>
+                            <div class="feature-item">
+                                <i class="fas fa-shipping-fast"></i>
+                                <span>Curated Collection</span>
+                            </div>
+                        </div>
+                        
+                        <div class="hero-cta">
+                            <p class="cta-text">Ready to find your perfect artwork?</p>
+                            <div class="cta-buttons">
+                                <button class="button primary-button" onclick="scrollToOptions()">
+                                    <i class="fas fa-rocket"></i>
+                                    Get Started
+                                </button>
+                                <button class="button secondary-button" onclick="showDemo()">
+                                    <i class="fas fa-play"></i>
+                                    See How It Works
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="hero-visual">
+                        <div class="hero-image-container">
+                            <img src="assets/mock/mock-room.jpg" alt="Beautiful room with art" class="hero-image">
+                            <div class="hero-overlay">
+                                <div class="artwork-preview">
+                                    <i class="fas fa-image"></i>
+                                    <span>See Your Art Here</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="upload-header" id="options-section">
+                    <h2 class="main-title" id="main-title-text">Choose Your Journey</h2>
+                    <p class="main-subtitle" id="main-subtitle-text">Two powerful ways to discover your perfect Taberner Studio artwork</p>
                     <div class="divider"></div>
                 </div>
                 
@@ -74,7 +110,7 @@
                             <i class="fas fa-camera"></i>
                         </div>
                         <h3>Upload Room Photo</h3>
-                        <p>Get recommendations based on your actual room's style, colors, and layout.</p>
+                        <p>Get recommendations for existing Taberner Studio artwork based on your actual room's style, colors, and layout.</p>
                         <div class="option-features">
                             <span class="feature-tag">Most Accurate</span>
                             <span class="feature-tag">Visual Preview</span>
@@ -91,7 +127,7 @@
                             <i class="fas fa-palette"></i>
                         </div>
                         <h3>Art Preferences</h3>
-                        <p>Tell us your style preferences and get curated recommendations.</p>
+                        <p>Tell us your style preferences and get curated recommendations from our existing Taberner Studio collection.</p>
                         <div class="option-features">
                             <span class="feature-tag">No Photo Required</span>
                             <span class="feature-tag">Style-Based</span>
@@ -107,6 +143,7 @@
                 <div id="upload-form-container" class="form-container" style="display: none;">
                     <div class="form-header">
                         <h3 class="form-title">Upload Your Room Photo</h3>
+                        <p class="form-subtitle">We'll analyze your space to find the perfect Taberner Studio artwork match</p>
                     </div>
                     
                     <form id="upload-form">
@@ -137,6 +174,7 @@
                 <div id="preferences-form-container" class="form-container" style="display: none;">
                     <div class="form-header">
                         <h3 class="form-title">Tell Us Your Preferences</h3>
+                        <p class="form-subtitle">We'll match you with the perfect Taberner Studio artwork from our collection</p>
                     </div>
                     
                     <form id="preferences-form">
@@ -194,64 +232,87 @@
                         </button>
                     </form>
                 </div>
-
-                <!-- Results Area (initially hidden) -->
-                <div id="results-area" style="display: none;">
-                    <div class="showroom-block">
-                        <!-- Virtual Showroom -->
-                        <div id="virtual-showroom">
-                            <img id="room-image" src="" alt="Your room" style="display: none;">
-                            <div id="artwork-overlay" style="display: none;">
-                                <img id="artwork-image" src="" alt="Recommended artwork">
-                            </div>
-                        </div>
-
-                        <!-- Artwork Details -->
-                        <div id="artwork-details" class="details-container" style="display: none;">
-                            <h3 id="artwork-title"></h3>
-                            <p id="artwork-description"></p>
-                            <div class="price-line">
-                                <div id="artwork-price"></div>
-                                <button id="view-details-button" class="button" onclick="window.open('#', '_blank')">
-                                    <i class="fas fa-shopping-cart"></i>
-                                    View Details
-                                </button>
-                            </div>
-                        </div>
-
-                        <!-- Thumbnails -->
-                        <div id="thumbnails-section" style="display: none;">
-                            <h3>More Recommendations</h3>
-                            <div class="thumbnail-wrapper">
-                                <div id="thumbnail-gallery"></div>
-                            </div>
-                        </div>
-                    </div>
-                    <!-- This button is being replaced by the one in the header -->
-                    <div class="new-search-wrapper" style="display: none;">
-                        <button class="button" onclick="resetToOptions()">Try Another Search</button>
-                    </div>
-                </div>
             </div>
         </section>
 
-        <!-- Results View (Now Deprecated/Removed) -->
-        <!-- 
-        <section id="results-view" class="view">
-            ...
+        <!-- Results View -->
+        <section id="results-area" class="view" style="display: none;">
+            <div class="results-header">
+                <h2 class="results-title">Your Perfect Matches</h2>
+                <p class="results-subtitle">We found artwork that complements your space perfectly</p>
+            </div>
+            
+            <!-- Interactive Showroom -->
+            <div class="showroom-container">
+                <div class="showroom-header">
+                    <h3>Preview in Your Space</h3>
+                    <p>Drag and resize the artwork to see how it looks in your room</p>
+                </div>
+                
+                <div class="virtual-showroom" id="virtual-showroom">
+                    <img id="room-image" src="" alt="Your room" style="display: none;">
+                    <div id="artwork-overlay">
+                        <img id="artwork-image" src="" alt="Artwork" style="width: 100%; height: 100%; object-fit: cover;">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Product Details -->
+            <div class="product-details" id="product-details">
+                <div class="product-info">
+                    <h3 id="artwork-title" class="product-title">Abstract Harmony</h3>
+                    <p id="artwork-description" class="product-description">A stunning abstract composition that brings harmony and sophistication to any space. This piece features a perfect balance of warm and cool tones, creating a calming yet engaging atmosphere.</p>
+                    <div class="product-meta">
+                        <div class="price-info">
+                            <span class="price-label">Starting from</span>
+                            <span class="price-amount" id="artwork-price">$12.95</span>
+                        </div>
+                        <div class="match-score">
+                            <span class="score-label">Match Score</span>
+                            <span class="score-value" id="match-score">98%</span>
+                        </div>
+                    </div>
+                    <div class="product-actions">
+                        <button class="button primary-button" id="purchase-button" onclick="window.open('#', '_blank')">
+                            <i class="fas fa-shopping-cart"></i>
+                            View & Purchase
+                        </button>
+                        <button class="button secondary-button" onclick="downloadMockup()">
+                            <i class="fas fa-download"></i>
+                            Download Mockup
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Thumbnail Gallery -->
+            <div class="thumbnail-section">
+                <div class="thumbnail-header">
+                    <h3>More Recommendations</h3>
+                    <p>Click any thumbnail to preview it in your space</p>
+                </div>
+                
+                <div class="thumbnail-gallery" id="thumbnail-gallery">
+                    <!-- Thumbnails will be populated by JavaScript -->
+                </div>
+            </div>
+            
+            <!-- Action Buttons -->
+            <div class="results-actions">
+                <button class="button secondary-button" onclick="resetToOptions()">
+                    <i class="fas fa-arrow-left"></i>
+                    Try Another Search
+                </button>
+                <button class="button primary-button" onclick="saveFavorites()">
+                    <i class="fas fa-heart"></i>
+                    Save to Favorites
+                </button>
+            </div>
         </section>
-        -->
     </main>
 
-    <!-- Loading Spinner -->
-    <div id="loading-spinner" style="display: none;">
-        <div class="spinner"></div>
-    </div>
-
-    <!-- Configuration -->
+    <!-- Custom Scripts -->
     <script src="config.js"></script>
-    
-    <!-- Main Script -->
     <script src="script.js?v=20250622p"></script>
 </body>
-</html>
+</html> 

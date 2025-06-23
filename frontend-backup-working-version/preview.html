@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Taberner Studio - UI Preview</title>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Font Awesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #0a0a0a;
+            color: #ffffff;
+            overflow-x: hidden;
+        }
+
+        .preview-header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: rgba(0, 0, 0, 0.95);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            z-index: 1000;
+            padding: 1rem;
+        }
+
+        .preview-controls {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .preview-toggle {
+            display: flex;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 50px;
+            padding: 0.25rem;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .toggle-btn {
+            background: transparent;
+            border: none;
+            color: #ffffff;
+            padding: 0.5rem 1.5rem;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+
+        .toggle-btn.active {
+            background: #6366f1;
+            color: white;
+        }
+
+        .view-mode {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+
+        .mode-btn {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: #ffffff;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.875rem;
+        }
+
+        .mode-btn.active {
+            background: #6366f1;
+            border-color: #6366f1;
+        }
+
+        .preview-container {
+            margin-top: 80px;
+            display: flex;
+            min-height: calc(100vh - 80px);
+        }
+
+        .preview-panel {
+            flex: 1;
+            padding: 2rem;
+            position: relative;
+        }
+
+        .preview-panel.current {
+            border-right: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .panel-label {
+            position: absolute;
+            top: 1rem;
+            left: 1rem;
+            background: rgba(0, 0, 0, 0.8);
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            font-size: 0.875rem;
+            font-weight: 600;
+            z-index: 100;
+        }
+
+        .panel-label.current {
+            background: #dc2626;
+        }
+
+        .panel-label.proposed {
+            background: #059669;
+        }
+
+        .preview-frame {
+            width: 100%;
+            height: calc(100vh - 120px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 12px;
+            background: #ffffff;
+            overflow: hidden;
+        }
+
+        .preview-frame iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        .mobile-preview {
+            display: none;
+        }
+
+        .mobile-preview.active {
+            display: block !important;
+        }
+
+        .mobile-frame {
+            width: 480px;
+            height: 800px;
+            margin: 0 auto;
+            border: 8px solid #333;
+            border-radius: 20px;
+            overflow: hidden;
+            background: #ffffff;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        .mobile-frame iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+            background: #ffffff;
+        }
+
+        .desktop-preview {
+            display: block;
+        }
+
+        .desktop-preview.active {
+            display: block !important;
+        }
+
+        .desktop-frame {
+            width: 100%;
+            height: 100%;
+            border: none;
+            background: #ffffff;
+        }
+
+        @media (max-width: 768px) {
+            .preview-container {
+                flex-direction: column;
+            }
+            
+            .preview-panel.current {
+                border-right: none;
+                border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            }
+            
+            .preview-controls {
+                flex-direction: column;
+                gap: 1rem;
+            }
+            
+            .preview-toggle {
+                order: 2;
+            }
+            
+            .view-mode {
+                order: 1;
+            }
+        }
+
+        .loading {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100%;
+            color: #666;
+            font-size: 1.1rem;
+        }
+
+        .spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #6366f1;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+            margin-right: 1rem;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="preview-header">
+        <div class="preview-controls">
+            <div class="preview-toggle">
+                <button class="toggle-btn active" onclick="showComparison()">Side by Side</button>
+                <button class="toggle-btn" onclick="showCurrent()">Current Only</button>
+                <button class="toggle-btn" onclick="showProposed()">Proposed Only</button>
+            </div>
+            
+            <div class="view-mode">
+                <button class="mode-btn active" onclick="setViewMode('desktop')">Desktop</button>
+                <button class="mode-btn" onclick="setViewMode('mobile')">Mobile</button>
+                <button class="mode-btn" onclick="triggerResults()">Show Results</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="preview-container">
+        <!-- Current Version Panel -->
+        <div class="preview-panel current">
+            <div class="panel-label current">Current Version</div>
+            
+            <div class="desktop-preview active">
+                <div class="preview-frame">
+                    <iframe src="index.html" id="current-desktop"></iframe>
+                </div>
+            </div>
+            
+            <div class="mobile-preview">
+                <div class="mobile-frame">
+                    <iframe src="index.html" id="current-mobile"></iframe>
+                </div>
+            </div>
+        </div>
+
+        <!-- Proposed Changes Panel -->
+        <div class="preview-panel proposed">
+            <div class="panel-label proposed">Enhanced Results Experience</div>
+            
+            <div class="desktop-preview active">
+                <div class="preview-frame">
+                    <iframe src="index.html" id="proposed-desktop"></iframe>
+                </div>
+            </div>
+            
+            <div class="mobile-preview">
+                <div class="mobile-frame">
+                    <iframe src="index.html" id="proposed-mobile"></iframe>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function showComparison() {
+            document.querySelectorAll('.preview-panel').forEach(panel => {
+                panel.style.display = 'flex';
+            });
+            updateToggleButtons('Side by Side');
+        }
+
+        function showCurrent() {
+            document.querySelector('.preview-panel.current').style.display = 'flex';
+            document.querySelector('.preview-panel.proposed').style.display = 'none';
+            updateToggleButtons('Current Only');
+        }
+
+        function showProposed() {
+            document.querySelector('.preview-panel.current').style.display = 'none';
+            document.querySelector('.preview-panel.proposed').style.display = 'flex';
+            updateToggleButtons('Proposed Only');
+        }
+
+        function setViewMode(mode) {
+            console.log('Setting view mode to:', mode);
+            
+            const desktopPreviews = document.querySelectorAll('.desktop-preview');
+            const mobilePreviews = document.querySelectorAll('.mobile-preview');
+            const modeBtns = document.querySelectorAll('.mode-btn');
+            
+            console.log('Found desktop previews:', desktopPreviews.length);
+            console.log('Found mobile previews:', mobilePreviews.length);
+            
+            // Remove active class from all buttons
+            modeBtns.forEach(btn => btn.classList.remove('active'));
+            // Add active class to clicked button
+            event.target.classList.add('active');
+            
+            if (mode === 'mobile') {
+                console.log('Switching to mobile view');
+                // Hide desktop previews and show mobile previews
+                desktopPreviews.forEach(preview => {
+                    preview.classList.remove('active');
+                    preview.style.display = 'none';
+                });
+                mobilePreviews.forEach(preview => {
+                    preview.classList.add('active');
+                    preview.style.display = 'block';
+                    console.log('Mobile preview display set to:', preview.style.display);
+                });
+            } else {
+                console.log('Switching to desktop view');
+                // Show desktop previews and hide mobile previews
+                desktopPreviews.forEach(preview => {
+                    preview.classList.add('active');
+                    preview.style.display = 'block';
+                });
+                mobilePreviews.forEach(preview => {
+                    preview.classList.remove('active');
+                    preview.style.display = 'none';
+                });
+            }
+        }
+
+        function updateToggleButtons(activeText) {
+            document.querySelectorAll('.toggle-btn').forEach(btn => {
+                btn.classList.remove('active');
+                if (btn.textContent === activeText) {
+                    btn.classList.add('active');
+                }
+            });
+        }
+
+        function triggerResults() {
+            console.log('Triggering results view');
+            
+            // Send message to proposed iframe to show results
+            const proposedDesktop = document.getElementById('proposed-desktop');
+            const proposedMobile = document.getElementById('proposed-mobile');
+            
+            if (proposedDesktop && proposedDesktop.contentWindow) {
+                proposedDesktop.contentWindow.postMessage({ action: 'showResults' }, '*');
+            }
+            
+            if (proposedMobile && proposedMobile.contentWindow) {
+                proposedMobile.contentWindow.postMessage({ action: 'showResults' }, '*');
+            }
+            
+            // Update button text
+            event.target.textContent = 'Hide Results';
+            event.target.onclick = hideResults;
+        }
+
+        function hideResults() {
+            console.log('Hiding results view');
+            
+            // Send message to proposed iframe to hide results
+            const proposedDesktop = document.getElementById('proposed-desktop');
+            const proposedMobile = document.getElementById('proposed-mobile');
+            
+            if (proposedDesktop && proposedDesktop.contentWindow) {
+                proposedDesktop.contentWindow.postMessage({ action: 'hideResults' }, '*');
+            }
+            
+            if (proposedMobile && proposedMobile.contentWindow) {
+                proposedMobile.contentWindow.postMessage({ action: 'hideResults' }, '*');
+            }
+            
+            // Update button text
+            event.target.textContent = 'Show Results';
+            event.target.onclick = triggerResults;
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('Preview system loaded');
+        });
+    </script>
+</body>
+</html> 

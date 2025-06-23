@@ -197,6 +197,9 @@ function showUploadForm() {
     document.getElementById('preferences-form-container').style.display = 'none';
     document.getElementById('upload-form-container').style.display = 'block';
     
+    // Show back button
+    document.getElementById('back-button').style.display = 'flex';
+    
     // Scroll to form
     document.getElementById('upload-form-container').scrollIntoView({
         behavior: 'smooth'
@@ -208,6 +211,9 @@ function showPreferencesForm() {
     document.getElementById('options-section').style.display = 'none';
     document.getElementById('upload-form-container').style.display = 'none';
     document.getElementById('preferences-form-container').style.display = 'block';
+    
+    // Show back button
+    document.getElementById('back-button').style.display = 'flex';
     
     // Scroll to form
     document.getElementById('preferences-form-container').scrollIntoView({
@@ -230,6 +236,14 @@ function backToOptions() {
         behavior: 'smooth'
     });
 }
+
+// Add event listeners for back buttons
+document.addEventListener('DOMContentLoaded', function() {
+    const backButtons = document.querySelectorAll('.back-button');
+    backButtons.forEach(button => {
+        button.addEventListener('click', backToOptions);
+    });
+});
 
 // Initialize upload functionality
 function initializeUpload() {
@@ -391,21 +405,17 @@ function getRecommendationsByPreferences(preferences) {
 function goBackToLanding() {
     const uploadView = document.getElementById('upload-view');
     const resultsArea = document.getElementById('results-area');
-    const optionsSection = document.getElementById('options-section');
     
     resultsArea.style.display = 'none';
     uploadView.style.display = 'block'; // Show the main view again
-    optionsSection.style.display = 'grid'; // Show the options section again
 }
 
 // Show the results view
 function showResultsView() {
     const uploadView = document.getElementById('upload-view');
     const resultsArea = document.getElementById('results-area');
-    const optionsSection = document.getElementById('options-section');
     
-    // Hide the options section (the two cards) and upload view
-    optionsSection.style.display = 'none';
+    // Correctly toggle the views
     uploadView.style.display = 'none';
     resultsArea.style.display = 'block';
     
@@ -521,22 +531,6 @@ function initializeArtworkInteraction() {
                     const target = event.target;
                     target.style.width = `${event.rect.width}px`;
                     target.style.height = `${event.rect.height}px`;
-                    
-                    // Log dimensions after resize
-                    const artworkImage = document.getElementById('artwork-image');
-                    console.log('=== AFTER RESIZE ===');
-                    console.log('Artwork image dimensions:', {
-                        naturalWidth: artworkImage?.naturalWidth,
-                        naturalHeight: artworkImage?.naturalHeight,
-                        clientWidth: artworkImage?.clientWidth,
-                        clientHeight: artworkImage?.clientHeight
-                    });
-                    console.log('Yellow overlay dimensions:', {
-                        width: event.rect.width,
-                        height: event.rect.height,
-                        styleWidth: target.style.width,
-                        styleHeight: target.style.height
-                    });
                 },
             },
             modifiers: [interact.modifiers.restrictSize({
@@ -574,60 +568,55 @@ function updateArtworkDisplay(index) {
             artworkImage.src = `/catalog/images/${artwork.filename}`;
         }
         artworkImage.alt = artwork.title;
-        
-        // Set initial size for the overlay AFTER image loads
-        artworkImage.onload = function() {
-            const overlay = document.getElementById('artwork-overlay');
-            if (overlay) {
-                // Calculate aspect ratio from the loaded image
-                const aspectRatio = this.naturalWidth / this.naturalHeight;
-                let initialWidth = 250;
-                let initialHeight = initialWidth / aspectRatio;
+    }
+    
+    // Set initial size for the overlay
+    const overlay = document.getElementById('artwork-overlay');
+    if (overlay) {
+        // Use artwork's dimensions to set an initial aspect-ratio correct size
+        const aspectRatio = artwork.attributes.width / artwork.attributes.height;
+        let initialWidth = 250;
+        let initialHeight = initialWidth / aspectRatio;
 
-                // Ensure it fits reasonably within the container
-                const container = document.getElementById('virtual-showroom');
-                if (container) {
-                    if (initialWidth > container.clientWidth * 0.8) {
-                        initialWidth = container.clientWidth * 0.8;
-                        initialHeight = initialWidth / aspectRatio;
-                    }
-                    if (initialHeight > container.clientHeight * 0.8) {
-                        initialHeight = container.clientHeight * 0.8;
-                        initialWidth = initialHeight * aspectRatio;
-                    }
-                }
-
-                overlay.style.width = `${initialWidth}px`;
-                overlay.style.height = `${initialHeight}px`;
-                overlay.style.left = '50%';
-                overlay.style.top = '50%';
-                overlay.style.transform = 'translate(-50%, -50%)';
-                overlay.setAttribute('data-x', '0');
-                overlay.setAttribute('data-y', '0');
-                
-                // Log initial dimensions
-                console.log('=== INITIAL DIMENSIONS (AFTER IMAGE LOAD) ===');
-                console.log('Artwork image dimensions:', {
-                    naturalWidth: this.naturalWidth,
-                    naturalHeight: this.naturalHeight,
-                    clientWidth: this.clientWidth,
-                    clientHeight: this.clientHeight,
-                    aspectRatio: aspectRatio
-                });
-                console.log('Yellow overlay dimensions:', {
-                    width: initialWidth,
-                    height: initialHeight,
-                    styleWidth: overlay.style.width,
-                    styleHeight: overlay.style.height
-                });
+        // Ensure it fits reasonably within the container
+        const container = document.getElementById('virtual-showroom');
+        if (container) {
+            if (initialWidth > container.clientWidth * 0.8) {
+                initialWidth = container.clientWidth * 0.8;
+                initialHeight = initialWidth / aspectRatio;
             }
-        };
+            if (initialHeight > container.clientHeight * 0.8) {
+                initialHeight = container.clientHeight * 0.8;
+                initialWidth = initialHeight * aspectRatio;
+            }
+        }
+
+        overlay.style.width = `${initialWidth}px`;
+        overlay.style.height = `${initialHeight}px`;
+        overlay.style.left = '50%';
+        overlay.style.top = '50%';
+        overlay.style.transform = 'translate(-50%, -50%)';
+        overlay.setAttribute('data-x', '0');
+        overlay.setAttribute('data-y', '0');
     }
     
     // Update product details
     document.getElementById('artwork-title').textContent = artwork.title;
     document.getElementById('artwork-description').textContent = artwork.description;
     document.getElementById('artwork-price').textContent = artwork.price;
+    
+    // Show match score for simulated data
+    const matchScoreElement = document.getElementById('match-score');
+    if (artwork.filename && artwork.filename.startsWith('artwork-')) {
+        // Simulated data - show a random high score
+        const score = Math.floor(Math.random() * 20) + 80; // 80-99%
+        matchScoreElement.textContent = score + '%';
+        matchScoreElement.style.display = 'block';
+    } else {
+        // Real API data - hide score as it's not provided
+        matchScoreElement.textContent = '';
+        matchScoreElement.style.display = 'none';
+    }
     
     // Update purchase button
     const purchaseButton = document.getElementById('purchase-button');
@@ -668,10 +657,18 @@ function createThumbnailGallery() {
             thumbnailImage = `/catalog/images/${artwork.filename}`;
         }
         
+        // Create match score for simulated data
+        let matchScore = '';
+        if (artwork.filename && artwork.filename.startsWith('artwork-')) {
+            const score = Math.floor(Math.random() * 20) + 80; // 80-99%
+            matchScore = `<div class="thumbnail-score">${score}% Match</div>`;
+        }
+        
         thumbnail.innerHTML = `
             <img src="${thumbnailImage}" alt="${artwork.title}" loading="lazy">
             <div class="thumbnail-overlay">
                 <div class="thumbnail-title">${artwork.title}</div>
+                ${matchScore}
                 <div class="thumbnail-price">${artwork.price}</div>
             </div>
         `;
