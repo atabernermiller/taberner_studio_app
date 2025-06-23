@@ -1,1131 +1,780 @@
-// =================================================================================
-// Global Variables
-// =================================================================================
+// Enhanced JavaScript for Proposed Version
+// This includes additional functionality for the hero section
 
-let currentArtworkIndex = 0;
-let recommendations = [];
-let roomImageLoaded = false;
-let lastPreferences = null; // Store the last preferences for refine functionality
-let backButtonClickDisabled = false; // Add flag to prevent immediate clicking
-let uploadArea, roomPhotoInput, uploadForm, preferencesForm, virtualShowroom, roomImage, artworkOverlay, artworkImage, artworkDetails, artworkTitle, artworkDescription, artworkPrice, viewDetailsButton, thumbnailsSection, thumbnailGallery, loadingSpinner, searchBox, optionsContainer, uploadFormContainer, preferencesFormContainer, resultsArea, mainTitleText, mainSubtitleText, backToSearchTop, navSearch, navGallery, refineSearchButton;
-let currentSelectedIndex = -1; // Track the currently selected thumbnail
+// Smooth scroll to options
+function scrollToOptions() {
+    document.getElementById('options-section').scrollIntoView({
+        behavior: 'smooth'
+    });
+}
 
-const MOCK_ROOM_URL = 'assets/mock/mock-room.jpg';
+// Demo functionality
+function showDemo() {
+    // For now, just scroll to options
+    scrollToOptions();
+}
 
-// =================================================================================
-// Window Resize Handler
-// =================================================================================
+// Enhanced loading states
+function showLoadingState(element) {
+    element.innerHTML = `
+        <div class="loading-spinner">
+            <div class="spinner"></div>
+            <span>Analyzing your space...</span>
+        </div>
+    `;
+}
 
-// Handle window resize to recalculate thumbnail selection dimensions
-let resizeTimeout;
-window.addEventListener('resize', () => {
-    clearTimeout(resizeTimeout);
-    resizeTimeout = setTimeout(() => {
-        // If there's a currently selected thumbnail, recalculate its dimensions
-        if (currentSelectedIndex >= 0) {
-            console.log('Window resized, recalculating thumbnail selection for index:', currentSelectedIndex);
-            updateThumbnailSelection(currentSelectedIndex);
+// Enhanced success states
+function showSuccessState(element, message) {
+    element.innerHTML = `
+        <div class="success-state">
+            <i class="fas fa-check-circle"></i>
+            <span>${message}</span>
+        </div>
+    `;
+}
+
+// Enhanced error handling
+function showErrorState(element, message) {
+    element.innerHTML = `
+        <div class="error-state">
+            <i class="fas fa-exclamation-circle"></i>
+            <span>${message}</span>
+        </div>
+    `;
+}
+
+// Rest of the original script functionality would be included here
+// For now, we'll include the basic structure
+
+// Global variables
+let currentView = 'upload';
+let uploadedImage = null;
+let allArtworks = []; // Will hold recommendations from the server
+
+// Simulated artwork data for fallback when API is unavailable
+const simulatedArtworkData = [
+    {
+        id: 1,
+        title: "Abstract Harmony",
+        description: "A stunning abstract composition that brings harmony and sophistication to any space. This piece features a perfect balance of warm and cool tones, creating a calming yet engaging atmosphere.",
+        price: "$12.95",
+        product_url: "#",
+        filename: "artwork-1.jpg",
+        attributes: {
+            width: 800,
+            height: 600,
+            dominant_colors: [
+                { color: "#FF6B6B", percentage: 0.3 },
+                { color: "#4ECDC4", percentage: 0.25 },
+                { color: "#45B7D1", percentage: 0.2 }
+            ]
         }
-    }, 250); // Debounce resize events
-});
+    },
+    {
+        id: 2,
+        title: "Coastal Serenity",
+        description: "Inspired by the peaceful shores of the Mediterranean, this piece captures the essence of coastal living with its soothing blues and sandy neutrals.",
+        price: "$15.95",
+        product_url: "#",
+        filename: "artwork-2.jpg",
+        attributes: {
+            width: 900,
+            height: 600,
+            dominant_colors: [
+                { color: "#87CEEB", percentage: 0.4 },
+                { color: "#F4A460", percentage: 0.3 },
+                { color: "#98FB98", percentage: 0.2 }
+            ]
+        }
+    },
+    {
+        id: 3,
+        title: "Urban Rhythm",
+        description: "A dynamic composition that reflects the energy and movement of city life, perfect for modern urban spaces seeking contemporary flair.",
+        price: "$18.95",
+        product_url: "#",
+        filename: "artwork-3.jpg",
+        attributes: {
+            width: 750,
+            height: 600,
+            dominant_colors: [
+                { color: "#2C3E50", percentage: 0.35 },
+                { color: "#E74C3C", percentage: 0.25 },
+                { color: "#F39C12", percentage: 0.2 }
+            ]
+        }
+    },
+    {
+        id: 4,
+        title: "Nature's Palette",
+        description: "Rich earth tones and organic forms create a connection to the natural world, bringing warmth and grounding energy to any interior.",
+        price: "$14.95",
+        product_url: "#",
+        filename: "artwork-4.jpg",
+        attributes: {
+            width: 800,
+            height: 700,
+            dominant_colors: [
+                { color: "#8B4513", percentage: 0.3 },
+                { color: "#228B22", percentage: 0.25 },
+                { color: "#DAA520", percentage: 0.2 }
+            ]
+        }
+    },
+    {
+        id: 5,
+        title: "Minimalist Elegance",
+        description: "Clean lines and subtle textures define this minimalist masterpiece, offering timeless sophistication for contemporary spaces.",
+        price: "$16.95",
+        product_url: "#",
+        filename: "artwork-5.jpg",
+        attributes: {
+            width: 700,
+            height: 500,
+            dominant_colors: [
+                { color: "#F5F6F5", percentage: 0.4 },
+                { color: "#A3C9A9", percentage: 0.3 },
+                { color: "#A9A9A9", percentage: 0.2 }
+            ]
+        }
+    },
+    {
+        id: 6,
+        title: "Vibrant Energy",
+        description: "Bold colors and dynamic brushstrokes create an energetic focal point that adds personality and excitement to any room.",
+        price: "$13.95",
+        product_url: "#",
+        filename: "artwork-6.jpg",
+        attributes: {
+            width: 850,
+            height: 650,
+            dominant_colors: [
+                { color: "#FF1493", percentage: 0.3 },
+                { color: "#00CED1", percentage: 0.25 },
+                { color: "#FFD700", percentage: 0.2 }
+            ]
+        }
+    }
+];
 
-// =================================================================================
-// Initialization
-// =================================================================================
-
+// Initialize the application
 document.addEventListener('DOMContentLoaded', function() {
-    // --- DOM Element Selection ---
-    uploadArea = document.getElementById('upload-area');
-    roomPhotoInput = document.getElementById('room-photo');
-    uploadForm = document.getElementById('upload-form');
-    preferencesForm = document.getElementById('preferences-form');
-    virtualShowroom = document.getElementById('virtual-showroom');
-    roomImage = document.getElementById('room-image');
-    artworkOverlay = document.getElementById('artwork-overlay');
-    artworkImage = document.getElementById('artwork-image');
-    artworkDetails = document.getElementById('artwork-details');
-    artworkTitle = document.getElementById('artwork-title');
-    artworkDescription = document.getElementById('artwork-description');
-    artworkPrice = document.getElementById('artwork-price');
-    viewDetailsButton = document.getElementById('view-details-button');
-    thumbnailsSection = document.getElementById('thumbnails-section');
-    thumbnailGallery = document.getElementById('thumbnail-gallery');
-    loadingSpinner = document.getElementById('loading-spinner');
-    searchBox = document.querySelector('#upload-view .search-box');
-    optionsContainer = document.querySelector('.options-container');
-    uploadFormContainer = document.getElementById('upload-form-container');
-    preferencesFormContainer = document.getElementById('preferences-form-container');
-    resultsArea = document.getElementById('results-area');
-    mainTitleText = document.getElementById('main-title-text');
-    mainSubtitleText = document.getElementById('main-subtitle-text');
-    backToSearchTop = document.getElementById('back-to-search-top');
+    console.log('Enhanced Taberner Studio App initialized');
     
-    // Debug: Check if artwork overlay is found
-    console.log('Artwork overlay element found:', artworkOverlay);
-    console.log('Artwork image element found:', artworkImage);
-    console.log('Virtual showroom element found:', virtualShowroom);
-    
-    // Mobile navigation - these are anchor tags, not divs
-    navSearch = document.querySelector('.mobile-nav-item[onclick*="upload-view"]');
-    navGallery = document.querySelector('.mobile-nav-item[onclick*="showResults"]'); 
-    refineSearchButton = document.getElementById('refine-search-button');
-
-    // --- Initial Setup ---
-    setupEventListeners();
-    setupDragAndResize();
-    showView('upload-view');
-    
-    // Handle window resize for artwork positioning
-    window.addEventListener('resize', () => {
-        if (artworkOverlay && artworkOverlay.style.display !== 'none') {
-            positionArtworkOverlay();
-        }
+    // Add smooth scrolling to all internal links
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener('click', function (e) {
+            e.preventDefault();
+            const target = document.querySelector(this.getAttribute('href'));
+            if (target) {
+                target.scrollIntoView({
+                    behavior: 'smooth',
+                    block: 'start'
+                });
+            }
+        });
     });
-
-    // Debug: Check if back button is found
-    console.log('Back to search top button found:', backToSearchTop);
     
-    // Hide the back button by default
-    if (backToSearchTop) {
-        backToSearchTop.style.display = 'none';
+    // Add hero section animations
+    const heroSection = document.querySelector('.hero-section');
+    if (heroSection) {
+        heroSection.style.opacity = '0';
+        heroSection.style.transform = 'translateY(20px)';
+        
+        setTimeout(() => {
+            heroSection.style.transition = 'all 0.6s ease';
+            heroSection.style.opacity = '1';
+            heroSection.style.transform = 'translateY(0)';
+        }, 100);
     }
 });
 
-// =================================================================================
-// Event Listeners
-// =================================================================================
-
-function setupEventListeners() {
-    if (!uploadArea || !roomPhotoInput || !uploadForm || !preferencesForm) {
-        console.error("One or more essential elements could not be found.");
-        return;
-    }
-
-    // --- Search/Upload View ---
-    uploadArea.addEventListener('click', () => roomPhotoInput.click());
-    roomPhotoInput.addEventListener('change', handleFileSelect);
-    uploadArea.addEventListener('dragover', handleDragOver);
-    uploadArea.addEventListener('dragleave', handleDragLeave);
-    uploadArea.addEventListener('drop', handleDrop);
-    uploadForm.addEventListener('submit', handleUploadFormSubmit);
-    preferencesForm.addEventListener('submit', handlePreferencesFormSubmit);
-
-    // --- Navigation ---
-    const logoLink = document.getElementById('logo');
-    if (logoLink) {
-        logoLink.addEventListener('click', () => showOptions());
-    }
-
-    const newSearchButton = document.querySelector('button[onclick*="upload-view"]');
-    if (newSearchButton) {
-        newSearchButton.addEventListener('click', (e) => {
-            e.preventDefault();
-            showView('upload-view');
-        });
-    }
-    
-    if (viewDetailsButton) {
-        viewDetailsButton.addEventListener('click', () => {
-            artworkDetails.classList.toggle('visible');
-        });
-    }
-
-    // --- Mobile Navigation ---
-    const homeButton = document.getElementById('home-button');
-    const uploadNavButton = document.getElementById('upload-nav-button');
-    const preferencesNavButton = document.getElementById('preferences-nav-button');
-    
-    if (homeButton) {
-        homeButton.addEventListener('click', (e) => {
-            e.preventDefault();
-            showOptions();
-        });
-    }
-    
-    if (uploadNavButton) {
-        uploadNavButton.addEventListener('click', (e) => {
-            e.preventDefault();
-            showUploadForm();
-        });
-    }
-    
-    if (preferencesNavButton) {
-        preferencesNavButton.addEventListener('click', (e) => {
-            e.preventDefault();
-            showPreferencesForm();
-        });
-    }
-
-    // --- Refine Search Button ---
-    if (refineSearchButton) {
-        refineSearchButton.addEventListener('click', handleRefineSearch);
-    }
-
-    // Back button event listener with enhanced debugging
-    if(backToSearchTop) {
-        backToSearchTop.addEventListener('click', function(event) {
-            console.log('Back button clicked!');
-            console.log('Event details:', event);
-            console.log('backButtonClickDisabled:', backButtonClickDisabled);
-            console.log('Event timestamp:', event.timeStamp);
-            
-            if (backButtonClickDisabled) {
-                console.log('Back button click blocked due to disabled flag');
-                event.preventDefault();
-                event.stopPropagation();
-                return false;
-            }
-            
-            console.log('Back button click allowed, calling resetToOptions');
-            resetToOptions();
-        });
-        console.log('Back button event listener attached');
-    } else {
-        console.error('Back button not found during event listener setup');
-    }
-}
-
-// =================================================================================
-// View Management
-// =================================================================================
-
-function showView(viewId) {
-    document.querySelectorAll('.view').forEach(view => {
-        view.classList.remove('active');
-    });
-    const targetView = document.getElementById(viewId);
-    if (targetView) {
-        targetView.classList.add('active');
-    }
-    updateMobileNav('search');
-}
-
-function updateMobileNav(activeView) {
-    const homeButton = document.getElementById('home-button');
-    const uploadNavButton = document.getElementById('upload-nav-button');
-    const preferencesNavButton = document.getElementById('preferences-nav-button');
-    
-    if (homeButton) homeButton.classList.toggle('active', activeView === 'search');
-    if (uploadNavButton) uploadNavButton.classList.toggle('active', activeView === 'upload');
-    if (preferencesNavButton) preferencesNavButton.classList.toggle('active', activeView === 'preferences');
-}
-
-// =================================================================================
-// UI Component Logic
-// =================================================================================
-
-function showOptions() {
-    optionsContainer.style.display = 'grid';
-    uploadFormContainer.style.display = 'none';
-    preferencesFormContainer.style.display = 'none';
-    resultsArea.style.display = 'none';
-    searchBox.classList.add('has-options');
-
-    // Reset header text
-    mainTitleText.textContent = 'Transform Your Space';
-    mainSubtitleText.textContent = 'Discover the perfect artwork that speaks to your style and enhances your environment';
-
-    recommendations = [];
-    currentArtworkIndex = 0;
-    
-    uploadForm.reset();
-    preferencesForm.reset();
-    roomImageLoaded = false;
-    
-    uploadArea.classList.remove('has-image');
-    uploadArea.style.backgroundImage = '';
-    uploadArea.querySelector('.upload-icon').style.display = 'block';
-    uploadArea.querySelector('.upload-text').textContent = 'Drop your room photo here';
-    uploadArea.querySelector('.upload-hint').textContent = 'or click to browse files';
-    
-    // Hide refine button when returning to options
-    hideRefineButton();
-    
-    updateMobileNav('search');
-}
-
+// Form navigation functions
 function showUploadForm() {
-    optionsContainer.style.display = 'none';
-    uploadFormContainer.style.display = 'block';
-    preferencesFormContainer.style.display = 'none';
-    resultsArea.style.display = 'none';
-    searchBox.classList.remove('has-options');
-    updateMobileNav('upload');
+    // Hide options and show upload form
+    document.getElementById('options-section').style.display = 'none';
+    document.getElementById('preferences-form-container').style.display = 'none';
+    document.getElementById('upload-form-container').style.display = 'block';
     
-    // Clean up any existing upload preview
-    const previewContainer = document.getElementById('upload-preview-container');
-    if (previewContainer) {
-        previewContainer.remove();
-    }
+    // Show back button
+    document.getElementById('back-button').style.display = 'flex';
     
-    // Reset upload area
-    if (uploadArea) {
-        uploadArea.style.display = 'flex';
-        uploadArea.classList.remove('has-image');
-        uploadArea.style.backgroundImage = '';
-        const uploadIcon = uploadArea.querySelector('.upload-icon');
-        if (uploadIcon) uploadIcon.style.display = 'block';
-        uploadArea.querySelector('.upload-text').textContent = 'Drop your room photo here';
-        uploadArea.querySelector('.upload-hint').textContent = 'or click to browse files';
-    }
-    
-    // Reset file input and state
-    const fileInput = document.getElementById('room-photo');
-    if (fileInput) fileInput.value = '';
-    roomImageLoaded = false;
+    // Scroll to form
+    document.getElementById('upload-form-container').scrollIntoView({
+        behavior: 'smooth'
+    });
 }
 
 function showPreferencesForm() {
-    optionsContainer.style.display = 'none';
-    uploadFormContainer.style.display = 'none';
-    preferencesFormContainer.style.display = 'block';
-    resultsArea.style.display = 'none';
-    searchBox.classList.remove('has-options');
-    updateMobileNav('preferences');
+    // Hide options and show preferences form
+    document.getElementById('options-section').style.display = 'none';
+    document.getElementById('upload-form-container').style.display = 'none';
+    document.getElementById('preferences-form-container').style.display = 'block';
+    
+    // Show back button
+    document.getElementById('back-button').style.display = 'flex';
+    
+    // Scroll to form
+    document.getElementById('preferences-form-container').scrollIntoView({
+        behavior: 'smooth'
+    });
 }
 
-function showResults() {
-    console.log('=== SHOW RESULTS FUNCTION START ===');
-    console.log('backToSearchTop element:', backToSearchTop);
-    console.log('backToSearchTop display before:', backToSearchTop ? backToSearchTop.style.display : 'element not found');
+// Enhanced back button functionality
+function backToOptions() {
+    document.querySelectorAll('.form-container').forEach(form => {
+        form.style.display = 'none';
+    });
     
-    optionsContainer.style.display = 'none';
-    uploadFormContainer.style.display = 'none';
-    preferencesFormContainer.style.display = 'none';
-    resultsArea.style.display = 'block';
-    searchBox.classList.remove('has-options');
+    document.querySelector('.options-container').style.display = 'grid';
+    document.querySelector('.upload-header').style.display = 'block';
     
-    if(backToSearchTop) {
-        backToSearchTop.style.display = 'flex';
-        console.log('Back button display set to flex');
-        console.log('Back button display after setting:', backToSearchTop.style.display);
-        console.log('Back button computed display:', window.getComputedStyle(backToSearchTop).display);
-        
-        // Disable back button click temporarily to prevent immediate hiding
-        backButtonClickDisabled = true;
-        console.log('Back button click disabled to prevent immediate hiding');
-        
-        // Re-enable after a longer delay to ensure any automatic events have settled
-        setTimeout(() => {
-            backButtonClickDisabled = false;
-            console.log('Back button click re-enabled');
-        }, 1000); // Increased from 500ms to 1000ms
-    } else {
-        console.error('Back button element is null in showResults!');
-    }
+    // Scroll back to top smoothly
+    window.scrollTo({
+        top: 0,
+        behavior: 'smooth'
+    });
+}
 
-    // Make thumbnails section visible
-    const thumbnailsSection = document.getElementById('thumbnails-section');
-    if (thumbnailsSection) {
-        thumbnailsSection.style.display = 'block';
-        console.log('Thumbnails section made visible');
+// Add event listeners for back buttons
+document.addEventListener('DOMContentLoaded', function() {
+    const backButtons = document.querySelectorAll('.back-button');
+    backButtons.forEach(button => {
+        button.addEventListener('click', backToOptions);
+    });
+});
+
+// Initialize upload functionality
+function initializeUpload() {
+    const uploadArea = document.getElementById('upload-area');
+    const fileInput = document.getElementById('room-photo');
+    
+    if (!uploadArea || !fileInput) return;
+    
+    // Click to upload
+    uploadArea.addEventListener('click', () => {
+        fileInput.click();
+    });
+    
+    // Drag and drop functionality
+    uploadArea.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        uploadArea.classList.add('dragover');
+    });
+    
+    uploadArea.addEventListener('dragleave', () => {
+        uploadArea.classList.remove('dragover');
+    });
+    
+    uploadArea.addEventListener('drop', (e) => {
+        e.preventDefault();
+        uploadArea.classList.remove('dragover');
         
-        // Check if thumbnails section is in viewport
-        const rect = thumbnailsSection.getBoundingClientRect();
-        console.log('Thumbnails section position:', rect);
-        console.log('Thumbnails section visible in viewport:', rect.top >= 0 && rect.bottom <= window.innerHeight);
-        
-        // If not visible, scroll to it
-        if (rect.bottom > window.innerHeight || rect.top < 0) {
-            console.log('Scrolling to thumbnails section');
-            thumbnailsSection.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        const files = e.dataTransfer.files;
+        if (files.length > 0) {
+            handleFileUpload(files[0]);
         }
-    } else {
-        console.error('Thumbnails section not found!');
-    }
-
-    // Make artwork details section visible
-    const artworkDetails = document.getElementById('artwork-details');
-    if (artworkDetails) {
-        artworkDetails.style.display = 'block';
-        console.log('Artwork details section made visible');
-    } else {
-        console.error('Artwork details section not found!');
-    }
-
-    // Update header text
-    mainTitleText.textContent = 'Your Virtual Showroom';
-    mainSubtitleText.textContent = 'See how different artworks look in your space. Drag to reposition and resize the artwork overlay.';
-
-    // Show refine button if we have preferences-based results
-    if (lastPreferences) {
-        showRefineButton();
+    });
+    
+    // File input change
+    fileInput.addEventListener('change', (e) => {
+        if (e.target.files.length > 0) {
+            handleFileUpload(e.target.files[0]);
+        }
+    });
+    
+    // Form submissions
+    const uploadForm = document.getElementById('upload-form');
+    const preferencesForm = document.getElementById('preferences-form');
+    
+    if (uploadForm) {
+        uploadForm.addEventListener('submit', handleUploadSubmit);
     }
     
-    console.log('=== SHOW RESULTS FUNCTION END ===');
-}
-
-function resetToOptions() {
-    console.log('resetToOptions called');
-    console.log('Call stack:', new Error().stack);
-    console.log('backToSearchTop element:', backToSearchTop);
-    
-    // Check if back button click is disabled (to prevent immediate hiding)
-    if (backButtonClickDisabled) {
-        console.log('Back button click disabled, ignoring resetToOptions call');
-        return;
+    if (preferencesForm) {
+        preferencesForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            handlePreferencesSubmit(e);
+        });
     }
-    
-    // Add a small delay to prevent immediate hiding of back button
-    setTimeout(() => {
-        optionsContainer.style.display = 'grid';
-        uploadFormContainer.style.display = 'none';
-        preferencesFormContainer.style.display = 'none';
-        resultsArea.style.display = 'none';
-        searchBox.classList.add('has-options');
-        
-        // Reset header text
-        mainTitleText.textContent = 'Find Your Perfect Artwork';
-        mainSubtitleText.textContent = 'Upload a photo of your room or tell us your preferences';
-        
-        // Clear any existing recommendations
-        recommendations = [];
-        currentArtworkIndex = 0;
-        
-        // Hide back button
-        if(backToSearchTop) {
-            backToSearchTop.style.display = 'none';
-            console.log('Back button hidden');
-        }
-        
-        // Reset upload area
-        if (uploadArea) {
-            uploadArea.style.display = 'flex';
-        }
-        
-        // Clear any existing upload preview
-        const previewContainer = document.getElementById('upload-preview-container');
-        if (previewContainer) {
-            previewContainer.remove();
-        }
-        
-        // Hide refine button
-        hideRefineButton();
-    }, 100); // 100ms delay
 }
 
-// =================================================================================
-// Form & File Handling
-// =================================================================================
-
-function handleFileSelect(event) {
-    const file = event.target.files[0];
-    if (file) processFile(file);
-}
-
-function handleDragOver(event) {
-    event.preventDefault();
-    uploadArea.classList.add('dragover');
-}
-
-function handleDragLeave(event) {
-    event.preventDefault();
-    uploadArea.classList.remove('dragover');
-}
-
-function handleDrop(event) {
-    event.preventDefault();
-    uploadArea.classList.remove('dragover');
-    const files = event.dataTransfer.files;
-    if (files.length > 0) processFile(files[0]);
-}
-
-function processFile(file) {
+// Handle file upload
+function handleFileUpload(file) {
     if (!file.type.startsWith('image/')) {
-        showStatusMessage('Please select an image file.', 'error', uploadFormContainer);
+        alert('Please select an image file.');
         return;
     }
+    
     const reader = new FileReader();
     reader.onload = function(e) {
-        roomImage.src = e.target.result;
-        roomImage.onload = function() {
-            roomImageLoaded = true;
-            
-            // Show the uploaded image preview
-            showUploadedImagePreview(e.target.result, file.name);
-        };
+        uploadedImage = e.target.result; // Store the uploaded image
+
+        // Hide upload form, show loading state, and get recommendations
+        const uploadFormContainer = document.getElementById('upload-form-container');
+        showLoadingState(uploadFormContainer);
+        getRecommendations();
     };
     reader.readAsDataURL(file);
 }
 
-function showUploadedImagePreview(imageDataUrl, fileName) {
-    // Hide the upload area
-    uploadArea.style.display = 'none';
-    
-    // Create and show the image preview
-    const previewContainer = document.createElement('div');
-    previewContainer.id = 'upload-preview-container';
-    previewContainer.className = 'upload-preview-container';
-    
-    previewContainer.innerHTML = `
-        <div class="upload-preview-header">
-            <h3>Your Room Photo</h3>
-            <button class="change-photo-btn" onclick="changePhoto()">
-                <i class="fas fa-edit"></i>
-                Change Photo
-            </button>
-        </div>
-        <div class="upload-preview-image">
-            <img src="${imageDataUrl}" alt="Your room photo" id="preview-image">
-        </div>
-        <div class="upload-preview-info">
-            <p class="file-name">${fileName}</p>
-            <p class="preview-hint">This is the room photo that will be used for recommendations</p>
-        </div>
-        <div class="upload-preview-actions">
-            <button class="button" onclick="proceedWithUpload()">
-                <i class="fas fa-magic"></i>
-                Get Recommendations
-            </button>
-        </div>
-    `;
-    
-    // Insert the preview after the upload form
-    const uploadForm = document.getElementById('upload-form');
-    uploadForm.appendChild(previewContainer);
-    
-    showStatusMessage('Photo uploaded successfully!', 'success', uploadFormContainer);
-}
-
-function changePhoto() {
-    // Remove the preview and show upload area again
-    const previewContainer = document.getElementById('upload-preview-container');
-    if (previewContainer) {
-        previewContainer.remove();
-    }
-    
-    uploadArea.style.display = 'flex';
-    uploadArea.classList.remove('has-image');
-    uploadArea.style.backgroundImage = '';
-    uploadArea.querySelector('.upload-icon').style.display = 'block';
-    uploadArea.querySelector('.upload-text').textContent = 'Drop your room photo here';
-    uploadArea.querySelector('.upload-hint').textContent = 'or click to browse files';
-    
-    // Reset the file input
-    document.getElementById('room-photo').value = '';
-    roomImageLoaded = false;
-}
-
-function proceedWithUpload() {
-    // Automatically get recommendations
-    handleUploadFormSubmit(new Event('submit'));
-}
-
-async function handleUploadFormSubmit(event) {
+// Handle upload form submission
+function handleUploadSubmit(event) {
     event.preventDefault();
-    if (!roomImageLoaded) {
-        showStatusMessage('Please upload a room photo first.', 'error', uploadFormContainer);
+    if (!uploadedImage) {
+        alert('Please select an image first.');
         return;
     }
-    const payload = {
-        type: 'upload',
-        style: document.getElementById('style-filter').value,
-        roomImage: roomImage.src,
-    };
-    const results = await getRecommendations(payload);
-    if (results) displayResults(results, true);
+    const uploadFormContainer = document.getElementById('upload-form-container');
+    showLoadingState(uploadFormContainer);
+    getRecommendations();
 }
 
-async function handlePreferencesFormSubmit(event) {
+// Handle preferences form submission
+function handlePreferencesSubmit(event) {
     event.preventDefault();
     
-    // Save the current preferences for refine functionality
-    lastPreferences = {
-        style: document.getElementById('style-select').value,
-        mood: document.getElementById('mood-select').value,
-        subject: document.getElementById('subject-select').value,
-        color: document.getElementById('color-preference').value
+    // Get form data
+    const moodSelect = document.getElementById('mood-select');
+    const styleSelect = document.getElementById('style-select');
+    const subjectSelect = document.getElementById('subject-select');
+    const colorSelect = document.getElementById('color-preference');
+    
+    const preferences = {
+        mood: moodSelect ? moodSelect.value : '',
+        style: styleSelect ? styleSelect.value : '',
+        subject: subjectSelect ? subjectSelect.value : '',
+        color: colorSelect ? colorSelect.value : ''
     };
     
-    const payload = {
-        type: 'preferences',
-        preferences: lastPreferences
-    };
-    const results = await getRecommendations(payload);
-    if (results) {
-        displayResults(results, false);
-        showRefineButton(); // Show the refine button after successful preferences search
-    }
+    // Show loading state
+    const preferencesFormContainer = document.getElementById('preferences-form-container');
+    showLoadingState(preferencesFormContainer);
+    
+    // Get recommendations by preferences
+    getRecommendationsByPreferences(preferences);
 }
 
-// =================================================================================
-// API Interaction
-// =================================================================================
-
-async function getRecommendations(payload) {
-    showLoading(true);
-    try {
-        const response = await fetch(`${config.api.baseUrl}/recommend`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(payload)
-        });
+// Get recommendations by preferences
+function getRecommendationsByPreferences(preferences) {
+    fetch('/recommend', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            type: 'preferences',
+            preferences: preferences
+        }),
+    })
+    .then(response => {
         if (!response.ok) {
-            const errorData = await response.json().catch(() => ({}));
-            throw new Error(errorData.error || `Request failed with status ${response.status}`);
+            return response.json().then(err => { throw new Error(err.error || 'Server error') });
         }
-        return await response.json();
-    } catch (error) {
-        console.error('Recommendation error:', error);
-        showStatusMessage(`Error: ${error.message}`, 'error', document.querySelector('.view.active .search-box'));
-        return null;
-    } finally {
-        showLoading(false);
-    }
+        return response.json();
+    })
+    .then(data => {
+        if (data.recommendations && data.recommendations.length > 0) {
+            displayResults(data.recommendations);
+        } else {
+            showErrorState(document.getElementById('results-area'), 'No recommendations found for your preferences.');
+            showResultsView();
+        }
+    })
+    .catch(error => {
+        console.error('Error getting recommendations by preferences:', error);
+        console.log('Using simulated data as fallback');
+        
+        // Use simulated data as fallback
+        displayResults(simulatedArtworkData);
+        
+        // Show a subtle notification that we're using demo data
+        const preferencesFormContainer = document.getElementById('preferences-form-container');
+        showSuccessState(preferencesFormContainer, 'Demo mode: Showing sample recommendations');
+        
+        // Hide the success message after 3 seconds
+        setTimeout(() => {
+            preferencesFormContainer.style.display = 'none';
+            document.getElementById('options-section').style.display = 'grid';
+        }, 3000);
+    });
 }
 
-// =================================================================================
-// Results Display
-// =================================================================================
+// Navigation functions
+function goBackToLanding() {
+    const uploadView = document.getElementById('upload-view');
+    const resultsArea = document.getElementById('results-area');
+    const optionsSection = document.getElementById('options-section');
+    
+    resultsArea.style.display = 'none';
+    uploadView.style.display = 'block'; // Show the main view again
+    optionsSection.style.display = 'grid'; // Show the options section again
+}
 
-function displayResults(data, hasRoomImage) {
-    console.log('displayResults called with hasRoomImage:', hasRoomImage);
-    recommendations = data.recommendations;
-    if (!recommendations || recommendations.length === 0) {
-        showStatusMessage('No recommendations found. Try different criteria.', 'info', searchBox);
-        return;
-    }
+// Show the results view
+function showResultsView() {
+    const uploadView = document.getElementById('upload-view');
+    const resultsArea = document.getElementById('results-area');
+    const optionsSection = document.getElementById('options-section');
     
-    // Clean up upload preview if it exists
-    const previewContainer = document.getElementById('upload-preview-container');
-    if (previewContainer) {
-        previewContainer.remove();
-    }
+    // Hide the options section (the two cards) and upload view
+    optionsSection.style.display = 'none';
+    uploadView.style.display = 'none';
+    resultsArea.style.display = 'block';
     
-    // Reset upload area display
-    if (uploadArea) {
-        uploadArea.style.display = 'flex';
-    }
-    
-    showResults();
-    
-    // Directly show the back button as a backup
-    if (backToSearchTop) {
-        backToSearchTop.style.display = 'flex';
-        console.log('Back button display set to flex in displayResults');
-    }
-    
-    // Set up the room image based on hasRoomImage parameter
-    if (hasRoomImage) {
-        // User uploaded a room photo - it should already be set in roomImage.src
-        console.log('Using uploaded room photo');
+    // Set the room image in the showroom
+    const roomImage = document.getElementById('room-image');
+    if (uploadedImage) {
+        roomImage.src = uploadedImage;
         roomImage.style.display = 'block';
     } else {
-        // No room photo uploaded - use mock room
-        console.log('Using mock room background');
-        roomImage.src = MOCK_ROOM_URL;
+        // For preference-based recommendations, show a default room
+        roomImage.src = 'assets/mock/mock-room.jpg';
         roomImage.style.display = 'block';
     }
-    
-    // Debug: Check virtual showroom setup
-    console.log('Virtual showroom element:', virtualShowroom);
-    console.log('Room image element:', roomImage);
-    console.log('Room image src:', roomImage.src);
-    console.log('Artwork overlay element:', artworkOverlay);
-    console.log('Artwork image element:', artworkImage);
-    
-    // Create thumbnails
-    console.log('=== CREATE THUMBNAILS START ===');
-    const thumbnailGallery = document.getElementById('thumbnail-gallery');
-    console.log('Thumbnail gallery element:', thumbnailGallery);
-    console.log('Thumbnail gallery innerHTML before clearing:', thumbnailGallery.innerHTML);
-    
-    thumbnailGallery.innerHTML = '';
-    console.log('Thumbnail gallery cleared');
-    
-    console.log('Recommendations count:', recommendations.length);
-    console.log('Recommendations:', recommendations);
-    
-    recommendations.forEach((artwork, index) => {
-        console.log(`Creating thumbnail ${index} for Artwork ${artwork.filename}`);
+}
+
+// Enhanced resetToOptions function
+function resetToOptions() {
+    goBackToLanding();
+}
+
+// Enhanced Results Experience
+let currentArtworkIndex = 0;
+let isDragging = false;
+let isResizing = false;
+let dragStartX, dragStartY;
+let resizeStartX, resizeStartY;
+let originalWidth, originalHeight;
+let originalX, originalY;
+
+function getRecommendations() {
+    if (!uploadedImage) {
+        showErrorState(document.getElementById('upload-form-container'), 'Please upload an image first.');
+        return;
+    }
+
+    fetch('/recommend', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            type: 'upload',
+            roomImage: uploadedImage
+        }),
+    })
+    .then(response => {
+        if (!response.ok) {
+            return response.json().then(err => { throw new Error(err.error || 'Server error') });
+        }
+        return response.json();
+    })
+    .then(data => {
+        if (data.recommendations && data.recommendations.length > 0) {
+            displayResults(data.recommendations);
+        } else {
+            showErrorState(document.getElementById('results-area'), 'No recommendations found for your image.');
+            showResultsView();
+        }
+    })
+    .catch(error => {
+        console.error('Error getting recommendations:', error);
+        console.log('Using simulated data as fallback');
         
+        // Use simulated data as fallback
+        displayResults(simulatedArtworkData);
+        
+        // Show a subtle notification that we're using demo data
+        const uploadFormContainer = document.getElementById('upload-form-container');
+        showSuccessState(uploadFormContainer, 'Demo mode: Showing sample recommendations');
+        
+        // Hide the success message after 3 seconds
+        setTimeout(() => {
+            uploadFormContainer.style.display = 'none';
+            document.getElementById('options-section').style.display = 'grid';
+        }, 3000);
+    });
+}
+
+function displayResults(recommendations) {
+    allArtworks = recommendations;
+    showResultsView();
+
+    if (allArtworks.length > 0) {
+        createThumbnailGallery();
+        selectThumbnail(0); // Display the first recommendation
+        initializeArtworkInteraction();
+    }
+}
+
+function initializeArtworkInteraction() {
+    interact('#artwork-overlay')
+        .draggable({
+            listeners: {
+                move(event) {
+                    const target = event.target;
+                    let x = (parseFloat(target.getAttribute('data-x')) || 0) + event.dx;
+                    let y = (parseFloat(target.getAttribute('data-y')) || 0) + event.dy;
+                    target.style.transform = `translate(-50%, -50%) translate(${x}px, ${y}px)`;
+                    target.setAttribute('data-x', x);
+                    target.setAttribute('data-y', y);
+                }
+            }
+        })
+        .resizable({
+            edges: {
+                left: true,
+                right: true,
+                bottom: true,
+                top: true
+            },
+            listeners: {
+                move(event) {
+                    const target = event.target;
+                    target.style.width = `${event.rect.width}px`;
+                    target.style.height = `${event.rect.height}px`;
+                    
+                    // Log dimensions after resize
+                    const artworkImage = document.getElementById('artwork-image');
+                    console.log('=== AFTER RESIZE ===');
+                    console.log('Artwork image dimensions:', {
+                        naturalWidth: artworkImage?.naturalWidth,
+                        naturalHeight: artworkImage?.naturalHeight,
+                        clientWidth: artworkImage?.clientWidth,
+                        clientHeight: artworkImage?.clientHeight
+                    });
+                    console.log('Yellow overlay dimensions:', {
+                        width: event.rect.width,
+                        height: event.rect.height,
+                        styleWidth: target.style.width,
+                        styleHeight: target.style.height
+                    });
+                },
+            },
+            modifiers: [interact.modifiers.restrictSize({
+                min: {
+                    width: 50,
+                    height: 50
+                }
+            }), interact.modifiers.aspectRatio({
+                ratio: 'preserve'
+            }), ]
+        });
+}
+
+// Update artwork display
+function updateArtworkDisplay(index) {
+    const artwork = allArtworks[index];
+    if (!artwork) return;
+    
+    // Update overlay image
+    const artworkImage = document.getElementById('artwork-image');
+    if (artworkImage) {
+        // Use placeholder for simulated data, real images for API data
+        if (artwork.filename && artwork.filename.startsWith('artwork-')) {
+            // Simulated data - use a colored placeholder
+            const colors = artwork.attributes.dominant_colors;
+            const primaryColor = colors[0].color;
+            artworkImage.src = `data:image/svg+xml;base64,${btoa(`
+                <svg width="400" height="300" xmlns="http://www.w3.org/2000/svg">
+                    <rect width="100%" height="100%" fill="${primaryColor}"/>
+                    <text x="50%" y="50%" text-anchor="middle" dy=".3em" fill="white" font-family="Arial" font-size="24">${artwork.title}</text>
+                </svg>
+            `)}`;
+        } else {
+            // Real API data
+            artworkImage.src = `/catalog/images/${artwork.filename}`;
+        }
+        artworkImage.alt = artwork.title;
+        
+        // Set initial size for the overlay AFTER image loads
+        artworkImage.onload = function() {
+            const overlay = document.getElementById('artwork-overlay');
+            if (overlay) {
+                // Calculate aspect ratio from the loaded image
+                const aspectRatio = this.naturalWidth / this.naturalHeight;
+                let initialWidth = 250;
+                let initialHeight = initialWidth / aspectRatio;
+
+                // Ensure it fits reasonably within the container
+                const container = document.getElementById('virtual-showroom');
+                if (container) {
+                    if (initialWidth > container.clientWidth * 0.8) {
+                        initialWidth = container.clientWidth * 0.8;
+                        initialHeight = initialWidth / aspectRatio;
+                    }
+                    if (initialHeight > container.clientHeight * 0.8) {
+                        initialHeight = container.clientHeight * 0.8;
+                        initialWidth = initialHeight * aspectRatio;
+                    }
+                }
+
+                overlay.style.width = `${initialWidth}px`;
+                overlay.style.height = `${initialHeight}px`;
+                overlay.style.left = '50%';
+                overlay.style.top = '50%';
+                overlay.style.transform = 'translate(-50%, -50%)';
+                overlay.setAttribute('data-x', '0');
+                overlay.setAttribute('data-y', '0');
+                
+                // Log initial dimensions
+                console.log('=== INITIAL DIMENSIONS (AFTER IMAGE LOAD) ===');
+                console.log('Artwork image dimensions:', {
+                    naturalWidth: this.naturalWidth,
+                    naturalHeight: this.naturalHeight,
+                    clientWidth: this.clientWidth,
+                    clientHeight: this.clientHeight,
+                    aspectRatio: aspectRatio
+                });
+                console.log('Yellow overlay dimensions:', {
+                    width: initialWidth,
+                    height: initialHeight,
+                    styleWidth: overlay.style.width,
+                    styleHeight: overlay.style.height
+                });
+            }
+        };
+    }
+    
+    // Update product details
+    document.getElementById('artwork-title').textContent = artwork.title;
+    document.getElementById('artwork-description').textContent = artwork.description;
+    document.getElementById('artwork-price').textContent = artwork.price;
+    
+    // Update purchase button
+    const purchaseButton = document.getElementById('purchase-button');
+    if (purchaseButton) {
+        purchaseButton.onclick = () => window.open(artwork.product_url, '_blank');
+    }
+    
+    // Update thumbnail selection
+    updateThumbnailSelection(index);
+}
+
+// Create thumbnail gallery
+function createThumbnailGallery() {
+    const gallery = document.getElementById('thumbnail-gallery');
+    if (!gallery) return;
+    
+    gallery.innerHTML = '';
+    
+    allArtworks.forEach((artwork, index) => {
         const thumbnail = document.createElement('div');
-        thumbnail.className = 'thumbnail';
-        thumbnail.style.pointerEvents = 'auto';
-        thumbnail.style.cursor = 'pointer';
+        thumbnail.className = 'thumbnail-item';
+        thumbnail.onclick = () => selectThumbnail(index);
         
-        console.log('Thumbnail element created:', thumbnail);
+        // Create thumbnail image
+        let thumbnailImage;
+        if (artwork.filename && artwork.filename.startsWith('artwork-')) {
+            // Simulated data - use a colored placeholder
+            const colors = artwork.attributes.dominant_colors;
+            const primaryColor = colors[0].color;
+            thumbnailImage = `data:image/svg+xml;base64,${btoa(`
+                <svg width="200" height="150" xmlns="http://www.w3.org/2000/svg">
+                    <rect width="100%" height="100%" fill="${primaryColor}"/>
+                    <text x="50%" y="50%" text-anchor="middle" dy=".3em" fill="white" font-family="Arial" font-size="16">${artwork.title}</text>
+                </svg>
+            `)}`;
+        } else {
+            // Real API data
+            thumbnailImage = `/catalog/images/${artwork.filename}`;
+        }
         
         thumbnail.innerHTML = `
-            <img src="/catalog/images/${artwork.filename}" alt="Artwork ${artwork.filename}">
+            <img src="${thumbnailImage}" alt="${artwork.title}" loading="lazy">
+            <div class="thumbnail-overlay">
+                <div class="thumbnail-title">${artwork.title}</div>
+                <div class="thumbnail-price">${artwork.price}</div>
+            </div>
         `;
         
-        // Add click event listener
-        thumbnail.addEventListener('click', function(e) {
-            console.log(`=== THUMBNAIL CLICK EVENT ===`);
-            console.log(`Thumbnail ${index} clicked!`);
-            
-            displayRecommendation(index);
-        });
-        
-        // Add a test click event to verify the element is clickable
-        thumbnail.addEventListener('mouseenter', function() {
-            console.log(`Mouse entered thumbnail ${index}`);
-            // Remove the blue border - it's not needed and looks bad
-        });
-        
-        thumbnail.addEventListener('mouseleave', function() {
-            console.log(`Mouse left thumbnail ${index}`);
-            if (!this.classList.contains('selected')) {
-                this.style.border = '';
-            }
-        });
-        
-        thumbnailGallery.appendChild(thumbnail);
-        console.log(`Thumbnail ${index} added to gallery`);
-        console.log('Thumbnail gallery children count after adding:', thumbnailGallery.children.length);
+        gallery.appendChild(thumbnail);
     });
-    
-    console.log('=== CREATE THUMBNAILS END ===');
-    console.log('Total thumbnails created:', thumbnailGallery.children.length);
-    console.log('Thumbnail gallery final HTML:', thumbnailGallery.innerHTML);
-    
-    // Debug thumbnail positions and clickability
-    const thumbnails = thumbnailGallery.querySelectorAll('.thumbnail');
-    thumbnails.forEach((thumbnail, index) => {
-        const rect = thumbnail.getBoundingClientRect();
-        console.log(`Thumbnail ${index} position:`, rect);
-        console.log(`Thumbnail ${index} visible:`, rect.width > 0 && rect.height > 0);
-        console.log(`Thumbnail ${index} display:`, window.getComputedStyle(thumbnail).display);
-        console.log(`Thumbnail ${index} visibility:`, window.getComputedStyle(thumbnail).visibility);
-        
-        // Check if element is at the center position
-        const centerX = rect.left + rect.width / 2;
-        const centerY = rect.top + rect.height / 2;
-        const elementAtCenter = document.elementFromPoint(centerX, centerY);
-        console.log(`Thumbnail ${index} element at center (${centerX}, ${centerY}):`, elementAtCenter);
-        console.log(`Thumbnail ${index} is element at position:`, elementAtCenter === thumbnail);
-        
-        // Set pointer events and cursor
-        thumbnail.style.pointerEvents = 'auto';
-        thumbnail.style.cursor = 'pointer';
-        console.log(`Thumbnail ${index} pointer-events set to:`, thumbnail.style.pointerEvents);
-        console.log(`Thumbnail ${index} cursor set to:`, thumbnail.style.cursor);
-    });
-    
-    // Display the first recommendation by default
-    console.log('=== DISPLAYING FIRST RECOMMENDATION BY DEFAULT ===');
-    displayRecommendation(0);
 }
 
-function displayRecommendation(index) {
-    console.log('=== DISPLAY RECOMMENDATION START ===');
-    console.log('displayRecommendation called with index:', index);
-    console.log('Index type:', typeof index);
-    console.log('Previous currentArtworkIndex:', currentArtworkIndex);
-    
-    if (!recommendations || recommendations.length === 0) {
-        console.log('No recommendations available');
-        return;
-    }
-
-    // Always update, even if it's the same index
+// Select thumbnail and update display
+function selectThumbnail(index) {
     currentArtworkIndex = index;
-    console.log('Updated currentArtworkIndex to:', currentArtworkIndex);
+    updateArtworkDisplay(index);
     
-    const artwork = recommendations[currentArtworkIndex];
-    console.log('Selected artwork:', artwork);
-    console.log('Selected artwork filename:', artwork.filename);
-    
-    // Update main artwork overlay - construct full URL
-    const imageUrl = `${config.api.baseUrl}/catalog/images/${artwork.filename}?t=${Date.now()}`;
-    console.log('Setting artwork image URL:', imageUrl);
-    
-    // Debug: Check artwork overlay element
-    console.log('Artwork overlay element:', artworkOverlay);
-    console.log('Artwork image element:', artworkImage);
-    console.log('Artwork overlay display before:', artworkOverlay.style.display);
-    console.log('Artwork image src before:', artworkImage.src);
-    
-    // Update thumbnail selection FIRST
-    console.log('About to call updateThumbnailSelection with index:', index);
-    updateThumbnailSelection(index);
-    console.log('Thumbnail selection updated to index:', index);
-    
-    // Clear any existing image to force reload
-    artworkImage.src = '';
-    artworkImage.src = imageUrl;
-    
-    artworkImage.onload = () => {
-        console.log('Artwork image loaded successfully');
-        console.log('Image dimensions:', artworkImage.naturalWidth, 'x', artworkImage.naturalHeight);
-        
-        // Debug: Check if overlay element exists
-        console.log('Artwork overlay element exists:', !!artworkOverlay);
-        console.log('Artwork overlay element:', artworkOverlay);
-        
-        // Make the overlay visible and position it properly
-        artworkOverlay.style.display = 'block';
-        console.log('Artwork overlay display set to block');
-        console.log('Artwork overlay display after:', artworkOverlay.style.display);
-        console.log('Artwork overlay computed display:', window.getComputedStyle(artworkOverlay).display);
-        
-        // Add a small delay to ensure DOM is fully updated
-        setTimeout(() => {
-            // Position the artwork overlay AFTER thumbnail selection is complete
-            positionArtworkOverlay();
-            
-            // Ensure drag and resize functionality is set up
-            setupDragAndResize();
-            
-            console.log('Artwork overlay update completed');
-        }, 100);
-    };
-    
-    // Update artwork details section
-    updateArtworkDetails(artwork);
-    
-    console.log('=== DISPLAY RECOMMENDATION END ===');
-}
-
-function updateArtworkDetails(artwork) {
-    console.log('=== UPDATE ARTWORK DETAILS START ===');
-    console.log('Updating artwork details for:', artwork);
-    
-    const artworkDetails = document.getElementById('artwork-details');
-    const artworkTitle = document.getElementById('artwork-title');
-    const artworkDescription = document.getElementById('artwork-description');
-    const artworkPrice = document.getElementById('artwork-price');
-    const viewDetailsButton = document.getElementById('view-details-button');
-    
-    if (!artworkDetails || !artworkTitle || !artworkDescription || !artworkPrice || !viewDetailsButton) {
-        console.error('Artwork details elements not found');
-        return;
-    }
-    
-    // Extract filename without extension for title
-    const filename = artwork.filename;
-    const title = filename.replace(/\.[^/.]+$/, "").replace(/_/g, ' ').replace(/([A-Z])/g, ' $1').trim();
-    
-    // Set artwork title
-    artworkTitle.textContent = title;
-    
-    // Set artwork description (you can customize this based on your needs)
-    const description = artwork.description || `Beautiful ${title.toLowerCase()} artwork that will enhance your space. This piece features stunning composition and high-quality printing.`;
-    artworkDescription.textContent = description;
-    
-    // Set price
-    const price = artwork.price || '$12.95';
-    artworkPrice.textContent = `Starting at ${price}`;
-    
-    // Set purchase link (you can customize this URL structure)
-    const purchaseUrl = artwork.purchase_url || `https://tabernerstudio.com/artwork/${filename.replace(/\.[^/.]+$/, "")}`;
-    viewDetailsButton.onclick = () => window.open(purchaseUrl, '_blank');
-    
-    // Show the artwork details section
-    artworkDetails.style.display = 'block';
-    
-    console.log('Artwork details updated successfully');
-    console.log('=== UPDATE ARTWORK DETAILS END ===');
-}
-
-function positionArtworkOverlay() {
-    console.log('=== POSITION ARTWORK OVERLAY START ===');
-    const artworkContainer = virtualShowroom;
-    if (!artworkContainer) {
-        console.error('Virtual showroom container not found');
-        return;
-    }
-    
-    // Get the selected thumbnail to use its dimensions
-    const selectedThumbnail = thumbnailGallery.querySelector('.thumbnail.selected');
-    if (!selectedThumbnail) {
-        console.error('No selected thumbnail found');
-        console.log('Available thumbnails:', thumbnailGallery.querySelectorAll('.thumbnail').length);
-        console.log('Thumbnails with selected class:', thumbnailGallery.querySelectorAll('.thumbnail.selected').length);
-        return;
-    }
-    
-    // Get the actual image element inside the thumbnail
-    const thumbnailImage = selectedThumbnail.querySelector('img');
-    if (!thumbnailImage) {
-        console.error('No image found inside selected thumbnail');
-        return;
-    }
-    
-    const thumbnailRect = selectedThumbnail.getBoundingClientRect();
-    const containerRect = artworkContainer.getBoundingClientRect();
-    
-    console.log('Selected thumbnail element:', selectedThumbnail);
-    console.log('Thumbnail image element:', thumbnailImage);
-    console.log('Thumbnail rect:', thumbnailRect);
-    console.log('Container rect:', containerRect);
-    
-    // Get the actual dimensions of the resized image
-    // The image might be smaller than the container due to object-fit: contain
-    const imageRect = thumbnailImage.getBoundingClientRect();
-    console.log('Image rect:', imageRect);
-    console.log('Image computed style:', window.getComputedStyle(thumbnailImage));
-    console.log('Image natural dimensions:', thumbnailImage.naturalWidth, 'x', thumbnailImage.naturalHeight);
-    console.log('Image offset dimensions:', thumbnailImage.offsetWidth, 'x', thumbnailImage.offsetHeight);
-    
-    // Calculate actual visible image dimensions when using object-fit: contain
-    const containerWidth = thumbnailImage.offsetWidth;
-    const containerHeight = thumbnailImage.offsetHeight;
-    const naturalWidth = thumbnailImage.naturalWidth;
-    const naturalHeight = thumbnailImage.naturalHeight;
-    
-    // Calculate scaling factor to fit image within container while preserving aspect ratio
-    const scaleX = containerWidth / naturalWidth;
-    const scaleY = containerHeight / naturalHeight;
-    const scale = Math.min(scaleX, scaleY); // Use the smaller scale to fit within container
-    
-    // Calculate actual visible image dimensions
-    const actualWidth = naturalWidth * scale;
-    const actualHeight = naturalHeight * scale;
-    
-    console.log('Container dimensions:', containerWidth, 'x', containerHeight);
-    console.log('Natural dimensions:', naturalWidth, 'x', naturalHeight);
-    console.log('Scale factors - X:', scaleX, 'Y:', scaleY, 'Used scale:', scale);
-    console.log('Actual visible image dimensions:', actualWidth, 'x', actualHeight);
-    
-    // Use the actual visible image dimensions, not the container dimensions
-    const width = actualWidth;
-    const height = actualHeight;
-    
-    console.log('Using actual visible image dimensions - width:', width, 'height:', height);
-    console.log('Container dimensions were - width:', thumbnailRect.width, 'height:', thumbnailRect.height);
-    
-    if (width === 0 || height === 0) {
-        console.error('Image has zero dimensions!');
-        console.log('Image computed style:', window.getComputedStyle(thumbnailImage));
-        console.log('Thumbnail computed style:', window.getComputedStyle(selectedThumbnail));
-        return;
-    }
-    
-    // Scale up the overlay to make it more visible in the virtual showroom
-    const isMobile = window.innerWidth <= 768;
-    const scaleFactor = isMobile ? 1.3 : 1.1; // Larger size for better visibility while still realistic
-    const scaledWidth = width * scaleFactor;
-    const scaledHeight = height * scaleFactor;
-    
-    // Calculate position to center the overlay in the container
-    // Convert viewport coordinates to container-relative coordinates
-    const x = (containerRect.width - scaledWidth) / 2;
-    const y = (containerRect.height - scaledHeight) / 2;
-
-    console.log('Calculated position - width:', scaledWidth, 'height:', scaledHeight, 'x:', x, 'y:', y);
-
-    // Use a combination of top/left and transform for robust positioning
-    Object.assign(artworkOverlay.style, {
-        width: `${scaledWidth}px`,
-        height: `${scaledHeight}px`,
-        top: `${y}px`,
-        left: `${x}px`,
-        transform: 'translate(0, 0)' // Reset transform and use top/left
+    // Add visual feedback
+    const thumbnails = document.querySelectorAll('.thumbnail-item');
+    thumbnails.forEach((thumb, i) => {
+        thumb.classList.toggle('selected', i === index);
     });
-
-    console.log('Artwork overlay styles applied:', artworkOverlay.style);
-    console.log('Artwork overlay final computed style:', window.getComputedStyle(artworkOverlay));
-
-    // Store initial data for dragging
-    artworkOverlay.setAttribute('data-x', x);
-    artworkOverlay.setAttribute('data-y', y);
     
-    console.log('=== POSITION ARTWORK OVERLAY END ===');
-}
-
-function updateThumbnailSelection(selectedIndex) {
-    console.log('=== UPDATE THUMBNAIL SELECTION START ===');
-    console.log('Selected index:', selectedIndex);
-    
-    const thumbnails = document.querySelectorAll('.thumbnail');
-    console.log('Found thumbnails:', thumbnails.length);
-    
-    thumbnails.forEach((thumbnail, index) => {
-        if (index === selectedIndex) {
-            thumbnail.classList.add('selected');
-            // CSS handles the scale and shadow effects
-        } else {
-            thumbnail.classList.remove('selected');
-            // CSS handles resetting the effects
-        }
+    // Smooth scroll to showroom
+    document.getElementById('virtual-showroom').scrollIntoView({
+        behavior: 'smooth',
+        block: 'center'
     });
-
-    console.log('=== UPDATE THUMBNAIL SELECTION END ===');
 }
 
-// =================================================================================
-// Drag and Resize (Interact.js)
-// =================================================================================
-
-function setupDragAndResize() {
-    if (!artworkOverlay) return;
-    
-    // Unset any existing interact.js bindings to prevent conflicts
-    interact(artworkOverlay).unset();
-    
-    // Store original aspect ratio when resizing starts
-    let originalAspectRatio = 1;
-    const isMobile = window.innerWidth <= 768;
-    
-    interact(artworkOverlay)
-        .resizable({
-            edges: { left: true, right: true, bottom: true, top: true },
-            listeners: { 
-                start: function(event) {
-                    // Store the original aspect ratio when resizing starts
-                    const target = event.target;
-                    originalAspectRatio = target.offsetWidth / target.offsetHeight;
-                    console.log('Resize started - Original aspect ratio:', originalAspectRatio);
-                },
-                move: resizeMoveListener 
-            },
-            modifiers: isMobile ? [
-                // Simplified modifiers for mobile
-                interact.modifiers.restrictEdges({ outer: 'parent' }),
-                interact.modifiers.restrictSize({ min: { width: 50, height: 50 } })
-            ] : [
-                // Full modifiers for desktop
-                interact.modifiers.restrictEdges({ outer: 'parent' }),
-                interact.modifiers.restrictSize({ min: { width: 50, height: 50 } }),
-                interact.modifiers.aspectRatio({
-                    ratio: 'preserve',
-                    modifiers: [
-                        interact.modifiers.restrictSize({
-                            min: { width: 50, height: 50 }
-                        })
-                    ]
-                })
-            ],
-            inertia: true,
-            // Mobile-specific options
-            autoScroll: true,
-            touchAction: 'none'
-        })
-        .draggable({
-            listeners: { move: dragMoveListener },
-            inertia: true,
-            modifiers: [interact.modifiers.restrictRect({ restriction: 'parent', endOnly: true })],
-            autoScroll: true,
-            touchAction: 'none'
-        });
+// Update thumbnail selection state
+function updateThumbnailSelection(index) {
+    const thumbnails = document.querySelectorAll('.thumbnail-item');
+    thumbnails.forEach((thumb, i) => {
+        thumb.classList.toggle('selected', i === index);
+    });
 }
 
-function dragMoveListener(event) {
-    const target = event.target;
-    // Keep the dragged position in the data-x/data-y attributes
-    const x = (parseFloat(target.getAttribute('data-x')) || 0) + event.dx;
-    const y = (parseFloat(target.getAttribute('data-y')) || 0) + event.dy;
-
-    // Set position using top/left
-    target.style.left = `${x}px`;
-    target.style.top = `${y}px`;
-
-    // Update the data attributes
-    target.setAttribute('data-x', x);
-    target.setAttribute('data-y', y);
-}
-
-function resizeMoveListener(event) {
-    const target = event.target;
-    let x = parseFloat(target.getAttribute('data-x')) || 0;
-    let y = parseFloat(target.getAttribute('data-y')) || 0;
+// Download mockup functionality
+function downloadMockup() {
+    // Simulate download functionality
+    const downloadBtn = event.target.closest('button');
+    const originalText = downloadBtn.innerHTML;
     
-    // Mobile-specific debugging
-    const isMobile = window.innerWidth <= 768;
-    if (isMobile) {
-        console.log('=== MOBILE RESIZE DEBUG ===');
-        console.log('Event type:', event.type);
-        console.log('Event rect:', event.rect);
-        console.log('Event deltaRect:', event.deltaRect);
-        console.log('Event dx:', event.dx, 'dy:', event.dy);
-        console.log('Current target size:', target.offsetWidth, 'x', target.offsetHeight);
-    }
-    
-    // Update size
-    target.style.width = event.rect.width + 'px';
-    target.style.height = event.rect.height + 'px';
-    
-    // Update position using top/left instead of transform
-    x += event.deltaRect.left;
-    y += event.deltaRect.top;
-    target.style.left = `${x}px`;
-    target.style.top = `${y}px`;
-    
-    // Update the data attributes
-    target.setAttribute('data-x', x);
-    target.setAttribute('data-y', y);
-    
-    if (isMobile) {
-        console.log('New target size:', target.offsetWidth, 'x', target.offsetHeight);
-        console.log('New position:', x, y);
-    }
-}
-
-// =================================================================================
-// Utility Functions
-// =================================================================================
-
-function showLoading(show) {
-    loadingSpinner.style.display = show ? 'flex' : 'none';
-}
-
-function showStatusMessage(message, type = 'info', container = null) {
-    const statusMessage = document.createElement('div');
-    statusMessage.className = `status-message ${type}`;
-    statusMessage.textContent = message;
-
-    const targetContainer = container || document.querySelector('.view.active');
-    if (targetContainer) {
-        const existingMsg = targetContainer.querySelector('.status-message');
-        if(existingMsg) existingMsg.remove();
-        targetContainer.insertBefore(statusMessage, targetContainer.firstChild);
-    }
+    downloadBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Generating...';
+    downloadBtn.disabled = true;
     
     setTimeout(() => {
-        statusMessage.classList.add('fade-out');
-        setTimeout(() => statusMessage.remove(), 500);
-    }, 4000);
+        downloadBtn.innerHTML = '<i class="fas fa-check"></i> Downloaded!';
+        
+        setTimeout(() => {
+            downloadBtn.innerHTML = originalText;
+            downloadBtn.disabled = false;
+        }, 2000);
+    }, 1500);
 }
 
-// =================================================================================
-// Refine Search Functionality
-// =================================================================================
+// Save to favorites functionality
+function saveFavorites() {
+    const saveBtn = event.target.closest('button');
+    const originalText = saveBtn.innerHTML;
+    
+    saveBtn.innerHTML = '<i class="fas fa-heart"></i> Saved!';
+    saveBtn.classList.add('saved');
+    
+    setTimeout(() => {
+        saveBtn.innerHTML = originalText;
+        saveBtn.classList.remove('saved');
+    }, 2000);
+}
 
-function showRefineButton() {
-    if (refineSearchButton) {
-        refineSearchButton.style.display = 'block';
-        // Add class to mobile nav for styling
-        const mobileNav = document.querySelector('.mobile-nav');
-        if (mobileNav) {
-            mobileNav.classList.add('has-refine');
+// Initialize upload functionality
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('Enhanced Taberner Studio app loaded');
+    
+    // Initialize upload functionality
+    initializeUpload();
+    
+    // Listen for messages from preview system
+    window.addEventListener('message', function(event) {
+        if (event.data.action === 'showResults') {
+            console.log('Received showResults message');
+            // This is for external control, might need mock data or a specific artwork ID
+            if (allArtworks.length > 0) {
+                showResultsView();
+            } else {
+                // Load simulated data for preview
+                console.log("Loading simulated data for preview");
+                displayResults(simulatedArtworkData);
+            }
+        } else if (event.data.action === 'hideResults') {
+            console.log('Received hideResults message');
+            resetToOptions();
         }
-    }
-}
-
-function hideRefineButton() {
-    if (refineSearchButton) {
-        refineSearchButton.style.display = 'none';
-        // Remove class from mobile nav
-        const mobileNav = document.querySelector('.mobile-nav');
-        if (mobileNav) {
-            mobileNav.classList.remove('has-refine');
-        }
-    }
-}
-
-function handleRefineSearch() {
-    if (!lastPreferences) {
-        console.error('No previous preferences found');
-        return;
-    }
-    
-    // Hide results and show preferences form
-    resultsArea.style.display = 'none';
-    preferencesFormContainer.style.display = 'block';
-    searchBox.classList.remove('has-options');
-    
-    // Pre-fill the form with last preferences
-    document.getElementById('style-select').value = lastPreferences.style;
-    document.getElementById('mood-select').value = lastPreferences.mood;
-    document.getElementById('subject-select').value = lastPreferences.subject;
-    document.getElementById('color-preference').value = lastPreferences.color;
-    
-    // Update header text
-    mainTitleText.textContent = 'Refine Your Search';
-    mainSubtitleText.textContent = 'Adjust your preferences to get different recommendations';
-    
-    // Hide refine button while editing
-    hideRefineButton();
-}
+    });
+}); 

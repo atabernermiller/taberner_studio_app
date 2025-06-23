@@ -302,7 +302,7 @@ def recommend_unified():
         'title': art['title'],
         'artist': art['artist'],
         'description': art['description'],
-        'price': art['price'],
+        'price': f"${art['price']}",
         'product_url': art['product_url'],
         'filename': art['filename'],
         'attributes': art['attributes']
