@@ -263,8 +263,9 @@ main() {
     print_status "Starting Taberner Studio ECS deployment..."
     
     check_prerequisites
-    create_ecr_repository
-    build_and_push_image
+    # Skip ECR and Docker steps since CodeBuild already handled them
+    # create_ecr_repository
+    # build_and_push_image
     create_ecs_cluster
     create_log_group
     update_task_definition

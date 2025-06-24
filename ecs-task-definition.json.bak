@@ -4,12 +4,12 @@
   "requiresCompatibilities": ["FARGATE"],
   "cpu": "512",
   "memory": "1024",
-  "executionRoleArn": "arn:aws:iam::672104585346:role/ecsTaskExecutionRole",
-  "taskRoleArn": "arn:aws:iam::672104585346:role/ecsTaskRole",
+  "executionRoleArn": "arn:aws:iam::ACCOUNT_ID:role/ecsTaskExecutionRole",
+  "taskRoleArn": "arn:aws:iam::ACCOUNT_ID:role/ecsTaskRole",
   "containerDefinitions": [
     {
       "name": "taberner-studio-app",
-      "image": "672104585346.dkr.ecr.us-east-1.amazonaws.com/taberner-studio:latest",
+      "image": "ACCOUNT_ID.dkr.ecr.REGION.amazonaws.com/taberner-studio:latest",
       "portMappings": [
         {
           "containerPort": 8000,
@@ -43,7 +43,7 @@
         "logDriver": "awslogs",
         "options": {
           "awslogs-group": "/ecs/taberner-studio",
-          "awslogs-region": "us-east-1",
+          "awslogs-region": "REGION",
           "awslogs-stream-prefix": "ecs"
         }
       },
