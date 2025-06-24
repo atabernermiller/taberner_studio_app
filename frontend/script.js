@@ -12,6 +12,24 @@ window.addEventListener('beforeunload', function() {
     window.scrollTo(0, 0);
 });
 
+// AWS S3 Image URL handling
+async function getImageUrl(filename) {
+    try {
+        const response = await fetch(`/catalog/images/${filename}`);
+        if (response.ok) {
+            const data = await response.json();
+            return data.url; // S3 presigned URL
+        } else {
+            // Fallback to local path if S3 fails
+            return `/catalog/images/${filename}`;
+        }
+    } catch (error) {
+        console.warn('Failed to get S3 URL, using local path:', error);
+        // Fallback to local path
+        return `/catalog/images/${filename}`;
+    }
+}
+
 // Smooth scroll to options
 function scrollToOptions() {
     document.getElementById('options-section').scrollIntoView({
@@ -558,6 +576,17 @@ function getRecommendations() {
 
 function displayResults(recommendations) {
     console.log('displayResults called with', recommendations.length, 'recommendations');
+    
+    // Prevent duplicate processing if the same recommendations are already displayed
+    if (allArtworks && allArtworks.length === recommendations.length) {
+        const currentIds = allArtworks.map(art => art.id).sort();
+        const newIds = recommendations.map(art => art.id).sort();
+        if (JSON.stringify(currentIds) === JSON.stringify(newIds)) {
+            console.log('Same recommendations already displayed, skipping duplicate processing');
+            return;
+        }
+    }
+    
     allArtworks = recommendations;
     showResultsView();
 
@@ -629,7 +658,7 @@ function initializeArtworkInteraction() {
 }
 
 // Update artwork display
-function updateArtworkDisplay(index) {
+async function updateArtworkDisplay(index) {
     const artwork = allArtworks[index];
     if (!artwork) {
         console.error('No artwork found at index:', index);
@@ -641,8 +670,8 @@ function updateArtworkDisplay(index) {
     // Update overlay image
     const artworkImage = document.getElementById('artwork-image');
     if (artworkImage) {
-        // Use real image from catalog
-        const imageSrc = `/catalog/images/${artwork.filename}`;
+        // Get image URL (S3 or local fallback)
+        const imageSrc = await getImageUrl(artwork.filename);
         console.log('Setting image src to:', imageSrc);
         
         artworkImage.src = imageSrc;
@@ -745,7 +774,7 @@ function updateArtworkDisplay(index) {
 }
 
 // Create thumbnail gallery
-function createThumbnailGallery() {
+async function createThumbnailGallery() {
     const gallery = document.getElementById('thumbnail-gallery');
     if (!gallery) {
         console.error('Thumbnail gallery element not found');
@@ -753,17 +782,31 @@ function createThumbnailGallery() {
     }
     
     console.log('Creating thumbnail gallery with', allArtworks.length, 'artworks');
+    
+    // Clear existing thumbnails first
     gallery.innerHTML = '';
     
-    allArtworks.forEach((artwork, index) => {
+    // Track processed artworks to prevent duplicates
+    const processedIds = new Set();
+    
+    for (let i = 0; i < allArtworks.length; i++) {
+        const artwork = allArtworks[i];
+        
+        // Skip if we've already processed this artwork
+        if (processedIds.has(artwork.id)) {
+            console.log('Skipping duplicate artwork:', artwork.title);
+            continue;
+        }
+        
+        processedIds.add(artwork.id);
         console.log('Creating thumbnail for artwork:', artwork);
         
         const thumbnail = document.createElement('div');
         thumbnail.className = 'thumbnail-item';
-        thumbnail.onclick = () => selectThumbnail(index);
+        thumbnail.onclick = () => selectThumbnail(i);
         
-        // Use real image from catalog
-        const thumbnailImage = `/catalog/images/${artwork.filename}`;
+        // Get image URL (S3 or local fallback)
+        const thumbnailImage = await getImageUrl(artwork.filename);
         console.log('Thumbnail image src:', thumbnailImage);
         
         thumbnail.innerHTML = `
@@ -777,7 +820,7 @@ function createThumbnailGallery() {
         `;
         
         gallery.appendChild(thumbnail);
-    });
+    }
 }
 
 // Select thumbnail and update display
@@ -988,11 +1031,6 @@ function initializeEventListeners() {
     const getStartedBtn = document.getElementById('get-started-btn');
     if (getStartedBtn) {
         getStartedBtn.addEventListener('click', scrollToOptions);
-    }
-    
-    const findArtBtn = document.getElementById('find-art-btn');
-    if (findArtBtn) {
-        findArtBtn.addEventListener('click', getRecommendations);
     }
     
     const backToLandingBtn = document.getElementById('back-to-landing');
