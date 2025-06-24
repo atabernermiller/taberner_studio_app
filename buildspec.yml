@@ -10,11 +10,15 @@ phases:
       - echo Copying frontend files to backend directory...
       - mkdir -p backend/static
       - cp -r frontend/* backend/static/
+      - echo Installing Python dependencies...
+      - cd backend
+      - pip install -r requirements_aws.txt
+      - cd ..
   build:
     commands:
       - echo Build started on `date`
       - echo Building the Docker image...
-      - docker build -t $REPOSITORY_URI:$IMAGE_TAG ./backend
+      - docker build -t $REPOSITORY_URI:$IMAGE_TAG ./backend --no-cache
   post_build:
     commands:
       - echo Build completed on `date`
