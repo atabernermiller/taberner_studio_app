@@ -48,30 +48,6 @@
             margin: 0 auto;
         }
 
-        .preview-toggle {
-            display: flex;
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 50px;
-            padding: 0.25rem;
-            border: 1px solid rgba(255, 255, 255, 0.2);
-        }
-
-        .toggle-btn {
-            background: transparent;
-            border: none;
-            color: #ffffff;
-            padding: 0.5rem 1.5rem;
-            border-radius: 25px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            font-weight: 500;
-        }
-
-        .toggle-btn.active {
-            background: #6366f1;
-            color: white;
-        }
-
         .view-mode {
             display: flex;
             gap: 1rem;
@@ -106,10 +82,6 @@
             position: relative;
         }
 
-        .preview-panel.current {
-            border-right: 1px solid rgba(255, 255, 255, 0.1);
-        }
-
         .panel-label {
             position: absolute;
             top: 1rem;
@@ -123,11 +95,7 @@
         }
 
         .panel-label.current {
-            background: #dc2626;
-        }
-
-        .panel-label.proposed {
-            background: #059669;
+            background: #6366f1;
         }
 
         .preview-frame {
@@ -187,26 +155,9 @@
         }
 
         @media (max-width: 768px) {
-            .preview-container {
-                flex-direction: column;
-            }
-            
-            .preview-panel.current {
-                border-right: none;
-                border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-            }
-            
             .preview-controls {
                 flex-direction: column;
                 gap: 1rem;
-            }
-            
-            .preview-toggle {
-                order: 2;
-            }
-            
-            .view-mode {
-                order: 1;
             }
         }
 
@@ -238,12 +189,6 @@
 <body>
     <div class="preview-header">
         <div class="preview-controls">
-            <div class="preview-toggle">
-                <button class="toggle-btn active" onclick="showComparison()">Side by Side</button>
-                <button class="toggle-btn" onclick="showCurrent()">Current Only</button>
-                <button class="toggle-btn" onclick="showProposed()">Proposed Only</button>
-            </div>
-            
             <div class="view-mode">
                 <button class="mode-btn active" onclick="setViewMode('desktop')">Desktop</button>
                 <button class="mode-btn" onclick="setViewMode('mobile')">Mobile</button>
@@ -255,7 +200,7 @@
     <div class="preview-container">
         <!-- Current Version Panel -->
         <div class="preview-panel current">
-            <div class="panel-label current">Current Version</div>
+            <div class="panel-label current">Taberner Studio App</div>
             
             <div class="desktop-preview active">
                 <div class="preview-frame">
@@ -269,45 +214,9 @@
                 </div>
             </div>
         </div>
-
-        <!-- Proposed Changes Panel -->
-        <div class="preview-panel proposed">
-            <div class="panel-label proposed">Enhanced Results Experience</div>
-            
-            <div class="desktop-preview active">
-                <div class="preview-frame">
-                    <iframe src="index.html" id="proposed-desktop"></iframe>
-                </div>
-            </div>
-            
-            <div class="mobile-preview">
-                <div class="mobile-frame">
-                    <iframe src="index.html" id="proposed-mobile"></iframe>
-                </div>
-            </div>
-        </div>
     </div>
 
     <script>
-        function showComparison() {
-            document.querySelectorAll('.preview-panel').forEach(panel => {
-                panel.style.display = 'flex';
-            });
-            updateToggleButtons('Side by Side');
-        }
-
-        function showCurrent() {
-            document.querySelector('.preview-panel.current').style.display = 'flex';
-            document.querySelector('.preview-panel.proposed').style.display = 'none';
-            updateToggleButtons('Current Only');
-        }
-
-        function showProposed() {
-            document.querySelector('.preview-panel.current').style.display = 'none';
-            document.querySelector('.preview-panel.proposed').style.display = 'flex';
-            updateToggleButtons('Proposed Only');
-        }
-
         function setViewMode(mode) {
             console.log('Setting view mode to:', mode);
             
@@ -349,28 +258,19 @@
             }
         }
 
-        function updateToggleButtons(activeText) {
-            document.querySelectorAll('.toggle-btn').forEach(btn => {
-                btn.classList.remove('active');
-                if (btn.textContent === activeText) {
-                    btn.classList.add('active');
-                }
-            });
-        }
-
         function triggerResults() {
             console.log('Triggering results view');
             
-            // Send message to proposed iframe to show results
-            const proposedDesktop = document.getElementById('proposed-desktop');
-            const proposedMobile = document.getElementById('proposed-mobile');
+            // Send message to iframe to show results
+            const currentDesktop = document.getElementById('current-desktop');
+            const currentMobile = document.getElementById('current-mobile');
             
-            if (proposedDesktop && proposedDesktop.contentWindow) {
-                proposedDesktop.contentWindow.postMessage({ action: 'showResults' }, '*');
+            if (currentDesktop && currentDesktop.contentWindow) {
+                currentDesktop.contentWindow.postMessage({ action: 'showResults' }, '*');
             }
             
-            if (proposedMobile && proposedMobile.contentWindow) {
-                proposedMobile.contentWindow.postMessage({ action: 'showResults' }, '*');
+            if (currentMobile && currentMobile.contentWindow) {
+                currentMobile.contentWindow.postMessage({ action: 'showResults' }, '*');
             }
             
             // Update button text
@@ -381,16 +281,16 @@
         function hideResults() {
             console.log('Hiding results view');
             
-            // Send message to proposed iframe to hide results
-            const proposedDesktop = document.getElementById('proposed-desktop');
-            const proposedMobile = document.getElementById('proposed-mobile');
+            // Send message to iframe to hide results
+            const currentDesktop = document.getElementById('current-desktop');
+            const currentMobile = document.getElementById('current-mobile');
             
-            if (proposedDesktop && proposedDesktop.contentWindow) {
-                proposedDesktop.contentWindow.postMessage({ action: 'hideResults' }, '*');
+            if (currentDesktop && currentDesktop.contentWindow) {
+                currentDesktop.contentWindow.postMessage({ action: 'hideResults' }, '*');
             }
             
-            if (proposedMobile && proposedMobile.contentWindow) {
-                proposedMobile.contentWindow.postMessage({ action: 'hideResults' }, '*');
+            if (currentMobile && currentMobile.contentWindow) {
+                currentMobile.contentWindow.postMessage({ action: 'hideResults' }, '*');
             }
             
             // Update button text

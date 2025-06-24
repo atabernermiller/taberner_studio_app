@@ -46,112 +46,6 @@ let currentView = 'upload';
 let uploadedImage = null;
 let allArtworks = []; // Will hold recommendations from the server
 
-// Simulated artwork data for fallback when API is unavailable
-const simulatedArtworkData = [
-    {
-        id: 1,
-        title: "Abstract Harmony",
-        description: "A stunning abstract composition that brings harmony and sophistication to any space. This piece features a perfect balance of warm and cool tones, creating a calming yet engaging atmosphere.",
-        price: "$12.95",
-        product_url: "#",
-        filename: "artwork-1.jpg",
-        attributes: {
-            width: 800,
-            height: 600,
-            dominant_colors: [
-                { color: "#FF6B6B", percentage: 0.3 },
-                { color: "#4ECDC4", percentage: 0.25 },
-                { color: "#45B7D1", percentage: 0.2 }
-            ]
-        }
-    },
-    {
-        id: 2,
-        title: "Coastal Serenity",
-        description: "Inspired by the peaceful shores of the Mediterranean, this piece captures the essence of coastal living with its soothing blues and sandy neutrals.",
-        price: "$15.95",
-        product_url: "#",
-        filename: "artwork-2.jpg",
-        attributes: {
-            width: 900,
-            height: 600,
-            dominant_colors: [
-                { color: "#87CEEB", percentage: 0.4 },
-                { color: "#F4A460", percentage: 0.3 },
-                { color: "#98FB98", percentage: 0.2 }
-            ]
-        }
-    },
-    {
-        id: 3,
-        title: "Urban Rhythm",
-        description: "A dynamic composition that reflects the energy and movement of city life, perfect for modern urban spaces seeking contemporary flair.",
-        price: "$18.95",
-        product_url: "#",
-        filename: "artwork-3.jpg",
-        attributes: {
-            width: 750,
-            height: 600,
-            dominant_colors: [
-                { color: "#2C3E50", percentage: 0.35 },
-                { color: "#E74C3C", percentage: 0.25 },
-                { color: "#F39C12", percentage: 0.2 }
-            ]
-        }
-    },
-    {
-        id: 4,
-        title: "Nature's Palette",
-        description: "Rich earth tones and organic forms create a connection to the natural world, bringing warmth and grounding energy to any interior.",
-        price: "$14.95",
-        product_url: "#",
-        filename: "artwork-4.jpg",
-        attributes: {
-            width: 800,
-            height: 700,
-            dominant_colors: [
-                { color: "#8B4513", percentage: 0.3 },
-                { color: "#228B22", percentage: 0.25 },
-                { color: "#DAA520", percentage: 0.2 }
-            ]
-        }
-    },
-    {
-        id: 5,
-        title: "Minimalist Elegance",
-        description: "Clean lines and subtle textures define this minimalist masterpiece, offering timeless sophistication for contemporary spaces.",
-        price: "$16.95",
-        product_url: "#",
-        filename: "artwork-5.jpg",
-        attributes: {
-            width: 700,
-            height: 500,
-            dominant_colors: [
-                { color: "#F5F6F5", percentage: 0.4 },
-                { color: "#A3C9A9", percentage: 0.3 },
-                { color: "#A9A9A9", percentage: 0.2 }
-            ]
-        }
-    },
-    {
-        id: 6,
-        title: "Vibrant Energy",
-        description: "Bold colors and dynamic brushstrokes create an energetic focal point that adds personality and excitement to any room.",
-        price: "$13.95",
-        product_url: "#",
-        filename: "artwork-6.jpg",
-        attributes: {
-            width: 850,
-            height: 650,
-            dominant_colors: [
-                { color: "#FF1493", percentage: 0.3 },
-                { color: "#00CED1", percentage: 0.25 },
-                { color: "#FFD700", percentage: 0.2 }
-            ]
-        }
-    }
-];
-
 // Initialize the application
 document.addEventListener('DOMContentLoaded', function() {
     console.log('Enhanced Taberner Studio App initialized');
@@ -378,20 +272,8 @@ function getRecommendationsByPreferences(preferences) {
     })
     .catch(error => {
         console.error('Error getting recommendations by preferences:', error);
-        console.log('Using simulated data as fallback');
-        
-        // Use simulated data as fallback
-        displayResults(simulatedArtworkData);
-        
-        // Show a subtle notification that we're using demo data
-        const preferencesFormContainer = document.getElementById('preferences-form-container');
-        showSuccessState(preferencesFormContainer, 'Demo mode: Showing sample recommendations');
-        
-        // Hide the success message after 3 seconds
-        setTimeout(() => {
-            preferencesFormContainer.style.display = 'none';
-            document.getElementById('options-section').style.display = 'grid';
-        }, 3000);
+        showErrorState(document.getElementById('results-area'), 'Unable to get recommendations. Please try again.');
+        showResultsView();
     });
 }
 
@@ -409,20 +291,39 @@ function showResultsView() {
     const uploadView = document.getElementById('upload-view');
     const resultsArea = document.getElementById('results-area');
     
+    console.log('showResultsView called - Current scroll position:', window.scrollY);
+    
     // Correctly toggle the views
     uploadView.style.display = 'none';
     resultsArea.style.display = 'block';
     
     // Set the room image in the showroom
     const roomImage = document.getElementById('room-image');
-    if (uploadedImage) {
-        roomImage.src = uploadedImage;
-        roomImage.style.display = 'block';
+    if (roomImage) {
+        if (uploadedImage) {
+            roomImage.src = uploadedImage;
+            roomImage.style.display = 'block';
+        } else {
+            // For preference-based recommendations, show a default room
+            roomImage.src = 'assets/mock/mock-room.jpg';
+            roomImage.style.display = 'block';
+        }
     } else {
-        // For preference-based recommendations, show a default room
-        roomImage.src = 'assets/mock/mock-room.jpg';
-        roomImage.style.display = 'block';
+        console.error('Room image element not found');
     }
+    
+    console.log('About to scroll to top - Current position:', window.scrollY);
+    
+    // Use setTimeout to ensure DOM is updated before scrolling
+    setTimeout(() => {
+        console.log('Executing scroll to top - Position before scroll:', window.scrollY);
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+        
+        // Check position after a short delay
+        setTimeout(() => {
+            console.log('Position after scroll:', window.scrollY);
+        }, 500);
+    }, 100);
 }
 
 // Enhanced resetToOptions function
@@ -471,24 +372,13 @@ function getRecommendations() {
     })
     .catch(error => {
         console.error('Error getting recommendations:', error);
-        console.log('Using simulated data as fallback');
-        
-        // Use simulated data as fallback
-        displayResults(simulatedArtworkData);
-        
-        // Show a subtle notification that we're using demo data
-        const uploadFormContainer = document.getElementById('upload-form-container');
-        showSuccessState(uploadFormContainer, 'Demo mode: Showing sample recommendations');
-        
-        // Hide the success message after 3 seconds
-        setTimeout(() => {
-            uploadFormContainer.style.display = 'none';
-            document.getElementById('options-section').style.display = 'grid';
-        }, 3000);
+        showErrorState(document.getElementById('results-area'), 'Unable to get recommendations. Please try again.');
+        showResultsView();
     });
 }
 
 function displayResults(recommendations) {
+    console.log('displayResults called with', recommendations.length, 'recommendations');
     allArtworks = recommendations;
     showResultsView();
 
@@ -525,6 +415,27 @@ function initializeArtworkInteraction() {
                     const target = event.target;
                     target.style.width = `${event.rect.width}px`;
                     target.style.height = `${event.rect.height}px`;
+                    
+                    // Debug logging during resize
+                    console.log('=== RESIZE DEBUG ===');
+                    console.log('Resize event rect width:', event.rect.width);
+                    console.log('Resize event rect height:', event.rect.height);
+                    console.log('Target style width:', target.style.width);
+                    console.log('Target style height:', target.style.height);
+                    console.log('Target offsetWidth (including border):', target.offsetWidth);
+                    console.log('Target offsetHeight (including border):', target.offsetHeight);
+                    console.log('Target clientWidth (excluding border):', target.clientWidth);
+                    console.log('Target clientHeight (excluding border):', target.clientHeight);
+                    
+                    // Check the image inside
+                    const artworkImage = document.getElementById('artwork-image');
+                    if (artworkImage) {
+                        console.log('Image offsetWidth:', artworkImage.offsetWidth);
+                        console.log('Image offsetHeight:', artworkImage.offsetHeight);
+                        console.log('Image naturalWidth:', artworkImage.naturalWidth);
+                        console.log('Image naturalHeight:', artworkImage.naturalHeight);
+                    }
+                    console.log('=== END RESIZE DEBUG ===');
                 },
             },
             modifiers: [interact.modifiers.restrictSize({
@@ -541,82 +452,110 @@ function initializeArtworkInteraction() {
 // Update artwork display
 function updateArtworkDisplay(index) {
     const artwork = allArtworks[index];
-    if (!artwork) return;
+    if (!artwork) {
+        console.error('No artwork found at index:', index);
+        return;
+    }
+    
+    console.log('Updating artwork display for:', artwork);
     
     // Update overlay image
     const artworkImage = document.getElementById('artwork-image');
     if (artworkImage) {
-        // Use placeholder for simulated data, real images for API data
-        if (artwork.filename && artwork.filename.startsWith('artwork-')) {
-            // Simulated data - use a colored placeholder
-            const colors = artwork.attributes.dominant_colors;
-            const primaryColor = colors[0].color;
-            artworkImage.src = `data:image/svg+xml;base64,${btoa(`
-                <svg width="400" height="300" xmlns="http://www.w3.org/2000/svg">
-                    <rect width="100%" height="100%" fill="${primaryColor}"/>
-                    <text x="50%" y="50%" text-anchor="middle" dy=".3em" fill="white" font-family="Arial" font-size="24">${artwork.title}</text>
-                </svg>
-            `)}`;
-        } else {
-            // Real API data
-            artworkImage.src = `/catalog/images/${artwork.filename}`;
-        }
+        // Use real image from catalog
+        const imageSrc = `/catalog/images/${artwork.filename}`;
+        console.log('Setting image src to:', imageSrc);
+        
+        artworkImage.src = imageSrc;
         artworkImage.alt = artwork.title;
-    }
-    
-    // Set initial size for the overlay
-    const overlay = document.getElementById('artwork-overlay');
-    if (overlay) {
-        // Use artwork's dimensions to set an initial aspect-ratio correct size
-        const aspectRatio = artwork.attributes.width / artwork.attributes.height;
-        let initialWidth = 250;
-        let initialHeight = initialWidth / aspectRatio;
-
-        // Ensure it fits reasonably within the container
-        const container = document.getElementById('virtual-showroom');
-        if (container) {
-            if (initialWidth > container.clientWidth * 0.8) {
-                initialWidth = container.clientWidth * 0.8;
-                initialHeight = initialWidth / aspectRatio;
+        
+        // Add error handling for image loading
+        artworkImage.onerror = function() {
+            console.error('Failed to load image:', imageSrc);
+            console.error('Artwork data:', artwork);
+            // Show error message to user
+            const overlay = document.getElementById('artwork-overlay');
+            if (overlay) {
+                overlay.innerHTML = '<div style="color: red; text-align: center; padding: 20px;">Unable to load image</div>';
             }
-            if (initialHeight > container.clientHeight * 0.8) {
-                initialHeight = container.clientHeight * 0.8;
-                initialWidth = initialHeight * aspectRatio;
-            }
+        };
+        
+        // Set initial overlay size with a default aspect ratio to prevent NaN height
+        const overlay = document.getElementById('artwork-overlay');
+        if (overlay) {
+            // Use a default aspect ratio of 4:3 for initial sizing
+            const defaultAspectRatio = 4/3;
+            const baseWidth = 250;
+            const baseHeight = baseWidth / defaultAspectRatio;
+            
+            overlay.style.width = baseWidth + 'px';
+            overlay.style.height = baseHeight + 'px';
+            overlay.style.left = '50%';
+            overlay.style.top = '50%';
+            overlay.style.transform = 'translate(-50%, -50%)';
+            overlay.setAttribute('data-x', '0');
+            overlay.setAttribute('data-y', '0');
+            
+            console.log('=== YELLOW BOX SIZING DEBUG ===');
+            console.log('Artwork dimensions:', artwork.width, 'x', artwork.height);
+            console.log('Default aspect ratio used:', defaultAspectRatio);
+            console.log('Initial overlay size:', baseWidth, 'x', baseHeight);
+            console.log('Overlay computed style width:', getComputedStyle(overlay).width);
+            console.log('Overlay computed style height:', getComputedStyle(overlay).height);
+            console.log('Overlay offsetWidth (including border):', overlay.offsetWidth);
+            console.log('Overlay offsetHeight (including border):', overlay.offsetHeight);
+            console.log('Overlay clientWidth (excluding border):', overlay.clientWidth);
+            console.log('Overlay clientHeight (excluding border):', overlay.clientHeight);
+            console.log('Artwork image natural width:', artworkImage.naturalWidth);
+            console.log('Artwork image natural height:', artworkImage.naturalHeight);
+            console.log('Artwork image computed width:', getComputedStyle(artworkImage).width);
+            console.log('Artwork image computed height:', getComputedStyle(artworkImage).height);
+            console.log('=== END DEBUG ===');
         }
-
-        overlay.style.width = `${initialWidth}px`;
-        overlay.style.height = `${initialHeight}px`;
-        overlay.style.left = '50%';
-        overlay.style.top = '50%';
-        overlay.style.transform = 'translate(-50%, -50%)';
-        overlay.setAttribute('data-x', '0');
-        overlay.setAttribute('data-y', '0');
-    }
-    
-    // Update product details
-    document.getElementById('artwork-title').textContent = artwork.title;
-    document.getElementById('artwork-description').textContent = artwork.description;
-    document.getElementById('artwork-price').textContent = artwork.price;
-    
-    // Show match score for simulated data
-    const matchScoreElement = document.getElementById('match-score');
-    if (artwork.filename && artwork.filename.startsWith('artwork-')) {
-        // Simulated data - show a random high score
-        const score = Math.floor(Math.random() * 20) + 80; // 80-99%
-        matchScoreElement.textContent = score + '%';
-        matchScoreElement.style.display = 'block';
+        
+        // Update overlay size after image loads to match actual aspect ratio
+        artworkImage.onload = function() {
+            console.log('Image loaded successfully:', imageSrc);
+            const overlay = document.getElementById('artwork-overlay');
+            if (overlay && this.naturalWidth && this.naturalHeight) {
+                const aspectRatio = this.naturalWidth / this.naturalHeight;
+                const baseWidth = 250;
+                const calculatedHeight = baseWidth / aspectRatio;
+                
+                overlay.style.width = baseWidth + 'px';
+                overlay.style.height = calculatedHeight + 'px';
+                
+                console.log('=== AFTER IMAGE LOAD ===');
+                console.log('Artwork image natural width:', this.naturalWidth);
+                console.log('Artwork image natural height:', this.naturalHeight);
+                console.log('Artwork image computed width:', getComputedStyle(this).width);
+                console.log('Artwork image computed height:', getComputedStyle(this).height);
+                console.log('Overlay offsetWidth (including border):', overlay.offsetWidth);
+                console.log('Overlay offsetHeight (including border):', overlay.offsetHeight);
+                console.log('Overlay clientWidth (excluding border):', overlay.clientWidth);
+                console.log('Overlay clientHeight (excluding border):', overlay.clientHeight);
+                console.log('Border width (computed):', overlay.offsetWidth - overlay.clientWidth);
+                console.log('Border height (computed):', overlay.offsetHeight - overlay.clientHeight);
+            }
+        };
     } else {
-        // Real API data - hide score as it's not provided
-        matchScoreElement.textContent = '';
-        matchScoreElement.style.display = 'none';
+        console.error('Artwork image element not found');
     }
     
-    // Update purchase button
-    const purchaseButton = document.getElementById('purchase-button');
-    if (purchaseButton) {
-        purchaseButton.onclick = () => window.open(artwork.product_url, '_blank');
-    }
+    // Update artwork info
+    const artworkTitle = document.getElementById('artwork-title');
+    const artworkDescription = document.getElementById('artwork-description');
+    const artworkPrice = document.getElementById('artwork-price');
+    
+    if (artworkTitle) artworkTitle.textContent = artwork.title;
+    if (artworkDescription) artworkDescription.textContent = artwork.description;
+    if (artworkPrice) artworkPrice.textContent = `$${artwork.price}`;
+    
+    // Update current artwork index
+    currentArtworkIndex = index;
+    
+    // Update navigation buttons
+    updateNavigationButtons();
     
     // Update thumbnail selection
     updateThumbnailSelection(index);
@@ -625,45 +564,32 @@ function updateArtworkDisplay(index) {
 // Create thumbnail gallery
 function createThumbnailGallery() {
     const gallery = document.getElementById('thumbnail-gallery');
-    if (!gallery) return;
+    if (!gallery) {
+        console.error('Thumbnail gallery element not found');
+        return;
+    }
     
+    console.log('Creating thumbnail gallery with', allArtworks.length, 'artworks');
     gallery.innerHTML = '';
     
     allArtworks.forEach((artwork, index) => {
+        console.log('Creating thumbnail for artwork:', artwork);
+        
         const thumbnail = document.createElement('div');
         thumbnail.className = 'thumbnail-item';
         thumbnail.onclick = () => selectThumbnail(index);
         
-        // Create thumbnail image
-        let thumbnailImage;
-        if (artwork.filename && artwork.filename.startsWith('artwork-')) {
-            // Simulated data - use a colored placeholder
-            const colors = artwork.attributes.dominant_colors;
-            const primaryColor = colors[0].color;
-            thumbnailImage = `data:image/svg+xml;base64,${btoa(`
-                <svg width="200" height="150" xmlns="http://www.w3.org/2000/svg">
-                    <rect width="100%" height="100%" fill="${primaryColor}"/>
-                    <text x="50%" y="50%" text-anchor="middle" dy=".3em" fill="white" font-family="Arial" font-size="16">${artwork.title}</text>
-                </svg>
-            `)}`;
-        } else {
-            // Real API data
-            thumbnailImage = `/catalog/images/${artwork.filename}`;
-        }
-        
-        // Create match score for simulated data
-        let matchScore = '';
-        if (artwork.filename && artwork.filename.startsWith('artwork-')) {
-            const score = Math.floor(Math.random() * 20) + 80; // 80-99%
-            matchScore = `<div class="thumbnail-score">${score}% Match</div>`;
-        }
+        // Use real image from catalog
+        const thumbnailImage = `/catalog/images/${artwork.filename}`;
+        console.log('Thumbnail image src:', thumbnailImage);
         
         thumbnail.innerHTML = `
-            <img src="${thumbnailImage}" alt="${artwork.title}" loading="lazy">
+            <img src="${thumbnailImage}" alt="${artwork.title}" loading="lazy" 
+                 onerror="console.error('Failed to load thumbnail:', '${thumbnailImage}')"
+                 onload="console.log('Thumbnail loaded:', '${thumbnailImage}')">
             <div class="thumbnail-overlay">
                 <div class="thumbnail-title">${artwork.title}</div>
-                ${matchScore}
-                <div class="thumbnail-price">${artwork.price}</div>
+                <div class="thumbnail-price">$${artwork.price}</div>
             </div>
         `;
         
@@ -745,13 +671,46 @@ document.addEventListener('DOMContentLoaded', function() {
             if (allArtworks.length > 0) {
                 showResultsView();
             } else {
-                // Load simulated data for preview
-                console.log("Loading simulated data for preview");
-                displayResults(simulatedArtworkData);
+                // Show error if no real data is available
+                console.log("No artwork data available for preview");
+                showErrorState(document.getElementById('results-area'), 'No artwork data available. Please upload an image first.');
+                showResultsView();
             }
         } else if (event.data.action === 'hideResults') {
             console.log('Received hideResults message');
             resetToOptions();
         }
     });
-}); 
+});
+
+// Update navigation buttons
+function updateNavigationButtons() {
+    const prevBtn = document.getElementById('prev-artwork');
+    const nextBtn = document.getElementById('next-artwork');
+    
+    if (prevBtn) {
+        prevBtn.disabled = currentArtworkIndex === 0;
+        prevBtn.style.opacity = currentArtworkIndex === 0 ? '0.5' : '1';
+    }
+    
+    if (nextBtn) {
+        nextBtn.disabled = currentArtworkIndex === allArtworks.length - 1;
+        nextBtn.style.opacity = currentArtworkIndex === allArtworks.length - 1 ? '0.5' : '1';
+    }
+}
+
+// Navigate to previous artwork
+function previousArtwork() {
+    if (currentArtworkIndex > 0) {
+        currentArtworkIndex--;
+        updateArtworkDisplay(currentArtworkIndex);
+    }
+}
+
+// Navigate to next artwork
+function nextArtwork() {
+    if (currentArtworkIndex < allArtworks.length - 1) {
+        currentArtworkIndex++;
+        updateArtworkDisplay(currentArtworkIndex);
+    }
+} 
