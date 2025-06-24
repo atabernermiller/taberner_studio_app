@@ -931,42 +931,45 @@ header {
 .virtual-showroom {
     position: relative;
     width: 100%;
-    height: 450px;
+    max-width: 600px;
+    max-height: 450px;
+    aspect-ratio: 4/3;
     background: var(--tertiary-bg) url('assets/mock/mock-room.jpg') no-repeat center center;
     background-size: cover;
     border-radius: var(--border-radius-small);
     overflow: hidden;
     margin-bottom: 2rem;
-}
-
-.room-background {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    display: block;
-}
-
-#artwork-overlay {
-    position: absolute;
-    cursor: move;
-    border: 3px solid var(--accent-color);
-    z-index: 10;
-    touch-action: none;
-    user-select: none;
-    background-size: cover;
-    background-position: center;
-    box-sizing: border-box;
-    min-width: 100px;
-    min-height: 100px;
     display: flex;
     align-items: center;
     justify-content: center;
 }
 
-#artwork-overlay img {
+#room-image {
     width: 100%;
     height: 100%;
-    object-fit: cover;
+    object-fit: contain;
+    display: block;
+    background: #eee;
+}
+
+#artwork-overlay {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10;
+    background: none;
+    border: none;
+}
+
+#artwork-overlay img {
+    max-width: 90%;
+    max-height: 90%;
+    object-fit: contain;
     object-position: center;
     image-rendering: -webkit-optimize-contrast;
     image-rendering: crisp-edges;

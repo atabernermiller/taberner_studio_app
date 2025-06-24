@@ -493,10 +493,32 @@ function showResultsView() {
     
     // Set the room image in the showroom
     const roomImage = document.getElementById('room-image');
+    const virtualShowroom = document.getElementById('virtual-showroom');
+    const artworkOverlay = document.getElementById('artwork-overlay');
     if (roomImage) {
         if (uploadedImage) {
             roomImage.src = uploadedImage;
             roomImage.style.display = 'block';
+            // Wait for the image to load to get its natural dimensions
+            roomImage.onload = function() {
+                // Dynamically set the showroom and overlay aspect ratio to match the uploaded image
+                if (this.naturalWidth && this.naturalHeight && virtualShowroom && artworkOverlay) {
+                    const aspectRatio = this.naturalWidth / this.naturalHeight;
+                    // Set max dimensions
+                    let maxWidth = 600;
+                    let maxHeight = 450;
+                    let width = maxWidth;
+                    let height = width / aspectRatio;
+                    if (height > maxHeight) {
+                        height = maxHeight;
+                        width = height * aspectRatio;
+                    }
+                    virtualShowroom.style.width = width + 'px';
+                    virtualShowroom.style.height = height + 'px';
+                    artworkOverlay.style.width = width + 'px';
+                    artworkOverlay.style.height = height + 'px';
+                }
+            };
         } else {
             // For preference-based recommendations, show a default room
             roomImage.src = 'assets/mock/mock-room.jpg';
