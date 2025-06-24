@@ -188,6 +188,40 @@ document.addEventListener('DOMContentLoaded', function() {
             heroSection.style.transform = 'translateY(0)';
         }, 100);
     }
+
+    // Option card click handlers with smooth transitions
+    document.querySelectorAll('.option-card').forEach(card => {
+        card.addEventListener('click', function() {
+            const action = this.getAttribute('data-action');
+            if (action === 'upload') {
+                showView('upload-view');
+            } else if (action === 'preferences') {
+                showView('preferences-view');
+            }
+        });
+    });
+
+    // Back button handlers with smooth transitions
+    document.querySelectorAll('.back-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            showView('landing-view');
+        });
+    });
+
+    // Form submission with enhanced loading
+    const uploadForm = document.getElementById('upload-form');
+    if (uploadForm) {
+        uploadForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            showLoading();
+            
+            // Simulate processing time for better UX
+            setTimeout(() => {
+                hideLoading();
+                showView('results-view');
+            }, 2000);
+        });
+    }
 });
 
 // Form navigation functions
@@ -739,28 +773,55 @@ function saveFavorites() {
     }, 2000);
 }
 
-// Initialize upload functionality
-document.addEventListener('DOMContentLoaded', function() {
-    console.log('Enhanced Taberner Studio app loaded');
-    
-    // Initialize upload functionality
-    initializeUpload();
-    
-    // Listen for messages from preview system
-    window.addEventListener('message', function(event) {
-        if (event.data.action === 'showResults') {
-            console.log('Received showResults message');
-            // This is for external control, might need mock data or a specific artwork ID
-            if (allArtworks.length > 0) {
-                showResultsView();
-            } else {
-                // Load simulated data for preview
-                console.log("Loading simulated data for preview");
-                displayResults(simulatedArtworkData);
-            }
-        } else if (event.data.action === 'hideResults') {
-            console.log('Received hideResults message');
-            resetToOptions();
-        }
+// Smooth view transitions
+function showView(viewId) {
+    // Hide all views with fade out
+    const allViews = document.querySelectorAll('.view');
+    allViews.forEach(view => {
+        view.style.opacity = '0';
+        view.style.transform = 'translateY(20px)';
+        view.style.transition = 'all 0.3s ease';
     });
-}); 
+
+    // Show target view with fade in
+    setTimeout(() => {
+        allViews.forEach(view => view.style.display = 'none');
+        const targetView = document.getElementById(viewId);
+        if (targetView) {
+            targetView.style.display = 'block';
+            targetView.style.opacity = '0';
+            targetView.style.transform = 'translateY(20px)';
+            
+            // Trigger reflow
+            targetView.offsetHeight;
+            
+            // Animate in
+            targetView.style.opacity = '1';
+            targetView.style.transform = 'translateY(0)';
+            targetView.style.transition = 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)';
+        }
+    }, 300);
+}
+
+// Enhanced loading state management
+function showLoading() {
+    const spinner = document.getElementById('loading-spinner');
+    if (spinner) {
+        spinner.style.display = 'flex';
+        spinner.style.opacity = '0';
+        setTimeout(() => {
+            spinner.style.opacity = '1';
+            spinner.style.transition = 'opacity 0.3s ease';
+        }, 10);
+    }
+}
+
+function hideLoading() {
+    const spinner = document.getElementById('loading-spinner');
+    if (spinner) {
+        spinner.style.opacity = '0';
+        setTimeout(() => {
+            spinner.style.display = 'none';
+        }, 300);
+    }
+} 
