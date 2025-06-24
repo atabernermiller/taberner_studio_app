@@ -56,6 +56,7 @@ function showErrorState(element, message) {
 let currentView = 'upload';
 let uploadedImage = null;
 let allArtworks = []; // Will hold recommendations from the server
+let isUploading = false; // Flag to prevent multiple uploads
 
 // Initialize the application when DOM is loaded
 document.addEventListener('DOMContentLoaded', function() {
@@ -138,9 +139,28 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
     
-    // Initialize the application
+    // Initialize the application - only call once
     initializeUpload();
     initializeEventListeners();
+    
+    // Listen for messages from preview system
+    window.addEventListener('message', function(event) {
+        if (event.data.action === 'showResults') {
+            console.log('Received showResults message');
+            // This is for external control, might need mock data or a specific artwork ID
+            if (allArtworks.length > 0) {
+                showResultsView();
+            } else {
+                // Show error if no real data is available
+                console.log("No artwork data available for preview");
+                showErrorState(document.getElementById('results-area'), 'No artwork data available. Please upload an image first.');
+                showResultsView();
+            }
+        } else if (event.data.action === 'hideResults') {
+            console.log('Received hideResults message');
+            resetToOptions();
+        }
+    });
 });
 
 // Form navigation functions
@@ -176,12 +196,115 @@ function showPreferencesForm() {
 
 // Enhanced back button functionality
 function backToOptions() {
+    // Hide all form containers
     document.querySelectorAll('.form-container').forEach(form => {
         form.style.display = 'none';
     });
     
+    // Show the options container and header
     document.querySelector('.options-container').style.display = 'grid';
     document.querySelector('.upload-header').style.display = 'block';
+    
+    // Reset state variables
+    uploadedImage = null;
+    isUploading = false;
+    allArtworks = [];
+    currentArtworkIndex = 0;
+    
+    // Restore the original upload form content (full experience)
+    const uploadFormContainer = document.getElementById('upload-form-container');
+    if (uploadFormContainer) {
+        uploadFormContainer.innerHTML = `
+            <div class="form-header">
+                <h3 class="form-title">Upload Your Room Photo</h3>
+                <p class="form-subtitle">We'll analyze your space to find the perfect Taberner Studio artwork match</p>
+            </div>
+            <form id="upload-form">
+                <div class="upload-area" id="upload-area">
+                    <i class="fas fa-cloud-upload-alt upload-icon"></i>
+                    <div class="upload-text">Drop your room photo here</div>
+                    <div class="upload-hint">or click to browse files</div>
+                    <input type="file" id="room-photo" accept="image/*" style="display: none;">
+                </div>
+                <div class="filter-group">
+                    <label for="style-filter">Art Style Preference:</label>
+                    <select id="style-filter">
+                        <option value="">Any Style</option>
+                        <option value="modern">Modern</option>
+                        <option value="classical">Classical</option>
+                        <option value="abstract">Abstract</option>
+                        <option value="landscape">Landscape</option>
+                        <option value="portrait">Portrait</option>
+                    </select>
+                </div>
+            </form>
+        `;
+    }
+    
+    // Restore the original preferences form content (if needed)
+    const preferencesFormContainer = document.getElementById('preferences-form-container');
+    if (preferencesFormContainer) {
+        preferencesFormContainer.innerHTML = `
+            <div class="form-header">
+                <h3 class="form-title">Tell Us Your Preferences</h3>
+                <p class="form-subtitle">We'll match you with the perfect Taberner Studio artwork from our collection</p>
+            </div>
+            <form id="preferences-form">
+                <div class="filter-group">
+                    <label for="mood-select">Mood:</label>
+                    <select id="mood-select">
+                        <option value="">Any Mood</option>
+                        <option value="calm">Calm & Serene</option>
+                        <option value="energetic">Energetic & Vibrant</option>
+                        <option value="sophisticated">Sophisticated & Elegant</option>
+                        <option value="cozy">Cozy & Warm</option>
+                        <option value="minimalist">Minimalist & Clean</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label for="style-select">Art Style:</label>
+                    <select id="style-select">
+                        <option value="">Any Style</option>
+                        <option value="modern">Modern</option>
+                        <option value="classical">Classical</option>
+                        <option value="abstract">Abstract</option>
+                        <option value="impressionist">Impressionist</option>
+                        <option value="contemporary">Contemporary</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label for="subject-select">Subject:</label>
+                    <select id="subject-select">
+                        <option value="">Any Subject</option>
+                        <option value="landscape">Landscape</option>
+                        <option value="portrait">Portrait</option>
+                        <option value="still-life">Still Life</option>
+                        <option value="abstract">Abstract</option>
+                        <option value="nature">Nature</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label for="color-preference">Color Preference:</label>
+                    <select id="color-preference">
+                        <option value="">Any Colors</option>
+                        <option value="warm">Warm Tones</option>
+                        <option value="cool">Cool Tones</option>
+                        <option value="neutral">Neutral</option>
+                        <option value="bold">Bold & Bright</option>
+                        <option value="pastel">Soft & Pastel</option>
+                    </select>
+                </div>
+                <button type="submit" class="button">
+                    <i class="fas fa-search"></i>
+                    Find Artwork
+                </button>
+            </form>
+        `;
+    }
+    
+    // Reinitialize all event listeners to ensure buttons work
+    initializeEventListeners();
+    initializeUpload();
     
     // Scroll back to top smoothly
     window.scrollTo({
@@ -189,14 +312,6 @@ function backToOptions() {
         behavior: 'smooth'
     });
 }
-
-// Add event listeners for back buttons
-document.addEventListener('DOMContentLoaded', function() {
-    const backButtons = document.querySelectorAll('.back-button');
-    backButtons.forEach(button => {
-        button.addEventListener('click', backToOptions);
-    });
-});
 
 // Initialize upload functionality
 function initializeUpload() {
@@ -230,20 +345,15 @@ function initializeUpload() {
         }
     });
     
-    // File input change
+    // File input change - this triggers the upload automatically
     fileInput.addEventListener('change', (e) => {
         if (e.target.files.length > 0) {
             handleFileUpload(e.target.files[0]);
         }
     });
     
-    // Form submissions
-    const uploadForm = document.getElementById('upload-form');
+    // Preferences form only (upload form has no submit button and uploads automatically)
     const preferencesForm = document.getElementById('preferences-form');
-    
-    if (uploadForm) {
-        uploadForm.addEventListener('submit', handleUploadSubmit);
-    }
     
     if (preferencesForm) {
         preferencesForm.addEventListener('submit', (e) => {
@@ -255,10 +365,17 @@ function initializeUpload() {
 
 // Handle file upload
 function handleFileUpload(file) {
+    if (isUploading) {
+        console.log('Upload already in progress, ignoring duplicate request');
+        return;
+    }
+    
     if (!file.type.startsWith('image/')) {
         alert('Please select an image file.');
         return;
     }
+    
+    isUploading = true;
     
     const reader = new FileReader();
     reader.onload = function(e) {
@@ -269,19 +386,13 @@ function handleFileUpload(file) {
         showLoadingState(uploadFormContainer);
         getRecommendations();
     };
+    
+    reader.onerror = function() {
+        isUploading = false;
+        alert('Error reading file. Please try again.');
+    };
+    
     reader.readAsDataURL(file);
-}
-
-// Handle upload form submission
-function handleUploadSubmit(event) {
-    event.preventDefault();
-    if (!uploadedImage) {
-        alert('Please select an image first.');
-        return;
-    }
-    const uploadFormContainer = document.getElementById('upload-form-container');
-    showLoadingState(uploadFormContainer);
-    getRecommendations();
 }
 
 // Handle preferences form submission
@@ -408,6 +519,7 @@ let originalX, originalY;
 function getRecommendations() {
     if (!uploadedImage) {
         showErrorState(document.getElementById('upload-form-container'), 'Please upload an image first.');
+        isUploading = false; // Reset flag
         return;
     }
 
@@ -428,6 +540,7 @@ function getRecommendations() {
         return response.json();
     })
     .then(data => {
+        isUploading = false; // Reset flag on success
         if (data.recommendations && data.recommendations.length > 0) {
             displayResults(data.recommendations);
         } else {
@@ -436,6 +549,7 @@ function getRecommendations() {
         }
     })
     .catch(error => {
+        isUploading = false; // Reset flag on error
         console.error('Error getting recommendations:', error);
         showErrorState(document.getElementById('results-area'), 'Unable to get recommendations. Please try again.');
         showResultsView();
@@ -822,33 +936,6 @@ function saveFavorites() {
     }, 2000);
 }
 
-// Initialize upload functionality
-document.addEventListener('DOMContentLoaded', function() {
-    console.log('Enhanced Taberner Studio app loaded');
-    
-    // Initialize upload functionality
-    initializeUpload();
-    
-    // Listen for messages from preview system
-    window.addEventListener('message', function(event) {
-        if (event.data.action === 'showResults') {
-            console.log('Received showResults message');
-            // This is for external control, might need mock data or a specific artwork ID
-            if (allArtworks.length > 0) {
-                showResultsView();
-            } else {
-                // Show error if no real data is available
-                console.log("No artwork data available for preview");
-                showErrorState(document.getElementById('results-area'), 'No artwork data available. Please upload an image first.');
-                showResultsView();
-            }
-        } else if (event.data.action === 'hideResults') {
-            console.log('Received hideResults message');
-            resetToOptions();
-        }
-    });
-});
-
 // Update navigation buttons
 function updateNavigationButtons() {
     const prevBtn = document.getElementById('prev-artwork');
@@ -889,11 +976,8 @@ function initializeEventListeners() {
         button.addEventListener('click', backToOptions);
     });
     
-    // Add event listeners for form submissions
-    const uploadForm = document.getElementById('upload-form');
-    if (uploadForm) {
-        uploadForm.addEventListener('submit', handleUploadSubmit);
-    }
+    // Note: Upload form event listener is already handled in initializeUpload()
+    // to prevent duplicate event listeners that cause double uploads
     
     const preferencesForm = document.getElementById('preferences-form');
     if (preferencesForm) {
