@@ -8,6 +8,7 @@ phases:
       - aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin $REPOSITORY_URI
       - IMAGE_TAG=latest
       - echo Copying frontend files to backend directory...
+      - mkdir -p backend/static
       - cp -r frontend/* backend/static/
   build:
     commands:
