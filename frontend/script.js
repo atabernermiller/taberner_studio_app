@@ -1,6 +1,17 @@
 // Enhanced JavaScript for Proposed Version
 // This includes additional functionality for the hero section
 
+// Prevent browser scroll restoration
+if ('scrollRestoration' in history) {
+    history.scrollRestoration = 'manual';
+}
+
+// Clear scroll position before page unload to prevent browser scroll restoration
+window.addEventListener('beforeunload', function() {
+    console.log('Page unloading - clearing scroll position');
+    window.scrollTo(0, 0);
+});
+
 // Smooth scroll to options
 function scrollToOptions() {
     document.getElementById('options-section').scrollIntoView({
@@ -46,11 +57,74 @@ let currentView = 'upload';
 let uploadedImage = null;
 let allArtworks = []; // Will hold recommendations from the server
 
-// Initialize the application
+// Initialize the application when DOM is loaded
 document.addEventListener('DOMContentLoaded', function() {
-    console.log('Enhanced Taberner Studio App initialized');
+    console.log('=== LANDING PAGE LOAD DEBUG ===');
+    console.log('Initial scroll position:', window.scrollY);
+    console.log('Initial pageYOffset:', window.pageYOffset);
+    console.log('Document height:', document.documentElement.scrollHeight);
+    console.log('Viewport height:', window.innerHeight);
     
-    // Add smooth scrolling to all internal links
+    // Force scroll to top on page load to prevent browser scroll restoration
+    window.scrollTo(0, 0);
+    
+    // More aggressive scroll-to-top handling
+    function forceScrollToTop() {
+        if (window.scrollY > 0) {
+            console.log('Forcing scroll to top from position:', window.scrollY);
+            window.scrollTo({
+                top: 0,
+                left: 0,
+                behavior: 'instant' // Use instant to override any smooth scrolling
+            });
+        }
+    }
+    
+    // Force scroll to top multiple times to handle browser restoration
+    forceScrollToTop();
+    setTimeout(forceScrollToTop, 50);
+    setTimeout(forceScrollToTop, 100);
+    setTimeout(forceScrollToTop, 200);
+    setTimeout(forceScrollToTop, 500);
+    
+    // Log position after forcing scroll to top
+    setTimeout(() => {
+        console.log('Scroll position after forcing to top:', window.scrollY);
+        console.log('=== END LANDING PAGE LOAD DEBUG ===');
+    }, 100);
+    
+    // Additional scroll monitoring for debugging
+    let scrollCheckCount = 0;
+    const maxScrollChecks = 10;
+    
+    function checkScrollPosition() {
+        scrollCheckCount++;
+        console.log(`Scroll check ${scrollCheckCount}: position = ${window.scrollY}`);
+        
+        if (window.scrollY > 100 && scrollCheckCount < maxScrollChecks) { // Allow small scroll amounts
+            console.log('Page scrolled down, forcing back to top...');
+            forceScrollToTop();
+            setTimeout(checkScrollPosition, 200);
+        }
+    }
+    
+    // Start monitoring scroll position
+    setTimeout(checkScrollPosition, 500);
+    
+    // Animate hero section on load
+    const heroSection = document.querySelector('.hero-section');
+    if (heroSection) {
+        heroSection.style.opacity = '0';
+        heroSection.style.transform = 'translateY(30px)';
+        
+        setTimeout(() => {
+            heroSection.style.transition = 'opacity 0.8s ease, transform 0.8s ease';
+            heroSection.style.opacity = '1';
+            heroSection.style.transform = 'translateY(0)';
+        }, 100);
+    }
+    
+    // Set up smooth scrolling for anchor links
     document.querySelectorAll('a[href^="#"]').forEach(anchor => {
         anchor.addEventListener('click', function (e) {
             e.preventDefault();
@@ -64,18 +138,9 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
     
-    // Add hero section animations
-    const heroSection = document.querySelector('.hero-section');
-    if (heroSection) {
-        heroSection.style.opacity = '0';
-        heroSection.style.transform = 'translateY(20px)';
-        
-        setTimeout(() => {
-            heroSection.style.transition = 'all 0.6s ease';
-            heroSection.style.opacity = '1';
-            heroSection.style.transform = 'translateY(0)';
-        }, 100);
-    }
+    // Initialize the application
+    initializeUpload();
+    initializeEventListeners();
 });
 
 // Form navigation functions
@@ -813,5 +878,46 @@ function nextArtwork() {
     if (currentArtworkIndex < allArtworks.length - 1) {
         currentArtworkIndex++;
         updateArtworkDisplay(currentArtworkIndex);
+    }
+}
+
+// Initialize event listeners
+function initializeEventListeners() {
+    // Add event listeners for back buttons
+    const backButtons = document.querySelectorAll('.back-button');
+    backButtons.forEach(button => {
+        button.addEventListener('click', backToOptions);
+    });
+    
+    // Add event listeners for form submissions
+    const uploadForm = document.getElementById('upload-form');
+    if (uploadForm) {
+        uploadForm.addEventListener('submit', handleUploadSubmit);
+    }
+    
+    const preferencesForm = document.getElementById('preferences-form');
+    if (preferencesForm) {
+        preferencesForm.addEventListener('submit', handlePreferencesSubmit);
+    }
+    
+    // Add event listeners for navigation buttons
+    const getStartedBtn = document.getElementById('get-started-btn');
+    if (getStartedBtn) {
+        getStartedBtn.addEventListener('click', scrollToOptions);
+    }
+    
+    const findArtBtn = document.getElementById('find-art-btn');
+    if (findArtBtn) {
+        findArtBtn.addEventListener('click', getRecommendations);
+    }
+    
+    const backToLandingBtn = document.getElementById('back-to-landing');
+    if (backToLandingBtn) {
+        backToLandingBtn.addEventListener('click', goBackToLanding);
+    }
+    
+    const resetBtn = document.getElementById('reset-btn');
+    if (resetBtn) {
+        resetBtn.addEventListener('click', resetToOptions);
     }
 } 
