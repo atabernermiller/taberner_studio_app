@@ -1,0 +1,62 @@
+{
+  "family": "taberner-studio",
+  "networkMode": "awsvpc",
+  "requiresCompatibilities": ["FARGATE"],
+  "cpu": "512",
+  "memory": "1024",
+  "executionRoleArn": "arn:aws:iam::ACCOUNT_ID:role/ecsTaskExecutionRole",
+  "taskRoleArn": "arn:aws:iam::ACCOUNT_ID:role/ecsTaskRole",
+  "containerDefinitions": [
+    {
+      "name": "taberner-studio-app",
+      "image": "ACCOUNT_ID.dkr.ecr.REGION.amazonaws.com/taberner-studio:latest",
+      "portMappings": [
+        {
+          "containerPort": 8000,
+          "protocol": "tcp"
+        }
+      ],
+      "essential": true,
+      "environment": [
+        {
+          "name": "APP_ENV",
+          "value": "aws"
+        },
+        {
+          "name": "CATALOG_TABLE_NAME",
+          "value": "taberner-studio-catalog"
+        },
+        {
+          "name": "CATALOG_BUCKET_NAME",
+          "value": "taberner-studio-catalog-images"
+        },
+        {
+          "name": "APPROVED_BUCKET",
+          "value": "taberner-studio-images"
+        },
+        {
+          "name": "QUARANTINE_BUCKET",
+          "value": "taberner-studio-quarantine"
+        }
+      ],
+      "logConfiguration": {
+        "logDriver": "awslogs",
+        "options": {
+          "awslogs-group": "/ecs/taberner-studio",
+          "awslogs-region": "REGION",
+          "awslogs-stream-prefix": "ecs"
+        }
+      },
+      "healthCheck": {
+        "command": [
+          "CMD-SHELL",
+          "curl -f http://localhost:8000/health || exit 1"
+        ],
+        "interval": 30,
+        "timeout": 5,
+        "retries": 3,
+        "startPeriod": 60
+      }
+    }
+  ]
+} 

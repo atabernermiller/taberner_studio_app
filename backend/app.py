@@ -2,6 +2,11 @@ import os
 import json
 import io
 import uuid
+import logging
+import psutil
+import gc
+import signal
+import sys
 from datetime import datetime
 import numpy as np
 import boto3
@@ -12,6 +17,54 @@ from sklearn.cluster import KMeans
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
 import base64
+
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s %(levelname)s %(message)s",
+    handlers=[
+        logging.FileHandler("app.log"),
+        logging.StreamHandler(sys.stdout)
+    ]
+)
+
+logging.info(f"Entrypoint: {__file__}")
+logging.info(f"Working directory: {os.getcwd()}")
+logging.info(f"sys.argv: {sys.argv}")
+logging.info(f"Python version: {sys.version}")
+logging.info(f"__name__: {__name__}")
+logging.info("Environment variables (filtered):")
+for k, v in os.environ.items():
+    if not any(s in k for s in ["KEY", "SECRET", "PASSWORD"]):
+        logging.info(f"  {k}={v}")
+
+logger = logging.getLogger(__name__)
+
+# Memory monitoring function
+def log_memory_usage(context=""):
+    """Log current memory usage for debugging"""
+    try:
+        process = psutil.Process()
+        memory_info = process.memory_info()
+        memory_percent = process.memory_percent()
+        logger.info(f"Memory usage {context}: {memory_info.rss / 1024 / 1024:.2f} MB ({memory_percent:.1f}%)")
+        return memory_info.rss
+    except Exception as e:
+        logger.warning(f"Could not get memory usage: {e}")
+        return 0
+
+# Signal handlers for graceful shutdown
+def signal_handler(signum, frame):
+    """Handle shutdown signals gracefully"""
+    logger.info(f"Received signal {signum}, shutting down gracefully...")
+    log_memory_usage("before shutdown")
+    sys.exit(0)
+
+# Register signal handlers
+signal.signal(signal.SIGINT, signal_handler)
+signal.signal(signal.SIGTERM, signal_handler)
+
+logger.info("=== Application Starting ===")
+log_memory_usage("at startup")
 
 # The static_folder argument points to the 'static' directory, which now contains the frontend.
 # The static_url_path='' makes the static files available from the root URL.
@@ -32,6 +85,7 @@ os.makedirs(UPLOAD_DIR_QUARANTINE, exist_ok=True)
 
 # Environment configuration ('local' or 'aws')
 APP_ENV = os.environ.get('APP_ENV', 'local')
+logger.info(f"Application environment: {APP_ENV}")
 
 # Bucket configuration from environment variables (for aws mode)
 APPROVED_BUCKET = os.environ.get('APPROVED_BUCKET', 'taberner-studio-images')
@@ -39,24 +93,28 @@ QUARANTINE_BUCKET = os.environ.get('QUARANTINE_BUCKET', 'taberner-studio-quarant
 
 # Load the pre-processed art catalog into memory
 try:
+    logger.info(f"Loading catalog from: {CATALOG_JSON_PATH}")
     with open(CATALOG_JSON_PATH, 'r') as f:
         art_catalog = json.load(f)
-    print(f"Successfully loaded {len(art_catalog)} items from art catalog.")
-except (FileNotFoundError, json.JSONDecodeError):
-    print("WARNING: catalog.json not found or is invalid. Run process_catalog.py.")
+    logger.info(f"Successfully loaded {len(art_catalog)} items from art catalog.")
+    log_memory_usage("after loading catalog")
+except (FileNotFoundError, json.JSONDecodeError) as e:
+    logger.error(f"WARNING: catalog.json not found or is invalid: {e}. Run process_catalog.py.")
     art_catalog = []
 
 # --- AWS & Limiter Setup (Conditional) ---
 rekognition, s3 = None, None
 if APP_ENV == 'aws':
     try:
+        logger.info("Initializing AWS clients...")
         rekognition = boto3.client('rekognition')
         s3 = boto3.client('s3')
-        print("AWS clients configured successfully for 'aws' mode.")
+        logger.info("AWS clients configured successfully for 'aws' mode.")
+        log_memory_usage("after AWS client setup")
     except Exception as e:
-        print(f"CRITICAL: Error configuring AWS clients: {e}. AWS features will fail.")
+        logger.error(f"CRITICAL: Error configuring AWS clients: {e}. AWS features will fail.")
 else:
-    print("Running in 'local' mode. AWS services are disabled.")
+    logger.info("Running in 'local' mode. AWS services are disabled.")
 
 # Rate limiting implementation (only enabled in 'aws' mode)
 limiter = Limiter(
@@ -66,6 +124,7 @@ limiter = Limiter(
     storage_uri="memory://",
     enabled=(APP_ENV == 'aws'),
 )
+logger.info(f"Rate limiting enabled: {APP_ENV == 'aws'}")
 
 # --- Core Logic: Color Analysis, Moderation, Storage ---
 
@@ -76,9 +135,12 @@ def hex_to_rgb(hex_color):
 def extract_dominant_colors(image_stream, n_colors=5):
     """Extracts dominant colors from an image stream with their percentages."""
     try:
+        logger.debug("Starting color extraction...")
         img = Image.open(image_stream).convert('RGB')
         img.thumbnail((100, 100))
         pixels = np.array(img).reshape(-1, 3)
+        
+        logger.debug(f"Running KMeans clustering with {n_colors} colors...")
         kmeans = KMeans(n_clusters=n_colors, random_state=42, n_init='auto').fit(pixels)
         
         colors = kmeans.cluster_centers_.astype(int)
@@ -97,16 +159,19 @@ def extract_dominant_colors(image_stream, n_colors=5):
                 })
                 
             dominant_colors.sort(key=lambda x: x['percentage'], reverse=True)
+            logger.info(f"Successfully analyzed image colors: {len(dominant_colors)} colors found")
             return dominant_colors
         return []
     except Exception as e:
-        app.logger.error(f"Error extracting colors: {e}")
+        logger.error(f"Error extracting colors: {e}")
         return []
 
 def get_recommendations(user_colors):
     """Finds the best matching artworks from the catalog based on weighted color harmony."""
+    logger.debug("Starting color-based recommendations...")
     recommendations = []
     if not art_catalog:
+        logger.warning("No art catalog available for recommendations")
         return recommendations
 
     for artwork in art_catalog:
@@ -134,16 +199,20 @@ def get_recommendations(user_colors):
 
     # Sort by score (ascending, lower is better)
     recommendations.sort(key=lambda x: x['score'])
+    logger.info(f"Generated {len(recommendations)} color-based recommendations")
     return recommendations[:10]
 
 def get_recommendations_by_filter(filters):
     """Finds artworks matching the selected mood, style, subject, and color filters."""
+    logger.debug(f"Starting filter-based recommendations with filters: {filters}")
     if not art_catalog:
+        logger.warning("No art catalog available for filter recommendations")
         return []
 
     # Check if any actual filter values were selected
     all_selected_filters = filters.get('moods', []) + filters.get('styles', []) + filters.get('subjects', []) + filters.get('colors', [])
     if not all_selected_filters:
+        logger.info("No filters provided, returning default recommendations")
         # If no filters are provided, return a default list of recommendations.
         return [{'artwork': art, 'score': 0} for art in art_catalog[:10]]
 
@@ -197,6 +266,7 @@ def get_recommendations_by_filter(filters):
             })
 
     filtered_artworks.sort(key=lambda x: x['score'], reverse=True)
+    logger.info(f"Generated {len(filtered_artworks)} filter-based recommendations")
     return filtered_artworks[:9]
 
 def moderate_image_content(image_bytes):
@@ -231,8 +301,10 @@ def store_quarantined_image(image_bytes, filename, reason):
 
 @app.route('/')
 def serve_index():
+    logger.info("Serving index page")
     if app.static_folder:
         return send_from_directory(app.static_folder, 'index.html')
+    logger.error("Frontend not found - static_folder not configured")
     return "Frontend not found", 404
 
 @app.route('/recommend', methods=['POST'])
@@ -242,19 +314,26 @@ def recommend_unified():
     Unified endpoint for getting recommendations.
     Accepts either an image upload or a set of preferences.
     """
+    logger.info("Received recommendation request")
+    log_memory_usage("before recommendation processing")
+    
     data = request.get_json()
     if not data:
+        logger.warning("Invalid request - no JSON data")
         return jsonify(error="Invalid request"), 400
 
     rec_type = data.get('type')
+    logger.info(f"Processing recommendation type: {rec_type}")
     recommendations = []
 
     if rec_type == 'upload':
         image_data = data.get('roomImage')
         if not image_data:
+            logger.warning("No image data provided for upload type")
             return jsonify(error="No image data provided for upload type"), 400
         
         try:
+            logger.info("Processing uploaded image...")
             # Decode the base64 string
             header, encoded = image_data.split(",", 1)
             image_bytes = base64.b64decode(encoded)
@@ -264,25 +343,30 @@ def recommend_unified():
             
             is_approved, reason = moderate_image_content(image_bytes)
             if not is_approved:
+                logger.warning(f"Image moderation failed: {reason}")
                 store_quarantined_image(image_bytes, filename, reason)
                 return jsonify(error=f"Moderation failed: {reason}"), 400
 
             user_colors = extract_dominant_colors(io.BytesIO(image_bytes))
             if not user_colors:
+                logger.error("Could not analyze image colors")
                 return jsonify(error="Could not analyze image colors."), 500
             
             recs = get_recommendations(user_colors)
             recommendations = [rec['artwork'] for rec in recs]
+            logger.info(f"Successfully returned {len(recommendations)} recommendations for uploaded image")
 
         except Exception as e:
-            app.logger.error(f"Error processing uploaded image: {e}")
+            logger.error(f"Error processing uploaded image: {e}")
             return jsonify(error="Failed to process image"), 500
 
     elif rec_type == 'preferences':
         preferences = data.get('preferences')
         if not preferences:
+            logger.warning("No preferences provided for preferences type")
             return jsonify(error="No preferences provided for preferences type"), 400
         
+        logger.info(f"Processing preferences: {preferences}")
         # Filter out empty values and adapt the preferences to the format expected by get_recommendations_by_filter
         filters = {
             'moods': [preferences['mood']] if preferences.get('mood') and preferences['mood'].strip() else [],
@@ -292,8 +376,10 @@ def recommend_unified():
         }
         recs = get_recommendations_by_filter(filters)
         recommendations = [rec['artwork'] for rec in recs]
+        logger.info(f"Successfully returned {len(recommendations)} recommendations for preferences")
     
     else:
+        logger.warning(f"Invalid recommendation type: {rec_type}")
         return jsonify(error="Invalid recommendation type specified"), 400
 
     # Format the final recommendations list
@@ -308,19 +394,43 @@ def recommend_unified():
         'attributes': art['attributes']
     } for art in recommendations]
 
+    log_memory_usage("after recommendation processing")
     return jsonify(recommendations=formatted_recs)
 
 @app.route('/catalog/images/<path:filename>')
 def serve_catalog_image(filename):
+    logger.debug(f"Serving catalog image: {filename}")
     return send_from_directory(ARTWORK_IMAGE_DIR, filename)
 
 @app.errorhandler(429)
 def ratelimit_handler(e):
+    logger.warning(f"Rate limit exceeded: {e.description}")
     return jsonify(error="ratelimit exceeded", description=str(e.description)), 429
+
+@app.errorhandler(404)
+def not_found_handler(e):
+    logger.warning(f"404 error for path: {request.path}")
+    return "Not found", 404
 
 # Main entry point for running the app locally.
 # When deployed on Elastic Beanstalk, the WSGI server (e.g., Gunicorn) will run the app.
 if __name__ == '__main__':
+    logger.info("=== Starting Flask Application ===")
+    log_memory_usage("at application start")
+    
     # For local development, we can run the app with debug mode.
-    # The reloader will automatically restart the server when code changes.
-    app.run(debug=True, port=8000, use_reloader=True)
+    # Disable reloader to avoid semaphore issues and process cleanup problems
+    try:
+        logger.info("Starting Flask development server on port 8000...")
+        # Disable reloader to prevent semaphore issues
+        app.run(debug=True, port=8000, use_reloader=False, host='127.0.0.1')
+    except KeyboardInterrupt:
+        logger.info("Received keyboard interrupt, shutting down gracefully...")
+    except Exception as e:
+        logger.error(f"Failed to start Flask application: {e}")
+        sys.exit(1)
+    finally:
+        logger.info("=== Flask Application Shutting Down ===")
+        log_memory_usage("at application shutdown")
+        # Force garbage collection
+        gc.collect()

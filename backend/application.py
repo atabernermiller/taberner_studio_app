@@ -334,25 +334,6 @@ def serve_catalog_image(filename):
 def ratelimit_handler(e):
     return jsonify(error="ratelimit exceeded", description=str(e.description)), 429
 
-@app.route('/health')
-def health_check():
-    """Health check endpoint for Docker and load balancers"""
-    try:
-        # Basic health check - verify we can connect to DynamoDB
-        catalog_table.table_status
-        return jsonify({
-            'status': 'healthy',
-            'timestamp': datetime.utcnow().isoformat(),
-            'environment': APP_ENV
-        }), 200
-    except Exception as e:
-        app.logger.error(f"Health check failed: {e}")
-        return jsonify({
-            'status': 'unhealthy',
-            'error': str(e),
-            'timestamp': datetime.utcnow().isoformat()
-        }), 500
-
 # Main entry point
 if __name__ == '__main__':
     app.run(debug=True, port=8000, use_reloader=True) 
