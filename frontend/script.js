@@ -8,12 +8,6 @@ function scrollToOptions() {
     });
 }
 
-// Demo functionality
-function showDemo() {
-    // For now, just scroll to options
-    scrollToOptions();
-}
-
 // Enhanced loading states
 function showLoadingState(element) {
     element.innerHTML = `
