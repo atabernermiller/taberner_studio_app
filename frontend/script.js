@@ -426,38 +426,126 @@ function goBackToLanding() {
     const uploadView = document.getElementById('upload-view');
     const resultsArea = document.getElementById('results-area');
     const optionsSection = document.getElementById('options-section');
+    const uploadFormContainer = document.getElementById('upload-form-container');
+    const preferencesFormContainer = document.getElementById('preferences-form-container');
     
+    // Hide results area
     resultsArea.style.display = 'none';
-    uploadView.style.display = 'block'; // Show the main view again
-    optionsSection.style.display = 'grid'; // Show the options section again
-}
-
-// Show the results view
-function showResultsView() {
-    const uploadView = document.getElementById('upload-view');
-    const resultsArea = document.getElementById('results-area');
-    const optionsSection = document.getElementById('options-section');
     
-    // Hide the options section (the two cards) and upload view
-    optionsSection.style.display = 'none';
-    uploadView.style.display = 'none';
-    resultsArea.style.display = 'block';
+    // Show the main view again
+    uploadView.style.display = 'block';
+    optionsSection.style.display = 'grid';
     
-    // Set the room image in the showroom
-    const roomImage = document.getElementById('room-image');
-    if (uploadedImage) {
-        roomImage.src = uploadedImage;
-        roomImage.style.display = 'block';
-    } else {
-        // For preference-based recommendations, show a default room
-        roomImage.src = 'assets/mock/mock-room.jpg';
-        roomImage.style.display = 'block';
+    // Hide any form containers that might be showing
+    if (uploadFormContainer) uploadFormContainer.style.display = 'none';
+    if (preferencesFormContainer) preferencesFormContainer.style.display = 'none';
+    
+    // Hide the back button
+    document.getElementById('back-button').style.display = 'none';
+    
+    // Clear any loading states or messages - fix the class names
+    const loadingElements = document.querySelectorAll('.loading-spinner, .success-state, .error-state');
+    loadingElements.forEach(element => {
+        element.remove();
+    });
+    
+    // Reset uploaded image
+    uploadedImage = null;
+    
+    // Clear any file input
+    const fileInput = document.getElementById('room-photo');
+    if (fileInput) fileInput.value = '';
+    
+    // Reset upload area to default state
+    const uploadArea = document.getElementById('upload-area');
+    if (uploadArea) {
+        uploadArea.classList.remove('dragover', 'has-image');
+        uploadArea.innerHTML = `
+            <i class="fas fa-cloud-upload-alt upload-icon"></i>
+            <div class="upload-text">Drop your room photo here</div>
+            <div class="upload-hint">or click to browse files</div>
+        `;
     }
-}
-
-// Enhanced resetToOptions function
-function resetToOptions() {
-    goBackToLanding();
+    
+    // Reset virtual showroom to show mock room image (remove has-uploaded-image class)
+    const virtualShowroom = document.getElementById('virtual-showroom');
+    if (virtualShowroom) {
+        virtualShowroom.classList.remove('has-uploaded-image');
+    }
+    
+    // Reset preferences form container to its original state
+    if (preferencesFormContainer) {
+        preferencesFormContainer.innerHTML = `
+            <div class="form-header">
+                <h3 class="form-title">Tell Us Your Preferences</h3>
+                <p class="form-subtitle">We'll match you with the perfect Taberner Studio artwork from our collection</p>
+            </div>
+            
+            <form id="preferences-form">
+                <div class="filter-group">
+                    <label for="mood-select">Mood:</label>
+                    <select id="mood-select">
+                        <option value="">Any Mood</option>
+                        <option value="calm">Calm & Serene</option>
+                        <option value="energetic">Energetic & Vibrant</option>
+                        <option value="sophisticated">Sophisticated & Elegant</option>
+                        <option value="cozy">Cozy & Warm</option>
+                        <option value="minimalist">Minimalist & Clean</option>
+                    </select>
+                </div>
+                
+                <div class="filter-group">
+                    <label for="style-select">Art Style:</label>
+                    <select id="style-select">
+                        <option value="">Any Style</option>
+                        <option value="modern">Modern</option>
+                        <option value="classical">Classical</option>
+                        <option value="abstract">Abstract</option>
+                        <option value="impressionist">Impressionist</option>
+                        <option value="contemporary">Contemporary</option>
+                    </select>
+                </div>
+                
+                <div class="filter-group">
+                    <label for="subject-select">Subject:</label>
+                    <select id="subject-select">
+                        <option value="">Any Subject</option>
+                        <option value="landscape">Landscape</option>
+                        <option value="portrait">Portrait</option>
+                        <option value="still-life">Still Life</option>
+                        <option value="abstract">Abstract</option>
+                        <option value="nature">Nature</option>
+                    </select>
+                </div>
+                
+                <div class="filter-group">
+                    <label for="color-preference">Color Preference:</label>
+                    <select id="color-preference">
+                        <option value="">Any Colors</option>
+                        <option value="warm">Warm Tones</option>
+                        <option value="cool">Cool Tones</option>
+                        <option value="neutral">Neutral</option>
+                        <option value="bold">Bold & Bright</option>
+                        <option value="pastel">Soft & Pastel</option>
+                    </select>
+                </div>
+                
+                <button type="submit" class="button">
+                    <i class="fas fa-search"></i>
+                    Find Artwork
+                </button>
+            </form>
+        `;
+        
+        // Re-attach the event listener to the form
+        const preferencesForm = document.getElementById('preferences-form');
+        if (preferencesForm) {
+            preferencesForm.addEventListener('submit', handlePreferencesSubmit);
+        }
+    }
+    
+    // Scroll to top smoothly
+    window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
 // Enhanced Results Experience
@@ -634,7 +722,7 @@ function updateArtworkDisplay(index) {
                 overlay.style.width = `${initialWidth}px`;
                 overlay.style.height = `${initialHeight}px`;
                 overlay.style.left = '50%';
-                overlay.style.top = '50%';
+                overlay.style.top = '35%';
                 overlay.style.transform = 'translate(-50%, -50%)';
                 overlay.setAttribute('data-x', '0');
                 overlay.setAttribute('data-y', '0');
@@ -824,4 +912,51 @@ function hideLoading() {
             spinner.style.display = 'none';
         }, 300);
     }
+}
+
+// Show the results view
+function showResultsView() {
+    const uploadView = document.getElementById('upload-view');
+    const resultsArea = document.getElementById('results-area');
+    const optionsSection = document.getElementById('options-section');
+    
+    // Hide the options section (the two cards) and upload view
+    optionsSection.style.display = 'none';
+    uploadView.style.display = 'none';
+    resultsArea.style.display = 'block';
+    
+    // Show back button in header
+    document.getElementById('back-button').style.display = 'flex';
+    
+    // Set the room image in the showroom
+    const roomImage = document.getElementById('room-image');
+    const virtualShowroom = document.getElementById('virtual-showroom');
+    
+    if (uploadedImage) {
+        // User uploaded an image - show it and hide the background
+        roomImage.src = uploadedImage;
+        roomImage.style.display = 'block';
+        virtualShowroom.classList.add('has-uploaded-image');
+    } else {
+        // No uploaded image (preference-based) - hide the room image and show background
+        roomImage.style.display = 'none';
+        virtualShowroom.classList.remove('has-uploaded-image');
+    }
+    
+    // Scroll to the very top of the page with a delay to ensure DOM is updated
+    setTimeout(() => {
+        // Try multiple approaches to ensure we scroll to the top
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+        
+        // Also try scrolling to the results header as backup
+        const resultsHeader = document.querySelector('.results-header');
+        if (resultsHeader) {
+            resultsHeader.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+    }, 100);
+}
+
+// Enhanced resetToOptions function
+function resetToOptions() {
+    goBackToLanding();
 } 
