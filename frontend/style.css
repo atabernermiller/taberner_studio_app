@@ -375,7 +375,7 @@ header {
     background: linear-gradient(135deg, var(--accent-color) 0%, var(--accent-hover) 100%);
     border: none;
     border-radius: var(--border-radius-small);
-    color: white;
+    color: #000;
     padding: 0.75rem 1.5rem;
     font-weight: 600;
     cursor: pointer;
