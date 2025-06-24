@@ -110,9 +110,9 @@ def get_recommendations(user_colors):
         if not catalog_colors:
             continue
 
-        # Convert hex to RGB for comparison
-        user_rgb = {item['color']: (tuple(int(item['color'][i:i+2], 16) for i in (1, 3, 5)), item['percentage']) for item in user_colors}
-        catalog_rgb = {item['color']: (tuple(int(item['color'][i:i+2], 16) for i in (1, 3, 5)), item['percentage']) for item in catalog_colors}
+        # Convert hex to RGB for comparison, and ensure percentages are float
+        user_rgb = {item['color']: (tuple(int(item['color'][i:i+2], 16) for i in (1, 3, 5)), float(item['percentage'])) for item in user_colors}
+        catalog_rgb = {item['color']: (tuple(int(item['color'][i:i+2], 16) for i in (1, 3, 5)), float(item['percentage'])) for item in catalog_colors}
 
         # Weighted color distance score
         total_score = 0
