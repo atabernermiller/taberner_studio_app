@@ -961,9 +961,8 @@ header {
 
 #artwork-overlay {
     position: absolute;
-    top: 0; left: 0;
-    width: 100%;
-    height: 100%;
+    top: 50%;
+    left: 50%;
     pointer-events: auto;
     display: flex;
     align-items: center;
@@ -973,15 +972,19 @@ header {
     border: 3px solid var(--accent-color);
     cursor: move;
     box-sizing: border-box;
+    transform: translate(-50%, -50%);
+    min-width: 50px;
+    min-height: 50px;
 }
 
 #artwork-overlay img {
-    max-width: 90%;
-    max-height: 90%;
+    width: 100%;
+    height: 100%;
     object-fit: contain;
     object-position: center;
     image-rendering: -webkit-optimize-contrast;
     image-rendering: crisp-edges;
+    display: block;
 }
 
 .artwork-controls {
