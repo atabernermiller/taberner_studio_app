@@ -188,43 +188,6 @@ document.addEventListener('DOMContentLoaded', function() {
             heroSection.style.transform = 'translateY(0)';
         }, 100);
     }
-
-    // Option card click handlers with smooth transitions
-    document.querySelectorAll('.option-card').forEach(card => {
-        card.addEventListener('click', function() {
-            const action = this.getAttribute('data-action');
-            if (action === 'upload') {
-                showView('upload-view');
-            } else if (action === 'preferences') {
-                showView('preferences-view');
-            }
-        });
-    });
-
-    // Back button handlers with smooth transitions
-    document.querySelectorAll('.back-btn').forEach(btn => {
-        btn.addEventListener('click', function() {
-            showView('landing-view');
-        });
-    });
-
-    // Form submission with enhanced loading
-    const uploadForm = document.getElementById('upload-form');
-    if (uploadForm) {
-        uploadForm.addEventListener('submit', function(e) {
-            e.preventDefault();
-            showLoading();
-            
-            // Simulate processing time for better UX
-            setTimeout(() => {
-                hideLoading();
-                showView('results-view');
-            }, 2000);
-        });
-    }
-
-    // Restore upload functionality
-    initializeUpload();
 });
 
 // Form navigation functions
@@ -233,6 +196,9 @@ function showUploadForm() {
     document.getElementById('options-section').style.display = 'none';
     document.getElementById('preferences-form-container').style.display = 'none';
     document.getElementById('upload-form-container').style.display = 'block';
+    
+    // Show back button
+    document.getElementById('back-button').style.display = 'flex';
     
     // Scroll to form
     document.getElementById('upload-form-container').scrollIntoView({
@@ -245,6 +211,9 @@ function showPreferencesForm() {
     document.getElementById('options-section').style.display = 'none';
     document.getElementById('upload-form-container').style.display = 'none';
     document.getElementById('preferences-form-container').style.display = 'block';
+    
+    // Show back button
+    document.getElementById('back-button').style.display = 'flex';
     
     // Scroll to form
     document.getElementById('preferences-form-container').scrollIntoView({
@@ -267,6 +236,14 @@ function backToOptions() {
         behavior: 'smooth'
     });
 }
+
+// Add event listeners for back buttons
+document.addEventListener('DOMContentLoaded', function() {
+    const backButtons = document.querySelectorAll('.back-button');
+    backButtons.forEach(button => {
+        button.addEventListener('click', backToOptions);
+    });
+});
 
 // Initialize upload functionality
 function initializeUpload() {
@@ -428,127 +405,35 @@ function getRecommendationsByPreferences(preferences) {
 function goBackToLanding() {
     const uploadView = document.getElementById('upload-view');
     const resultsArea = document.getElementById('results-area');
-    const optionsSection = document.getElementById('options-section');
-    const uploadFormContainer = document.getElementById('upload-form-container');
-    const preferencesFormContainer = document.getElementById('preferences-form-container');
     
-    // Hide results area
     resultsArea.style.display = 'none';
+    uploadView.style.display = 'block'; // Show the main view again
+}
+
+// Show the results view
+function showResultsView() {
+    const uploadView = document.getElementById('upload-view');
+    const resultsArea = document.getElementById('results-area');
     
-    // Show the main view again
-    uploadView.style.display = 'block';
-    optionsSection.style.display = 'grid';
+    // Correctly toggle the views
+    uploadView.style.display = 'none';
+    resultsArea.style.display = 'block';
     
-    // Hide any form containers that might be showing
-    if (uploadFormContainer) uploadFormContainer.style.display = 'none';
-    if (preferencesFormContainer) preferencesFormContainer.style.display = 'none';
-    
-    // Hide the back button
-    document.getElementById('back-button').style.display = 'none';
-    
-    // Clear any loading states or messages - fix the class names
-    const loadingElements = document.querySelectorAll('.loading-spinner, .success-state, .error-state');
-    loadingElements.forEach(element => {
-        element.remove();
-    });
-    
-    // Reset uploaded image
-    uploadedImage = null;
-    
-    // Clear any file input
-    const fileInput = document.getElementById('room-photo');
-    if (fileInput) fileInput.value = '';
-    
-    // Reset upload area to default state
-    const uploadArea = document.getElementById('upload-area');
-    if (uploadArea) {
-        uploadArea.classList.remove('dragover', 'has-image');
-        uploadArea.innerHTML = `
-            <i class="fas fa-cloud-upload-alt upload-icon"></i>
-            <div class="upload-text">Drop your room photo here</div>
-            <div class="upload-hint">or click to browse files</div>
-        `;
+    // Set the room image in the showroom
+    const roomImage = document.getElementById('room-image');
+    if (uploadedImage) {
+        roomImage.src = uploadedImage;
+        roomImage.style.display = 'block';
+    } else {
+        // For preference-based recommendations, show a default room
+        roomImage.src = 'assets/mock/mock-room.jpg';
+        roomImage.style.display = 'block';
     }
-    
-    // Reset virtual showroom to show mock room image (remove has-uploaded-image class)
-    const virtualShowroom = document.getElementById('virtual-showroom');
-    if (virtualShowroom) {
-        virtualShowroom.classList.remove('has-uploaded-image');
-    }
-    
-    // Reset preferences form container to its original state
-    if (preferencesFormContainer) {
-        preferencesFormContainer.innerHTML = `
-            <div class="form-header">
-                <h3 class="form-title">Tell Us Your Preferences</h3>
-                <p class="form-subtitle">We'll match you with the perfect Taberner Studio artwork from our collection</p>
-            </div>
-            
-            <form id="preferences-form">
-                <div class="filter-group">
-                    <label for="mood-select">Mood:</label>
-                    <select id="mood-select">
-                        <option value="">Any Mood</option>
-                        <option value="calm">Calm & Serene</option>
-                        <option value="energetic">Energetic & Vibrant</option>
-                        <option value="sophisticated">Sophisticated & Elegant</option>
-                        <option value="cozy">Cozy & Warm</option>
-                        <option value="minimalist">Minimalist & Clean</option>
-                    </select>
-                </div>
-                
-                <div class="filter-group">
-                    <label for="style-select">Art Style:</label>
-                    <select id="style-select">
-                        <option value="">Any Style</option>
-                        <option value="modern">Modern</option>
-                        <option value="classical">Classical</option>
-                        <option value="abstract">Abstract</option>
-                        <option value="impressionist">Impressionist</option>
-                        <option value="contemporary">Contemporary</option>
-                    </select>
-                </div>
-                
-                <div class="filter-group">
-                    <label for="subject-select">Subject:</label>
-                    <select id="subject-select">
-                        <option value="">Any Subject</option>
-                        <option value="landscape">Landscape</option>
-                        <option value="portrait">Portrait</option>
-                        <option value="still-life">Still Life</option>
-                        <option value="abstract">Abstract</option>
-                        <option value="nature">Nature</option>
-                    </select>
-                </div>
-                
-                <div class="filter-group">
-                    <label for="color-preference">Color Preference:</label>
-                    <select id="color-preference">
-                        <option value="">Any Colors</option>
-                        <option value="warm">Warm Tones</option>
-                        <option value="cool">Cool Tones</option>
-                        <option value="neutral">Neutral</option>
-                        <option value="bold">Bold & Bright</option>
-                        <option value="pastel">Soft & Pastel</option>
-                    </select>
-                </div>
-                
-                <button type="submit" class="button">
-                    <i class="fas fa-search"></i>
-                    Find Artwork
-                </button>
-            </form>
-        `;
-        
-        // Re-attach the event listener to the form
-        const preferencesForm = document.getElementById('preferences-form');
-        if (preferencesForm) {
-            preferencesForm.addEventListener('submit', handlePreferencesSubmit);
-        }
-    }
-    
-    // Scroll to top smoothly
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// Enhanced resetToOptions function
+function resetToOptions() {
+    goBackToLanding();
 }
 
 // Enhanced Results Experience
@@ -646,22 +531,6 @@ function initializeArtworkInteraction() {
                     const target = event.target;
                     target.style.width = `${event.rect.width}px`;
                     target.style.height = `${event.rect.height}px`;
-                    
-                    // Log dimensions after resize
-                    const artworkImage = document.getElementById('artwork-image');
-                    console.log('=== AFTER RESIZE ===');
-                    console.log('Artwork image dimensions:', {
-                        naturalWidth: artworkImage?.naturalWidth,
-                        naturalHeight: artworkImage?.naturalHeight,
-                        clientWidth: artworkImage?.clientWidth,
-                        clientHeight: artworkImage?.clientHeight
-                    });
-                    console.log('Yellow overlay dimensions:', {
-                        width: event.rect.width,
-                        height: event.rect.height,
-                        styleWidth: target.style.width,
-                        styleHeight: target.style.height
-                    });
                 },
             },
             modifiers: [interact.modifiers.restrictSize({
@@ -699,60 +568,55 @@ function updateArtworkDisplay(index) {
             artworkImage.src = `/catalog/images/${artwork.filename}`;
         }
         artworkImage.alt = artwork.title;
-        
-        // Set initial size for the overlay AFTER image loads
-        artworkImage.onload = function() {
-            const overlay = document.getElementById('artwork-overlay');
-            if (overlay) {
-                // Calculate aspect ratio from the loaded image
-                const aspectRatio = this.naturalWidth / this.naturalHeight;
-                let initialWidth = 250;
-                let initialHeight = initialWidth / aspectRatio;
+    }
+    
+    // Set initial size for the overlay
+    const overlay = document.getElementById('artwork-overlay');
+    if (overlay) {
+        // Use artwork's dimensions to set an initial aspect-ratio correct size
+        const aspectRatio = artwork.attributes.width / artwork.attributes.height;
+        let initialWidth = 250;
+        let initialHeight = initialWidth / aspectRatio;
 
-                // Ensure it fits reasonably within the container
-                const container = document.getElementById('virtual-showroom');
-                if (container) {
-                    if (initialWidth > container.clientWidth * 0.8) {
-                        initialWidth = container.clientWidth * 0.8;
-                        initialHeight = initialWidth / aspectRatio;
-                    }
-                    if (initialHeight > container.clientHeight * 0.8) {
-                        initialHeight = container.clientHeight * 0.8;
-                        initialWidth = initialHeight * aspectRatio;
-                    }
-                }
-
-                overlay.style.width = `${initialWidth}px`;
-                overlay.style.height = `${initialHeight}px`;
-                overlay.style.left = '50%';
-                overlay.style.top = '35%';
-                overlay.style.transform = 'translate(-50%, -50%)';
-                overlay.setAttribute('data-x', '0');
-                overlay.setAttribute('data-y', '0');
-                
-                // Log initial dimensions
-                console.log('=== INITIAL DIMENSIONS (AFTER IMAGE LOAD) ===');
-                console.log('Artwork image dimensions:', {
-                    naturalWidth: this.naturalWidth,
-                    naturalHeight: this.naturalHeight,
-                    clientWidth: this.clientWidth,
-                    clientHeight: this.clientHeight,
-                    aspectRatio: aspectRatio
-                });
-                console.log('Yellow overlay dimensions:', {
-                    width: initialWidth,
-                    height: initialHeight,
-                    styleWidth: overlay.style.width,
-                    styleHeight: overlay.style.height
-                });
+        // Ensure it fits reasonably within the container
+        const container = document.getElementById('virtual-showroom');
+        if (container) {
+            if (initialWidth > container.clientWidth * 0.8) {
+                initialWidth = container.clientWidth * 0.8;
+                initialHeight = initialWidth / aspectRatio;
             }
-        };
+            if (initialHeight > container.clientHeight * 0.8) {
+                initialHeight = container.clientHeight * 0.8;
+                initialWidth = initialHeight * aspectRatio;
+            }
+        }
+
+        overlay.style.width = `${initialWidth}px`;
+        overlay.style.height = `${initialHeight}px`;
+        overlay.style.left = '50%';
+        overlay.style.top = '50%';
+        overlay.style.transform = 'translate(-50%, -50%)';
+        overlay.setAttribute('data-x', '0');
+        overlay.setAttribute('data-y', '0');
     }
     
     // Update product details
     document.getElementById('artwork-title').textContent = artwork.title;
     document.getElementById('artwork-description').textContent = artwork.description;
     document.getElementById('artwork-price').textContent = artwork.price;
+    
+    // Show match score for simulated data
+    const matchScoreElement = document.getElementById('match-score');
+    if (artwork.filename && artwork.filename.startsWith('artwork-')) {
+        // Simulated data - show a random high score
+        const score = Math.floor(Math.random() * 20) + 80; // 80-99%
+        matchScoreElement.textContent = score + '%';
+        matchScoreElement.style.display = 'block';
+    } else {
+        // Real API data - hide score as it's not provided
+        matchScoreElement.textContent = '';
+        matchScoreElement.style.display = 'none';
+    }
     
     // Update purchase button
     const purchaseButton = document.getElementById('purchase-button');
@@ -793,10 +657,18 @@ function createThumbnailGallery() {
             thumbnailImage = `/catalog/images/${artwork.filename}`;
         }
         
+        // Create match score for simulated data
+        let matchScore = '';
+        if (artwork.filename && artwork.filename.startsWith('artwork-')) {
+            const score = Math.floor(Math.random() * 20) + 80; // 80-99%
+            matchScore = `<div class="thumbnail-score">${score}% Match</div>`;
+        }
+        
         thumbnail.innerHTML = `
             <img src="${thumbnailImage}" alt="${artwork.title}" loading="lazy">
             <div class="thumbnail-overlay">
                 <div class="thumbnail-title">${artwork.title}</div>
+                ${matchScore}
                 <div class="thumbnail-price">${artwork.price}</div>
             </div>
         `;
@@ -864,102 +736,28 @@ function saveFavorites() {
     }, 2000);
 }
 
-// Smooth view transitions
-function showView(viewId) {
-    // Hide all views with fade out
-    const allViews = document.querySelectorAll('.view');
-    allViews.forEach(view => {
-        view.style.opacity = '0';
-        view.style.transform = 'translateY(20px)';
-        view.style.transition = 'all 0.3s ease';
+// Initialize upload functionality
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('Enhanced Taberner Studio app loaded');
+    
+    // Initialize upload functionality
+    initializeUpload();
+    
+    // Listen for messages from preview system
+    window.addEventListener('message', function(event) {
+        if (event.data.action === 'showResults') {
+            console.log('Received showResults message');
+            // This is for external control, might need mock data or a specific artwork ID
+            if (allArtworks.length > 0) {
+                showResultsView();
+            } else {
+                // Load simulated data for preview
+                console.log("Loading simulated data for preview");
+                displayResults(simulatedArtworkData);
+            }
+        } else if (event.data.action === 'hideResults') {
+            console.log('Received hideResults message');
+            resetToOptions();
+        }
     });
-
-    // Show target view with fade in
-    setTimeout(() => {
-        allViews.forEach(view => view.style.display = 'none');
-        const targetView = document.getElementById(viewId);
-        if (targetView) {
-            targetView.style.display = 'block';
-            targetView.style.opacity = '0';
-            targetView.style.transform = 'translateY(20px)';
-            
-            // Trigger reflow
-            targetView.offsetHeight;
-            
-            // Animate in
-            targetView.style.opacity = '1';
-            targetView.style.transform = 'translateY(0)';
-            targetView.style.transition = 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)';
-        }
-    }, 300);
-}
-
-// Enhanced loading state management
-function showLoading() {
-    const spinner = document.getElementById('loading-spinner');
-    if (spinner) {
-        spinner.style.display = 'flex';
-        spinner.style.opacity = '0';
-        setTimeout(() => {
-            spinner.style.opacity = '1';
-            spinner.style.transition = 'opacity 0.3s ease';
-        }, 10);
-    }
-}
-
-function hideLoading() {
-    const spinner = document.getElementById('loading-spinner');
-    if (spinner) {
-        spinner.style.opacity = '0';
-        setTimeout(() => {
-            spinner.style.display = 'none';
-        }, 300);
-    }
-}
-
-// Show the results view
-function showResultsView() {
-    const uploadView = document.getElementById('upload-view');
-    const resultsArea = document.getElementById('results-area');
-    const optionsSection = document.getElementById('options-section');
-    
-    // Hide the options section (the two cards) and upload view
-    optionsSection.style.display = 'none';
-    uploadView.style.display = 'none';
-    resultsArea.style.display = 'block';
-    
-    // Show back button in header
-    document.getElementById('back-button').style.display = 'flex';
-    
-    // Set the room image in the showroom
-    const roomImage = document.getElementById('room-image');
-    const virtualShowroom = document.getElementById('virtual-showroom');
-    
-    if (uploadedImage) {
-        // User uploaded an image - show it and hide the background
-        roomImage.src = uploadedImage;
-        roomImage.style.display = 'block';
-        virtualShowroom.classList.add('has-uploaded-image');
-    } else {
-        // No uploaded image (preference-based) - hide the room image and show background
-        roomImage.style.display = 'none';
-        virtualShowroom.classList.remove('has-uploaded-image');
-    }
-    
-    // Scroll to the very top of the page with a delay to ensure DOM is updated
-    setTimeout(() => {
-        // Try multiple approaches to ensure we scroll to the top
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-        
-        // Also try scrolling to the results header as backup
-        const resultsHeader = document.querySelector('.results-header');
-        if (resultsHeader) {
-            resultsHeader.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        }
-    }, 100);
-}
-
-// Enhanced resetToOptions function
-function resetToOptions() {
-    goBackToLanding();
-} 
+}); 
