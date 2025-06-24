@@ -13,8 +13,8 @@ from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
 import base64
 
-# Configure app to serve frontend files
-FRONTEND_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'frontend'))
+# Configure Flask app
+FRONTEND_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), 'static'))
 app = Flask(__name__, static_folder=FRONTEND_DIR, static_url_path='')
 
 # --- AWS Configuration ---
