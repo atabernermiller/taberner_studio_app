@@ -222,6 +222,9 @@ document.addEventListener('DOMContentLoaded', function() {
             }, 2000);
         });
     }
+
+    // Restore upload functionality
+    initializeUpload();
 });
 
 // Form navigation functions
