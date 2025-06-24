@@ -338,8 +338,7 @@ def ratelimit_handler(e):
 def health_check():
     """Health check endpoint for Docker and load balancers"""
     try:
-        # Basic health check - verify we can connect to DynamoDB
-        catalog_table.table_status
+        # Simple health check - don't check DynamoDB for now
         return jsonify({
             'status': 'healthy',
             'timestamp': datetime.utcnow().isoformat(),

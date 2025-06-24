@@ -7,6 +7,8 @@ phases:
       - REPOSITORY_URI=672104585346.dkr.ecr.us-east-1.amazonaws.com/taberner-studio
       - aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin $REPOSITORY_URI
       - IMAGE_TAG=latest
+      - echo Copying frontend files to backend directory...
+      - cp -r frontend/* backend/static/
   build:
     commands:
       - echo Build started on `date`
