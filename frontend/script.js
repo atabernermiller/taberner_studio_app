@@ -549,7 +549,11 @@ function updateArtworkDisplay(index) {
     
     if (artworkTitle) artworkTitle.textContent = artwork.title;
     if (artworkDescription) artworkDescription.textContent = artwork.description;
-    if (artworkPrice) artworkPrice.textContent = `$${artwork.price}`;
+    if (artworkPrice) {
+        // Remove any existing dollar sign and add a single one
+        const cleanPrice = artwork.price.toString().replace('$', '');
+        artworkPrice.textContent = `$${cleanPrice}`;
+    }
     
     // Update current artwork index
     currentArtworkIndex = index;
@@ -589,7 +593,7 @@ function createThumbnailGallery() {
                  onload="console.log('Thumbnail loaded:', '${thumbnailImage}')">
             <div class="thumbnail-overlay">
                 <div class="thumbnail-title">${artwork.title}</div>
-                <div class="thumbnail-price">$${artwork.price}</div>
+                <div class="thumbnail-price">$${artwork.price.toString().replace('$', '')}</div>
             </div>
         `;
         
