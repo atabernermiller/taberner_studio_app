@@ -397,6 +397,42 @@ def recommend_unified():
     log_memory_usage("after recommendation processing")
     return jsonify(recommendations=formatted_recs)
 
+@app.route('/api/preferences-options')
+def preferences_options():
+    """Return unique styles, moods, subjects, and colors from the catalog."""
+    styles = set()
+    moods = set()
+    subjects = set()
+    colors = set()
+    
+    if not art_catalog:
+        logger.warning("No art catalog available for preferences options")
+        return jsonify({
+            'styles': [],
+            'moods': [],
+            'subjects': [],
+            'colors': []
+        })
+    
+    for art in art_catalog:
+        attrs = art.get('attributes', {})
+        if attrs.get('style'):
+            styles.add(attrs['style'])
+        if attrs.get('mood'):
+            moods.add(attrs['mood'])
+        if attrs.get('subject'):
+            subjects.add(attrs['subject'])
+        if attrs.get('dominant_colors'):
+            for color in attrs['dominant_colors']:
+                if color.get('color'):
+                    colors.add(color['color'])
+    return jsonify({
+        'styles': sorted(styles),
+        'moods': sorted(moods),
+        'subjects': sorted(subjects),
+        'colors': sorted(colors)
+    })
+
 @app.route('/catalog/images/<path:filename>')
 def serve_catalog_image(filename):
     logger.debug(f"Serving catalog image: {filename}")
