@@ -179,7 +179,28 @@ document.addEventListener('DOMContentLoaded', function() {
             resetToOptions();
         }
     });
+
+    // Dynamically populate preferences form selects from backend
+    fetch('/api/preferences-options')
+        .then(res => res.json())
+        .then(options => {
+            populateSelect('mood-select', options.moods, 'Any Mood');
+            populateSelect('style-select', options.styles, 'Any Style');
+            populateSelect('subject-select', options.subjects, 'Any Subject');
+            populateSelect('color-preference', options.colors, 'Any Colors');
+        });
 });
+
+function populateSelect(selectId, values, anyLabel) {
+    const select = document.getElementById(selectId);
+    if (!select) return;
+    select.innerHTML = `<option value="">${anyLabel}</option>`;
+    values.forEach(val => {
+        if (val && val.trim()) {
+            select.innerHTML += `<option value="${val}">${val}</option>`;
+        }
+    });
+}
 
 // Form navigation functions
 function showUploadForm() {

@@ -330,6 +330,33 @@ def serve_catalog_image(filename):
         app.logger.error(f"Error generating S3 URL for {filename}: {e}")
         return jsonify(error="Image not found"), 404
 
+@app.route('/api/preferences-options')
+def preferences_options():
+    """Return unique styles, moods, subjects, and colors from the catalog."""
+    items = load_catalog_from_dynamodb()
+    styles = set()
+    moods = set()
+    subjects = set()
+    colors = set()
+    for art in items:
+        attrs = art.get('attributes', {})
+        if attrs.get('style'):
+            styles.add(attrs['style'])
+        if attrs.get('mood'):
+            moods.add(attrs['mood'])
+        if attrs.get('subject'):
+            subjects.add(attrs['subject'])
+        if attrs.get('dominant_colors'):
+            for color in attrs['dominant_colors']:
+                if color.get('color'):
+                    colors.add(color['color'])
+    return jsonify({
+        'styles': sorted(styles),
+        'moods': sorted(moods),
+        'subjects': sorted(subjects),
+        'colors': sorted(colors)
+    })
+
 @app.errorhandler(429)
 def ratelimit_handler(e):
     return jsonify(error="ratelimit exceeded", description=str(e.description)), 429
