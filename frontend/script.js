@@ -76,6 +76,8 @@ let uploadedImage = null;
 let currentArtworkIndex = 0;
 let allArtworks = []; // Will hold recommendations from the server
 let isUploading = false; // Flag to prevent multiple uploads
+let recommendations = null;
+let currentRecommendations = null;
 
 // Initialize the application when DOM is loaded
 document.addEventListener('DOMContentLoaded', function() {
@@ -236,9 +238,34 @@ function showPreferencesForm() {
 
 // Enhanced back button functionality
 function backToOptions() {
+    console.log('=== BACK TO OPTIONS CALLED ===');
+    console.log('Current state:', {
+        currentArtworkIndex,
+        hasUploadedImage: !!uploadedImage,
+        recommendationsCount: recommendations ? recommendations.length : 0,
+        currentRecommendationsCount: currentRecommendations ? currentRecommendations.length : 0
+    });
+    
+    // Clear backend cache to ensure fresh recommendations
+    fetch('/api/reset-workflow', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        console.log('Backend cache cleared:', data.message);
+    })
+    .catch(error => {
+        console.error('Error clearing backend cache:', error);
+    });
+    
     // Reset all recommendation state
     allArtworks = [];
     currentArtworkIndex = 0;
+    recommendations = null;
+    currentRecommendations = null;
     
     // Reset uploaded image
     uploadedImage = null;
@@ -247,6 +274,13 @@ function backToOptions() {
     isUploading = false;
     isDragging = false;
     isResizing = false;
+    
+    console.log('State after reset:', {
+        currentArtworkIndex,
+        hasUploadedImage: !!uploadedImage,
+        recommendationsCount: recommendations ? recommendations.length : 0,
+        currentRecommendationsCount: currentRecommendations ? currentRecommendations.length : 0
+    });
     
     // Show the options view
     showOptionsView();
@@ -304,6 +338,14 @@ function initializeUpload() {
 
 // Handle file upload
 function handleFileUpload(file) {
+    console.log('=== FILE UPLOAD DEBUG ===');
+    console.log('File upload triggered');
+    console.log('Current state:');
+    console.log('- currentArtworkIndex:', currentArtworkIndex);
+    console.log('- uploadedImage:', uploadedImage ? 'exists' : 'null');
+    console.log('- recommendations:', recommendations ? recommendations.length : 'null');
+    console.log('- currentRecommendations:', currentRecommendations ? currentRecommendations.length : 'null');
+    
     if (isUploading) {
         console.log('Upload already in progress, ignoring duplicate request');
         return;
@@ -332,6 +374,8 @@ function handleFileUpload(file) {
     };
     
     reader.readAsDataURL(file);
+    
+    console.log('=== END FILE UPLOAD DEBUG ===');
 }
 
 // Handle preferences form submission
@@ -1036,113 +1080,30 @@ function initializeEventListeners() {
 }
 
 function showOptionsView() {
-    // Hide all form containers
-    document.querySelectorAll('.form-container').forEach(form => {
-        form.style.display = 'none';
-    });
+    console.log('=== SHOW OPTIONS VIEW DEBUG ===');
+    console.log('Resetting UI to options view');
     
-    // Show the options container and header
-    document.querySelector('.options-container').style.display = 'grid';
-    document.querySelector('.upload-header').style.display = 'block';
+    // Hide all views
+    document.getElementById('landing-page').style.display = 'none';
+    document.getElementById('upload-section').style.display = 'none';
+    document.getElementById('preferences-section').style.display = 'none';
+    document.getElementById('results-section').style.display = 'none';
+    document.getElementById('mockup-section').style.display = 'none';
     
-    // Restore the original upload form content (full experience)
-    const uploadFormContainer = document.getElementById('upload-form-container');
-    if (uploadFormContainer) {
-        uploadFormContainer.innerHTML = `
-            <div class="form-header">
-                <h3 class="form-title">Upload Your Room Photo</h3>
-                <p class="form-subtitle">We'll analyze your space to find the perfect Taberner Studio artwork match</p>
-            </div>
-            <form id="upload-form">
-                <div class="upload-area" id="upload-area">
-                    <i class="fas fa-cloud-upload-alt upload-icon"></i>
-                    <div class="upload-text">Drop your room photo here</div>
-                    <div class="upload-hint">or click to browse files</div>
-                    <input type="file" id="room-photo" accept="image/*" style="display: none;">
-                </div>
-                <div class="filter-group">
-                    <label for="style-filter">Art Style Preference:</label>
-                    <select id="style-filter">
-                        <option value="">Any Style</option>
-                        <option value="modern">Modern</option>
-                        <option value="classical">Classical</option>
-                        <option value="abstract">Abstract</option>
-                        <option value="landscape">Landscape</option>
-                        <option value="portrait">Portrait</option>
-                    </select>
-                </div>
-            </form>
-        `;
+    // Show options view
+    document.getElementById('options-section').style.display = 'block';
+    
+    // Clear any existing content
+    const uploadPreview = document.getElementById('upload-preview');
+    if (uploadPreview) {
+        uploadPreview.innerHTML = '';
     }
     
-    // Restore the original preferences form content (if needed)
-    const preferencesFormContainer = document.getElementById('preferences-form-container');
-    if (preferencesFormContainer) {
-        preferencesFormContainer.innerHTML = `
-            <div class="form-header">
-                <h3 class="form-title">Tell Us Your Preferences</h3>
-                <p class="form-subtitle">We'll match you with the perfect Taberner Studio artwork from our collection</p>
-            </div>
-            <form id="preferences-form">
-                <div class="filter-group">
-                    <label for="mood-select">Mood:</label>
-                    <select id="mood-select">
-                        <option value="">Any Mood</option>
-                        <option value="calm">Calm & Serene</option>
-                        <option value="energetic">Energetic & Vibrant</option>
-                        <option value="sophisticated">Sophisticated & Elegant</option>
-                        <option value="cozy">Cozy & Warm</option>
-                        <option value="minimalist">Minimalist & Clean</option>
-                    </select>
-                </div>
-                <div class="filter-group">
-                    <label for="style-select">Art Style:</label>
-                    <select id="style-select">
-                        <option value="">Any Style</option>
-                        <option value="modern">Modern</option>
-                        <option value="classical">Classical</option>
-                        <option value="abstract">Abstract</option>
-                        <option value="impressionist">Impressionist</option>
-                        <option value="contemporary">Contemporary</option>
-                    </select>
-                </div>
-                <div class="filter-group">
-                    <label for="subject-select">Subject:</label>
-                    <select id="subject-select">
-                        <option value="">Any Subject</option>
-                        <option value="landscape">Landscape</option>
-                        <option value="portrait">Portrait</option>
-                        <option value="still-life">Still Life</option>
-                        <option value="abstract">Abstract</option>
-                        <option value="nature">Nature</option>
-                    </select>
-                </div>
-                <div class="filter-group">
-                    <label for="color-preference">Color Preference:</label>
-                    <select id="color-preference">
-                        <option value="">Any Colors</option>
-                        <option value="warm">Warm Tones</option>
-                        <option value="cool">Cool Tones</option>
-                        <option value="neutral">Neutral</option>
-                        <option value="bold">Bold & Bright</option>
-                        <option value="pastel">Soft & Pastel</option>
-                    </select>
-                </div>
-                <button type="submit" class="button">
-                    <i class="fas fa-search"></i>
-                    Find Artwork
-                </button>
-            </form>
-        `;
+    const resultsContainer = document.getElementById('results-container');
+    if (resultsContainer) {
+        resultsContainer.innerHTML = '';
     }
     
-    // Reinitialize all event listeners to ensure buttons work
-    initializeEventListeners();
-    initializeUpload();
-    
-    // Scroll back to top smoothly
-    window.scrollTo({
-        top: 0,
-        behavior: 'smooth'
-    });
+    console.log('UI reset complete');
+    console.log('=== END SHOW OPTIONS VIEW DEBUG ===');
 } 
