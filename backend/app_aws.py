@@ -282,19 +282,25 @@ def recommend_unified():
     Accepts either an image upload or a set of preferences.
     """
     # Clear cache at the beginning to ensure fresh recommendations
+    app.logger.info("=== RECOMMENDATION REQUEST START ===")
+    app.logger.info(f"Cache size before clearing: {len(catalog_cache.cache)}")
     catalog_cache.clear()
-    app.logger.info("Cache cleared for fresh recommendations")
+    app.logger.info(f"Cache cleared. Cache size after clearing: {len(catalog_cache.cache)}")
     
     data = request.get_json()
     if not data:
         return jsonify(error="Invalid request"), 400
 
     rec_type = data.get('type')
+    app.logger.info(f"Recommendation type: {rec_type}")
+    
     recommendations = []
 
     if rec_type == 'upload':
+        app.logger.info("Processing UPLOAD-based recommendation")
         image_data = data.get('roomImage')
         if not image_data:
+            app.logger.error("No image data provided for upload type")
             return jsonify(error="No image data provided for upload type"), 400
         
         try:
@@ -308,10 +314,12 @@ def recommend_unified():
             is_approved, reason = moderate_image_content(image_bytes)
             if not is_approved:
                 store_quarantined_image(image_bytes, filename, reason)
+                app.logger.error(f"Moderation failed: {reason}")
                 return jsonify(error=f"Moderation failed: {reason}"), 400
-
+            
             user_colors = extract_dominant_colors(io.BytesIO(image_bytes))
             if not user_colors:
+                app.logger.error("Could not analyze image colors")
                 return jsonify(error="Could not analyze image colors."), 500
             
             app.logger.info(f"Successfully analyzed image colors: {len(user_colors)} colors found")
@@ -322,10 +330,12 @@ def recommend_unified():
         except Exception as e:
             app.logger.error(f"Error processing uploaded image: {e}")
             return jsonify(error="Failed to process image"), 500
-
+        
     elif rec_type == 'preferences':
+        app.logger.info("Processing PREFERENCES-based recommendation")
         preferences = data.get('preferences')
         if not preferences:
+            app.logger.error("No preferences provided for preferences type")
             return jsonify(error="No preferences provided for preferences type"), 400
         
         # Filter out empty values and adapt the preferences to the format expected by get_recommendations_by_filter
@@ -340,24 +350,35 @@ def recommend_unified():
         recs = get_recommendations_by_filter(filters)
         recommendations = [rec['artwork'] for rec in recs]
         app.logger.info(f"Generated {len(recommendations)} recommendations for preferences")
-    
+        
     else:
+        app.logger.error(f"Invalid recommendation type: {rec_type}")
         return jsonify(error="Invalid recommendation type specified"), 400
 
     # Format the final recommendations list
-    formatted_recs = [{
-        'id': art['id'],
-        'title': art['title'],
-        'artist': art['artist'],
-        'description': art['description'],
-        'price': f"${art['price']}",
-        'product_url': art['product_url'],
-        'filename': art['filename'],
-        'attributes': art['attributes']
-    } for art in recommendations]
-
-    app.logger.info(f"Successfully returned {len(formatted_recs)} recommendations")
-    return jsonify(recommendations=formatted_recs)
+    formatted_recommendations = []
+    for rec in recommendations:
+        formatted_rec = {
+            'id': rec['id'],
+            'title': rec['title'],
+            'artist': rec['artist'],
+            'style': rec['style'],
+            'mood': rec['mood'],
+            'subject': rec['subject'],
+            'colors': rec['colors'],
+            'image_url': rec['image_url'],
+            'description': rec.get('description', '')
+        }
+        formatted_recommendations.append(formatted_rec)
+    
+    app.logger.info(f"=== RECOMMENDATION REQUEST COMPLETE ===")
+    app.logger.info(f"Returning {len(formatted_recommendations)} recommendations")
+    app.logger.info(f"First recommendation: {formatted_recommendations[0]['title'] if formatted_recommendations else 'None'}")
+    
+    return jsonify({
+        'recommendations': formatted_recommendations,
+        'type': rec_type
+    })
 
 @app.route('/api/preferences-options')
 def preferences_options():
