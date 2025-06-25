@@ -146,11 +146,11 @@ update_task_definition() {
     print_status "Updating task definition..."
     
     # Update the task definition JSON with actual values
-    sed -i.bak "s/ACCOUNT_ID/$AWS_ACCOUNT_ID/g; s/REGION/$AWS_REGION/g" ecs-task-definition.json
+    sed -i.bak "s/ACCOUNT_ID/$AWS_ACCOUNT_ID/g; s/REGION/$AWS_REGION/g" aws/ecs-task-definition.json
     
     # Register new task definition
     TASK_DEFINITION_ARN=$(aws ecs register-task-definition \
-        --cli-input-json file://ecs-task-definition.json \
+        --cli-input-json file://aws/ecs-task-definition.json \
         --region "$AWS_REGION" \
         --query 'taskDefinition.taskDefinitionArn' \
         --output text)
