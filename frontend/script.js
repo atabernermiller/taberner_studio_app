@@ -246,21 +246,6 @@ function backToOptions() {
         currentRecommendationsCount: currentRecommendations ? currentRecommendations.length : 0
     });
     
-    // Clear backend cache to ensure fresh recommendations
-    fetch('/api/reset-workflow', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        }
-    })
-    .then(response => response.json())
-    .then(data => {
-        console.log('Backend cache cleared:', data.message);
-    })
-    .catch(error => {
-        console.error('Error clearing backend cache:', error);
-    });
-    
     // Reset all recommendation state
     allArtworks = [];
     currentArtworkIndex = 0;
