@@ -988,16 +988,15 @@ function downloadMockup() {
 
     function proceedWithMockup() {
         console.log('[downloadMockup] proceedWithMockup called');
+        
         // Save original styles
         const originalOverlayTransform = artworkOverlay.style.transform;
         const originalOverlayTransition = artworkOverlay.style.transition;
         const originalImageTransform = artworkImage.style.transform;
         const originalImageTransition = artworkImage.style.transition;
 
-        // Remove transforms and transitions for html2canvas
-        artworkOverlay.style.transform = '';
+        // Remove only transitions for html2canvas (keep transforms for positioning)
         artworkOverlay.style.transition = '';
-        artworkImage.style.transform = '';
         artworkImage.style.transition = '';
 
         if (typeof html2canvas !== 'undefined') {
@@ -1013,9 +1012,10 @@ function downloadMockup() {
                     const clonedOverlay = clonedDoc.getElementById('artwork-overlay');
                     const clonedArtwork = clonedDoc.getElementById('artwork-image');
                     if (clonedOverlay && clonedArtwork) {
-                        clonedOverlay.style.transform = '';
+                        // Preserve the current transform values (user positioning)
+                        clonedOverlay.style.transform = originalOverlayTransform;
                         clonedOverlay.style.transition = '';
-                        clonedArtwork.style.transform = '';
+                        clonedArtwork.style.transform = originalImageTransform;
                         clonedArtwork.style.transition = '';
                     }
                 }
