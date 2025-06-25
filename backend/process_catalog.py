@@ -1,3 +1,15 @@
+"""
+process_catalog.py
+
+Purpose:
+    Generates or updates catalog.json by processing all images in the catalog/images/ directory.
+    For each image, extracts the 5 most dominant colors using KMeans clustering and creates a record
+    with a unique ID, filename, title, artist, description, price, product URL, and attributes (dominant colors, mood, style, subject—latter three are placeholders).
+    Writes all records to catalog.json.
+
+Usage:
+    Run this script to create a fresh catalog or update it based on the images present.
+"""
 import os
 import json
 import uuid

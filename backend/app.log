@@ -1,0 +1,84 @@
+2025-06-25 10:29:11,190 INFO Entrypoint: /Users/annette/taberner-studio-apps/taberner_studio_app/backend/app.py
+2025-06-25 10:29:11,190 INFO Working directory: /Users/annette/taberner-studio-apps/taberner_studio_app/backend
+2025-06-25 10:29:11,190 INFO sys.argv: ['app.py']
+2025-06-25 10:29:11,190 INFO Python version: 3.11.5 (main, Sep 11 2023, 08:31:25) [Clang 14.0.6 ]
+2025-06-25 10:29:11,190 INFO __name__: __main__
+2025-06-25 10:29:11,190 INFO Environment variables (filtered):
+2025-06-25 10:29:11,190 INFO   TMPDIR=/var/folders/7j/rzhnb4z12kbbq9624j75xsy00000gn/T/
+2025-06-25 10:29:11,190 INFO   __CFBundleIdentifier=com.apple.Terminal
+2025-06-25 10:29:11,190 INFO   XPC_FLAGS=0x0
+2025-06-25 10:29:11,190 INFO   LaunchInstanceID=D3EFF364-98DF-4D38-BC52-60BD3BB833E2
+2025-06-25 10:29:11,190 INFO   TERM=xterm-256color
+2025-06-25 10:29:11,190 INFO   SSH_AUTH_SOCK=/private/tmp/com.apple.launchd.uONtK3gSfv/Listeners
+2025-06-25 10:29:11,190 INFO   SECURITYSESSIONID=186b5
+2025-06-25 10:29:11,190 INFO   XPC_SERVICE_NAME=0
+2025-06-25 10:29:11,190 INFO   TERM_PROGRAM=Apple_Terminal
+2025-06-25 10:29:11,190 INFO   TERM_PROGRAM_VERSION=455.1
+2025-06-25 10:29:11,190 INFO   TERM_SESSION_ID=B672A806-3EBD-43D6-B0D3-28C8CB4929DC
+2025-06-25 10:29:11,190 INFO   SHELL=/bin/zsh
+2025-06-25 10:29:11,190 INFO   HOME=/Users/annette
+2025-06-25 10:29:11,190 INFO   LOGNAME=annette
+2025-06-25 10:29:11,190 INFO   USER=annette
+2025-06-25 10:29:11,190 INFO   PATH=/Users/annette/.codeium/windsurf/bin:/Users/annette/anaconda3/bin:/Users/annette/anaconda3/condabin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin://Applications/Topaz Photo AI.app/Contents/Resources/bin
+2025-06-25 10:29:11,191 INFO   SHLVL=1
+2025-06-25 10:29:11,191 INFO   PWD=/Users/annette/taberner-studio-apps/taberner_studio_app/backend
+2025-06-25 10:29:11,191 INFO   OLDPWD=/Users/annette/taberner-studio-apps/taberner_studio_app
+2025-06-25 10:29:11,191 INFO   HOMEBREW_PREFIX=/opt/homebrew
+2025-06-25 10:29:11,191 INFO   HOMEBREW_CELLAR=/opt/homebrew/Cellar
+2025-06-25 10:29:11,191 INFO   HOMEBREW_REPOSITORY=/opt/homebrew
+2025-06-25 10:29:11,191 INFO   INFOPATH=/opt/homebrew/share/info:
+2025-06-25 10:29:11,191 INFO   CONDA_EXE=/Users/annette/anaconda3/bin/conda
+2025-06-25 10:29:11,191 INFO   _CE_M=
+2025-06-25 10:29:11,191 INFO   _CE_CONDA=
+2025-06-25 10:29:11,191 INFO   CONDA_PYTHON_EXE=/Users/annette/anaconda3/bin/python
+2025-06-25 10:29:11,191 INFO   CONDA_SHLVL=1
+2025-06-25 10:29:11,191 INFO   CONDA_PREFIX=/Users/annette/anaconda3
+2025-06-25 10:29:11,191 INFO   CONDA_DEFAULT_ENV=base
+2025-06-25 10:29:11,191 INFO   CONDA_PROMPT_MODIFIER=(base) 
+2025-06-25 10:29:11,191 INFO   LANG=en_US.UTF-8
+2025-06-25 10:29:11,191 INFO   _=/Users/annette/anaconda3/bin/python
+2025-06-25 10:29:11,191 INFO   KMP_DUPLICATE_LIB_OK=True
+2025-06-25 10:29:11,191 INFO   KMP_INIT_AT_FORK=FALSE
+2025-06-25 10:29:11,191 INFO === Application Starting ===
+2025-06-25 10:29:11,191 INFO Memory usage at startup: 143.83 MB (0.2%)
+2025-06-25 10:29:11,192 INFO Application environment: local
+2025-06-25 10:29:11,192 INFO Loading catalog from: /Users/annette/taberner-studio-apps/taberner_studio_app/backend/catalog/catalog.json
+2025-06-25 10:29:11,192 ERROR WARNING: catalog.json not found or is invalid: Expecting value: line 1 column 1 (char 0). Run process_catalog.py.
+2025-06-25 10:29:11,192 INFO Running in 'local' mode. AWS services are disabled.
+2025-06-25 10:29:11,192 INFO Rate limiting enabled: False
+2025-06-25 10:29:11,192 INFO === Starting Flask Application ===
+2025-06-25 10:29:11,192 INFO Memory usage at application start: 143.91 MB (0.2%)
+2025-06-25 10:29:11,192 INFO Starting Flask development server on port 8000...
+2025-06-25 10:29:11,195 INFO  * Running on http://127.0.0.1:8000 (Press CTRL+C to quit)
+2025-06-25 10:29:24,908 INFO Serving index page
+2025-06-25 10:29:24,912 INFO 127.0.0.1 - - [25/Jun/2025 10:29:24] "GET / HTTP/1.1" 200 -
+2025-06-25 10:29:24,963 INFO 127.0.0.1 - - [25/Jun/2025 10:29:24] "[36mGET /assets/Taberner-Studio-logo.png HTTP/1.1[0m" 304 -
+2025-06-25 10:29:24,964 INFO 127.0.0.1 - - [25/Jun/2025 10:29:24] "GET /style.css?v=20250623w HTTP/1.1" 200 -
+2025-06-25 10:29:24,965 INFO 127.0.0.1 - - [25/Jun/2025 10:29:24] "[36mGET /assets/mock/mock-room.jpg HTTP/1.1[0m" 304 -
+2025-06-25 10:29:24,981 INFO 127.0.0.1 - - [25/Jun/2025 10:29:24] "[36mGET /config.js HTTP/1.1[0m" 304 -
+2025-06-25 10:29:24,982 INFO 127.0.0.1 - - [25/Jun/2025 10:29:24] "GET /script.js?v=20250623x HTTP/1.1" 200 -
+2025-06-25 10:29:25,219 WARNING 404 error for path: /api/preferences-options
+2025-06-25 10:29:25,219 INFO 127.0.0.1 - - [25/Jun/2025 10:29:25] "[33mGET /api/preferences-options HTTP/1.1[0m" 404 -
+2025-06-25 10:29:28,781 INFO Received recommendation request
+2025-06-25 10:29:28,782 INFO Received recommendation request
+2025-06-25 10:29:28,783 INFO Memory usage before recommendation processing: 144.69 MB (0.2%)
+2025-06-25 10:29:28,783 INFO Memory usage before recommendation processing: 144.69 MB (0.2%)
+2025-06-25 10:29:28,783 INFO Processing recommendation type: preferences
+2025-06-25 10:29:28,784 INFO Processing recommendation type: preferences
+2025-06-25 10:29:28,784 INFO Processing preferences: {'mood': '', 'style': '', 'subject': '', 'color': ''}
+2025-06-25 10:29:28,784 INFO Processing preferences: {'mood': '', 'style': '', 'subject': '', 'color': ''}
+2025-06-25 10:29:28,784 WARNING No art catalog available for filter recommendations
+2025-06-25 10:29:28,784 INFO Successfully returned 0 recommendations for preferences
+2025-06-25 10:29:28,784 INFO Memory usage after recommendation processing: 144.69 MB (0.2%)
+2025-06-25 10:29:28,785 INFO 127.0.0.1 - - [25/Jun/2025 10:29:28] "POST /recommend HTTP/1.1" 200 -
+2025-06-25 10:29:28,785 WARNING No art catalog available for filter recommendations
+2025-06-25 10:29:28,788 INFO Successfully returned 0 recommendations for preferences
+2025-06-25 10:29:28,791 INFO Memory usage after recommendation processing: 144.64 MB (0.2%)
+2025-06-25 10:29:28,792 INFO 127.0.0.1 - - [25/Jun/2025 10:29:28] "POST /recommend HTTP/1.1" 200 -
+2025-06-25 10:29:44,680 INFO 127.0.0.1 - - [25/Jun/2025 10:29:44] "[36mGET /style.css?v=20250623w HTTP/1.1[0m" 304 -
+2025-06-25 10:29:44,690 WARNING 404 error for path: /.well-known/appspecific/com.chrome.devtools.json
+2025-06-25 10:29:44,690 INFO 127.0.0.1 - - [25/Jun/2025 10:29:44] "[33mGET /.well-known/appspecific/com.chrome.devtools.json HTTP/1.1[0m" 404 -
+2025-06-25 10:34:47,634 INFO Received signal 2, shutting down gracefully...
+2025-06-25 10:34:47,635 INFO Memory usage before shutdown: 144.59 MB (0.2%)
+2025-06-25 10:34:47,635 INFO === Flask Application Shutting Down ===
+2025-06-25 10:34:47,635 INFO Memory usage at application shutdown: 144.59 MB (0.2%)

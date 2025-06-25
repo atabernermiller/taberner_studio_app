@@ -1,3 +1,14 @@
+"""
+enrich_catalog.py
+
+Purpose:
+    Enriches the existing catalog.json by adding AI-generated style and subject attributes for each artwork.
+    Loads a CLIP model for zero-shot image classification and classifies each artwork image for style and subject using predefined label lists.
+    Updates the attributes field of each artwork with the top predicted style and subject, and saves the enriched catalog back to catalog.json.
+
+Usage:
+    Run this script after process_catalog.py to add AI-generated metadata to your catalog.
+"""
 import json
 from PIL import Image
 from transformers import pipeline

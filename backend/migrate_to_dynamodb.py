@@ -1,6 +1,18 @@
 #!/usr/bin/env python3
 """
-Script to migrate catalog data from JSON file to DynamoDB
+migrate_to_dynamodb.py
+
+Purpose:
+    Migrates your catalog data from catalog.json to a DynamoDB table, creating the table if it doesn't exist.
+
+Key Functions:
+    - convert_floats_to_decimals: Recursively converts all float values in the data to Decimal objects (required for DynamoDB compatibility).
+    - create_dynamodb_table: Checks if the DynamoDB table exists; if not, creates it with id as the partition key.
+    - migrate_catalog_data: Loads catalog.json, prepares each item, and inserts (puts) it into DynamoDB. Prints progress and error counts.
+    - verify_migration: Compares the number of items in catalog.json to the number of items in DynamoDB and prints a success or failure message.
+
+Usage:
+    Run the script directly (python migrate_to_dynamodb.py). It will migrate all items from catalog.json to DynamoDB (overwriting items with the same ID) and verify the migration.
 """
 
 import json
