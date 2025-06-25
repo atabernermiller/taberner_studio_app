@@ -427,11 +427,40 @@ def preferences_options():
                 if color.get('color'):
                     colors.add(color['color'])
     return jsonify({
-        'styles': sorted(styles),
-        'moods': sorted(moods),
-        'subjects': sorted(subjects),
-        'colors': sorted(colors)
+        'styles': sorted(list(styles)),
+        'moods': sorted(list(moods)),
+        'subjects': sorted(list(subjects)),
+        'colors': sorted(list(colors))
     })
+
+@app.route('/api/convert-image-to-data-url')
+def convert_image_to_data_url():
+    """Convert an S3 image URL to a data URL to avoid CORS issues."""
+    image_url = request.args.get('url')
+    if not image_url:
+        return jsonify({'error': 'No URL provided'}), 400
+    
+    try:
+        # Fetch the image from S3
+        import requests
+        response = requests.get(image_url, timeout=30)
+        response.raise_for_status()
+        
+        # Get the content type
+        content_type = response.headers.get('content-type', 'image/jpeg')
+        
+        # Convert to base64
+        import base64
+        image_data = base64.b64encode(response.content).decode('utf-8')
+        
+        # Create data URL
+        data_url = f"data:{content_type};base64,{image_data}"
+        
+        return jsonify({'data_url': data_url})
+        
+    except Exception as e:
+        logger.error(f"Error converting image to data URL: {str(e)}")
+        return jsonify({'error': 'Failed to convert image'}), 500
 
 @app.route('/catalog/images/<path:filename>')
 def serve_catalog_image(filename):

@@ -916,25 +916,23 @@ function downloadMockup() {
 
     // Helper to convert image src to data URL
     function toDataURL(url, callback, errorCallback) {
-        console.log('[downloadMockup] Converting to data URL:', url);
-        fetch(url, {mode: 'cors'})
+        console.log('[downloadMockup] Converting to data URL via backend:', url);
+        
+        // Use backend endpoint to avoid CORS issues
+        fetch(`/api/convert-image-to-data-url?url=${encodeURIComponent(url)}`)
             .then(response => {
-                if (!response.ok) throw new Error('Failed to fetch image for data URL');
-                return response.blob();
+                if (!response.ok) throw new Error('Backend failed to convert image');
+                return response.json();
             })
-            .then(blob => {
-                const reader = new FileReader();
-                reader.onloadend = function() {
-                    console.log('[downloadMockup] FileReader loaded data URL');
-                    callback(reader.result);
-                };
-                reader.onerror = function(e) {
-                    errorCallback('FileReader error: ' + e);
-                };
-                reader.readAsDataURL(blob);
+            .then(data => {
+                if (data.error) {
+                    throw new Error(data.error);
+                }
+                console.log('[downloadMockup] Backend returned data URL');
+                callback(data.data_url);
             })
             .catch(err => {
-                errorCallback('Fetch/blob error: ' + err);
+                errorCallback('Backend conversion error: ' + err);
             });
     }
 
