@@ -912,16 +912,19 @@ function downloadMockup() {
         downloadBtn.disabled = false;
         return;
     }
-    
-    // Ensure artwork maintains proper aspect ratio
-    const artworkAspectRatio = artworkImage.naturalWidth / artworkImage.naturalHeight;
-    const overlayWidth = parseFloat(artworkOverlay.style.width) || 250;
-    const overlayHeight = overlayWidth / artworkAspectRatio;
-    
-    // Update overlay dimensions to maintain aspect ratio
-    artworkOverlay.style.width = overlayWidth + 'px';
-    artworkOverlay.style.height = overlayHeight + 'px';
-    
+
+    // Save original styles
+    const originalOverlayTransform = artworkOverlay.style.transform;
+    const originalOverlayTransition = artworkOverlay.style.transition;
+    const originalImageTransform = artworkImage.style.transform;
+    const originalImageTransition = artworkImage.style.transition;
+
+    // Remove transforms and transitions for html2canvas
+    artworkOverlay.style.transform = '';
+    artworkOverlay.style.transition = '';
+    artworkImage.style.transform = '';
+    artworkImage.style.transition = '';
+
     // Use html2canvas to capture the showroom
     if (typeof html2canvas !== 'undefined') {
         html2canvas(showroom, {
@@ -936,20 +939,20 @@ function downloadMockup() {
                 const clonedShowroom = clonedDoc.getElementById('virtual-showroom');
                 const clonedOverlay = clonedDoc.getElementById('artwork-overlay');
                 const clonedArtwork = clonedDoc.getElementById('artwork-image');
-                
                 if (clonedShowroom && clonedOverlay && clonedArtwork) {
-                    // Apply the same positioning and sizing
-                    clonedOverlay.style.width = overlayWidth + 'px';
-                    clonedOverlay.style.height = overlayHeight + 'px';
-                    clonedOverlay.style.position = 'absolute';
-                    clonedOverlay.style.left = artworkOverlay.style.left || '50px';
-                    clonedOverlay.style.top = artworkOverlay.style.top || '50px';
-                    clonedArtwork.style.width = '100%';
-                    clonedArtwork.style.height = '100%';
-                    clonedArtwork.style.objectFit = 'cover';
+                    clonedOverlay.style.transform = '';
+                    clonedOverlay.style.transition = '';
+                    clonedArtwork.style.transform = '';
+                    clonedArtwork.style.transition = '';
                 }
             }
         }).then(function(canvas) {
+            // Restore original styles
+            artworkOverlay.style.transform = originalOverlayTransform;
+            artworkOverlay.style.transition = originalOverlayTransition;
+            artworkImage.style.transform = originalImageTransform;
+            artworkImage.style.transition = originalImageTransition;
+
             // Create download link
             const link = document.createElement('a');
             link.download = `taberner-studio-mockup-${Date.now()}.png`;
@@ -963,6 +966,11 @@ function downloadMockup() {
                 downloadBtn.disabled = false;
             }, 2000);
         }).catch(function(error) {
+            // Restore original styles on error
+            artworkOverlay.style.transform = originalOverlayTransform;
+            artworkOverlay.style.transition = originalOverlayTransition;
+            artworkImage.style.transform = originalImageTransform;
+            artworkImage.style.transition = originalImageTransition;
             console.error('Error generating mockup:', error);
             downloadBtn.innerHTML = '<i class="fas fa-exclamation-triangle"></i> Error';
             setTimeout(() => {
