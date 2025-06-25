@@ -243,7 +243,8 @@ function backToOptions() {
         currentArtworkIndex,
         hasUploadedImage: !!uploadedImage,
         recommendationsCount: recommendations ? recommendations.length : 0,
-        currentRecommendationsCount: currentRecommendations ? currentRecommendations.length : 0
+        currentRecommendationsCount: currentRecommendations ? currentRecommendations.length : 0,
+        allArtworksCount: allArtworks ? allArtworks.length : 0
     });
     
     // Reset all recommendation state
@@ -264,11 +265,28 @@ function backToOptions() {
         currentArtworkIndex,
         hasUploadedImage: !!uploadedImage,
         recommendationsCount: recommendations ? recommendations.length : 0,
-        currentRecommendationsCount: currentRecommendations ? currentRecommendations.length : 0
+        currentRecommendationsCount: currentRecommendations ? currentRecommendations.length : 0,
+        allArtworksCount: allArtworks ? allArtworks.length : 0
     });
+    
+    // Clear the UI
+    const recommendationsContainer = document.getElementById('recommendations-container');
+    if (recommendationsContainer) {
+        recommendationsContainer.innerHTML = '';
+        console.log('Cleared recommendations container');
+    }
+    
+    // Reset header text
+    const headerText = document.getElementById('recommendations-header');
+    if (headerText) {
+        headerText.textContent = "Here are some artworks we think you'll love!";
+        console.log('Reset header text to default');
+    }
     
     // Show the options view
     showOptionsView();
+    
+    console.log('=== BACK TO OPTIONS COMPLETE ===');
 }
 
 // Initialize upload functionality
@@ -408,7 +426,7 @@ function getRecommendationsByPreferences(preferences) {
     })
     .then(data => {
         if (data.recommendations && data.recommendations.length > 0) {
-            displayResults(data.recommendations);
+            displayResults(data.recommendations, 'preferences');
         } else {
             showErrorState(document.getElementById('results-area'), 'No recommendations found for your preferences.');
             showResultsView();
@@ -506,9 +524,16 @@ let originalWidth, originalHeight;
 let originalX, originalY;
 
 function getRecommendations() {
+    console.log('=== GET RECOMMENDATIONS DEBUG ===');
+    console.log('Uploaded image exists:', !!uploadedImage);
+    console.log('Current state before request:', {
+        currentArtworkIndex,
+        allArtworksCount: allArtworks ? allArtworks.length : 0,
+        recommendationsCount: recommendations ? recommendations.length : 0
+    });
+    
     if (!uploadedImage) {
-        showErrorState(document.getElementById('upload-form-container'), 'Please upload an image first.');
-        isUploading = false; // Reset flag
+        console.error('No uploaded image available');
         return;
     }
 
@@ -529,43 +554,96 @@ function getRecommendations() {
         return response.json();
     })
     .then(data => {
+        console.log('Received recommendations response:', {
+            type: data.type,
+            recommendationsCount: data.recommendations ? data.recommendations.length : 0,
+            firstRecommendation: data.recommendations ? data.recommendations[0].title : 'None'
+        });
+        
         isUploading = false; // Reset flag on success
         if (data.recommendations && data.recommendations.length > 0) {
-            displayResults(data.recommendations);
+            displayResults(data.recommendations, 'upload');
         } else {
             showErrorState(document.getElementById('results-area'), 'No recommendations found for your image.');
             showResultsView();
         }
     })
     .catch(error => {
-        isUploading = false; // Reset flag on error
         console.error('Error getting recommendations:', error);
+        isUploading = false; // Reset flag on error
         showErrorState(document.getElementById('results-area'), 'Unable to get recommendations. Please try again.');
         showResultsView();
     });
+    
+    console.log('=== END GET RECOMMENDATIONS DEBUG ===');
 }
 
-function displayResults(recommendations) {
-    console.log('displayResults called with', recommendations.length, 'recommendations');
+function displayResults(recommendations, type = 'upload') {
+    console.log('=== DISPLAY RESULTS DEBUG ===');
+    console.log('Recommendation type:', type);
+    console.log('Number of recommendations:', recommendations.length);
+    console.log('First recommendation:', recommendations[0]);
     
-    // Prevent duplicate processing if the same recommendations are already displayed
-    if (allArtworks && allArtworks.length === recommendations.length) {
-        const currentIds = allArtworks.map(art => art.id).sort();
-        const newIds = recommendations.map(art => art.id).sort();
-        if (JSON.stringify(currentIds) === JSON.stringify(newIds)) {
-            console.log('Same recommendations already displayed, skipping duplicate processing');
-            return;
-        }
+    // Update the header text based on recommendation type
+    const headerText = document.getElementById('recommendations-header');
+    if (type === 'preferences') {
+        headerText.textContent = "Here are some artworks we think you'll love! Based on your selected preferences";
+    } else {
+        headerText.textContent = "Here are some artworks we think you'll love! Based on your room's colors";
     }
+    console.log('Updated header text to:', headerText.textContent);
     
+    // Clear existing recommendations
+    const recommendationsContainer = document.getElementById('recommendations-container');
+    recommendationsContainer.innerHTML = '';
+    
+    // Store recommendations globally
     allArtworks = recommendations;
-    showResultsView();
-
+    currentArtworkIndex = 0;
+    
+    console.log('Stored recommendations globally:', {
+        allArtworksCount: allArtworks.length,
+        currentArtworkIndex: currentArtworkIndex
+    });
+    
+    // Display the first recommendation
     if (allArtworks.length > 0) {
-        createThumbnailGallery();
-        selectThumbnail(0); // Display the first recommendation
-        initializeArtworkInteraction();
+        displayCurrentArtwork();
     }
+    
+    // Show the results view
+    showResultsView();
+    
+    console.log('=== END DISPLAY RESULTS DEBUG ===');
+}
+
+function displayCurrentArtwork() {
+    console.log('=== DISPLAY CURRENT ARTWORK DEBUG ===');
+    console.log('Current artwork index:', currentArtworkIndex);
+    console.log('Total artworks:', allArtworks.length);
+    
+    if (currentArtworkIndex >= allArtworks.length) {
+        console.log('No more artworks to display');
+        return;
+    }
+    
+    const artwork = allArtworks[currentArtworkIndex];
+    console.log('Displaying artwork:', artwork.title);
+    
+    // Clear existing content
+    const recommendationsContainer = document.getElementById('recommendations-container');
+    recommendationsContainer.innerHTML = '';
+    
+    // Create thumbnail gallery
+    createThumbnailGallery();
+    
+    // Select the current thumbnail
+    selectThumbnail(currentArtworkIndex);
+    
+    // Initialize artwork interaction
+    initializeArtworkInteraction();
+    
+    console.log('=== END DISPLAY CURRENT ARTWORK DEBUG ===');
 }
 
 function initializeArtworkInteraction() {
