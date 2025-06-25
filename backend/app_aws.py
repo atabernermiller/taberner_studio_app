@@ -362,12 +362,11 @@ def recommend_unified():
             'id': rec['id'],
             'title': rec['title'],
             'artist': rec['artist'],
-            'style': rec['style'],
-            'mood': rec['mood'],
-            'subject': rec['subject'],
-            'colors': rec['colors'],
-            'image_url': rec['image_url'],
-            'description': rec.get('description', '')
+            'description': rec.get('description', ''),
+            'price': rec.get('price', ''),
+            'product_url': rec.get('product_url', ''),
+            'filename': rec.get('filename', ''),
+            'attributes': rec.get('attributes', {})
         }
         formatted_recommendations.append(formatted_rec)
     
