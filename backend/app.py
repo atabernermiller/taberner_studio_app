@@ -17,6 +17,9 @@ from sklearn.cluster import KMeans
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
 import base64
+import time
+from functools import lru_cache
+from flask_cors import CORS
 
 logging.basicConfig(
     level=logging.INFO,
@@ -71,6 +74,31 @@ log_memory_usage("at startup")
 # Configure app to serve frontend files
 FRONTEND_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'frontend'))
 app = Flask(__name__, static_folder=FRONTEND_DIR, static_url_path='')
+CORS(app)
+
+# Simple in-memory cache
+class SimpleCache:
+    def __init__(self, ttl_seconds=300):  # 5 minutes default TTL
+        self.cache = {}
+        self.ttl = ttl_seconds
+    
+    def get(self, key):
+        if key in self.cache:
+            data, timestamp = self.cache[key]
+            if time.time() - timestamp < self.ttl:
+                return data
+            else:
+                del self.cache[key]  # Expired
+        return None
+    
+    def set(self, key, value):
+        self.cache[key] = (value, time.time())
+    
+    def clear(self):
+        self.cache.clear()
+
+# Initialize cache
+catalog_cache = SimpleCache(ttl_seconds=300)  # 5 minutes cache
 
 # --- Configuration & Setup ---
 CATALOG_DIR = os.path.join(os.path.dirname(__file__), 'catalog')
@@ -91,16 +119,33 @@ logger.info(f"Application environment: {APP_ENV}")
 APPROVED_BUCKET = os.environ.get('APPROVED_BUCKET', 'taberner-studio-images')
 QUARANTINE_BUCKET = os.environ.get('QUARANTINE_BUCKET', 'taberner-studio-quarantine')
 
-# Load the pre-processed art catalog into memory
-try:
-    logger.info(f"Loading catalog from: {CATALOG_JSON_PATH}")
-    with open(CATALOG_JSON_PATH, 'r') as f:
-        art_catalog = json.load(f)
-    logger.info(f"Successfully loaded {len(art_catalog)} items from art catalog.")
-    log_memory_usage("after loading catalog")
-except (FileNotFoundError, json.JSONDecodeError) as e:
-    logger.error(f"WARNING: catalog.json not found or is invalid: {e}. Run process_catalog.py.")
-    art_catalog = []
+# Load art catalog from JSON file
+def load_catalog():
+    """Load art catalog from JSON file with caching."""
+    # Check cache first
+    cached_data = catalog_cache.get('art_catalog')
+    if cached_data:
+        logger.info("Returning cached catalog data")
+        return cached_data
+    
+    # Cache miss - load from file
+    logger.info("Cache miss - loading catalog from JSON file")
+    try:
+        catalog_path = os.path.join(os.path.dirname(__file__), 'catalog', 'catalog.json')
+        with open(catalog_path, 'r') as f:
+            data = json.load(f)
+        
+        # Store in cache
+        catalog_cache.set('art_catalog', data)
+        logger.info(f"Loaded {len(data)} items from JSON file and cached")
+        
+        return data
+    except Exception as e:
+        logger.error(f"Error loading catalog: {str(e)}")
+        return []
+
+# Load catalog data
+art_catalog = load_catalog()
 
 # --- AWS & Limiter Setup (Conditional) ---
 rekognition, s3 = None, None
@@ -466,6 +511,23 @@ def convert_image_to_data_url():
 def serve_catalog_image(filename):
     logger.debug(f"Serving catalog image: {filename}")
     return send_from_directory(ARTWORK_IMAGE_DIR, filename)
+
+@app.route('/api/clear-cache')
+def clear_cache():
+    """Clear the catalog cache (admin endpoint)."""
+    catalog_cache.clear()
+    logger.info("Catalog cache cleared")
+    return jsonify({'message': 'Cache cleared successfully'})
+
+@app.route('/api/cache-stats')
+def cache_stats():
+    """Get cache statistics (admin endpoint)."""
+    cache_info = {
+        'cache_size': len(catalog_cache.cache),
+        'ttl_seconds': catalog_cache.ttl,
+        'cache_keys': list(catalog_cache.cache.keys())
+    }
+    return jsonify(cache_info)
 
 @app.errorhandler(429)
 def ratelimit_handler(e):

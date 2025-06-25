@@ -5,7 +5,7 @@ import uuid
 from datetime import datetime
 import numpy as np
 import boto3
-from flask import Flask, request, jsonify, send_from_directory
+from flask import Flask, request, jsonify, send_from_directory, render_template_string
 from PIL import Image
 import pillow_heif
 from sklearn.cluster import KMeans
@@ -13,10 +13,15 @@ from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
 import base64
 import requests
+import logging
+from flask_cors import CORS
+import time
+from functools import lru_cache
 
 # Configure Flask app
 FRONTEND_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), 'static'))
 app = Flask(__name__, static_folder=FRONTEND_DIR, static_url_path='')
+CORS(app)
 
 # --- AWS Configuration ---
 APP_ENV = os.environ.get('APP_ENV', 'aws')  # Default to AWS mode
@@ -43,6 +48,32 @@ limiter = Limiter(
     storage_uri="memory://",
     enabled=True,
 )
+
+# Simple in-memory cache
+class SimpleCache:
+    def __init__(self, ttl_seconds=300):  # 5 minutes default TTL
+        self.cache = {}
+        self.ttl = ttl_seconds
+    
+    def get(self, key):
+        if key in self.cache:
+            data, timestamp = self.cache[key]
+            if time.time() - timestamp < self.ttl:
+                return data
+            else:
+                del self.cache[key]  # Expired
+        return None
+    
+    def set(self, key, value):
+        self.cache[key] = (value, time.time())
+    
+    def clear(self):
+        self.cache.clear()
+
+# Initialize cache
+catalog_cache = SimpleCache(ttl_seconds=300)  # 5 minutes cache
+
+# Configure logging
 
 # --- Core Logic: Color Analysis, Moderation, Storage ---
 
@@ -81,20 +112,31 @@ def extract_dominant_colors(image_stream, n_colors=5):
         return []
 
 def load_catalog_from_dynamodb():
-    """Load all catalog items from DynamoDB"""
+    """Load art catalog from DynamoDB with caching."""
+    # Check cache first
+    cached_data = catalog_cache.get('art_catalog')
+    if cached_data:
+        app.logger.info("Returning cached catalog data")
+        return cached_data
+    
+    # Cache miss - fetch from DynamoDB
+    app.logger.info("Cache miss - fetching catalog from DynamoDB")
     try:
         response = catalog_table.scan()
-        items = response['Items']
+        items = response.get('Items', [])
         
         # Handle pagination if needed
         while 'LastEvaluatedKey' in response:
             response = catalog_table.scan(ExclusiveStartKey=response['LastEvaluatedKey'])
-            items.extend(response['Items'])
+            items.extend(response.get('Items', []))
         
-        app.logger.info(f"Successfully loaded {len(items)} items from DynamoDB catalog")
+        # Store in cache
+        catalog_cache.set('art_catalog', items)
+        app.logger.info(f"Fetched {len(items)} items from DynamoDB and cached")
+        
         return items
     except Exception as e:
-        app.logger.error(f"Error loading catalog from DynamoDB: {e}")
+        app.logger.error(f"Error loading catalog from DynamoDB: {str(e)}")
         return []
 
 def get_recommendations(user_colors):
@@ -406,6 +448,23 @@ def health_check():
             'error': str(e),
             'timestamp': datetime.utcnow().isoformat()
         }), 500
+
+@app.route('/api/clear-cache')
+def clear_cache():
+    """Clear the catalog cache (admin endpoint)."""
+    catalog_cache.clear()
+    app.logger.info("Catalog cache cleared")
+    return jsonify({'message': 'Cache cleared successfully'})
+
+@app.route('/api/cache-stats')
+def cache_stats():
+    """Get cache statistics (admin endpoint)."""
+    cache_info = {
+        'cache_size': len(catalog_cache.cache),
+        'ttl_seconds': catalog_cache.ttl,
+        'cache_keys': list(catalog_cache.cache.keys())
+    }
+    return jsonify(cache_info)
 
 # Main entry point
 if __name__ == '__main__':
