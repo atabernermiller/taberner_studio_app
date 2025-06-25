@@ -1,5 +1,100 @@
 # taberner_studio_app
 
+## Project Structure
+
+```
+taberner_studio_app/
+├── aws/                          # AWS Infrastructure & Deployment
+│   ├── deploy_to_ecs.sh         # ECS deployment script
+│   ├── ecs-service-definition.json
+│   ├── ecs-task-definition.json
+│   ├── s3-cors-config.json      # S3 CORS configuration
+│   ├── setup_https_*.sh         # HTTPS setup scripts
+│   ├── monitor_app.py           # Monitoring utilities
+│   ├── verify_dynamodb.py       # DynamoDB verification
+│   └── AWS_MIGRATION_GUIDE.md   # AWS migration documentation
+├── backend/                      # Backend Application
+│   ├── app.py                   # Local development server
+│   ├── app_aws.py               # Production server (Docker)
+│   ├── catalog/                 # Local catalog data
+│   │   ├── catalog.json         # Artwork catalog
+│   │   └── images/              # Artwork images
+│   ├── process_catalog.py       # Generate catalog from images
+│   ├── enrich_catalog.py        # Add AI metadata to catalog
+│   ├── migrate_to_dynamodb.py   # Upload catalog to DynamoDB
+│   └── requirements_*.txt       # Python dependencies
+├── frontend/                     # Frontend Application
+│   ├── index.html               # Main application page
+│   ├── script.js                # Frontend JavaScript
+│   ├── style.css                # Frontend styles
+│   ├── config.js                # Configuration
+│   ├── preview.html             # Preview page
+│   └── assets/                  # Static assets
+├── buildspec.yml                # AWS CodeBuild configuration
+├── README.md                     # This file
+└── .gitignore                   # Git ignore rules
+```
+
+## Quick Start
+
+### Local Development
+
+1. **Start the backend server:**
+   ```bash
+   python backend/app.py
+   ```
+
+2. **Open the application:**
+   - Navigate to `http://localhost:8000` in your browser
+   - Or use the preview page: `http://localhost:8000/preview.html`
+
+### AWS Infrastructure Management
+
+**Deploy to ECS:**
+```bash
+./aws/deploy_to_ecs.sh
+```
+
+**Configure S3 CORS (for image access):**
+```bash
+aws s3api put-bucket-cors --bucket your-bucket-name --cors-configuration file://aws/s3-cors-config.json --region us-east-1
+```
+
+**Monitor the application:**
+```bash
+python aws/monitor_app.py
+```
+
+**Verify DynamoDB setup:**
+```bash
+python aws/verify_dynamodb.py
+```
+
+**Setup HTTPS for custom domain:**
+```bash
+./aws/setup_https_for_domain.sh
+```
+
+## Backend Files
+
+The project uses different backend files for different environments:
+
+| File | Purpose | Environment | Data Source |
+|------|---------|-------------|-------------|
+| `backend/app.py` | Local development server | Development | Local `catalog.json` |
+| `backend/app_aws.py` | Production server | AWS ECS | DynamoDB |
+
+**Key Differences:**
+- **`app.py`**: Uses local JSON catalog, no AWS services, for development
+- **`app_aws.py`**: Uses DynamoDB, includes AWS services (S3, Rekognition), for production
+
+**API Endpoints (both files):**
+- `GET /` - Serve frontend
+- `POST /recommend` - Get artwork recommendations
+- `GET /api/preferences-options` - Get available preferences
+- `GET /catalog/images/<filename>` - Serve catalog images
+- `GET /health` - Health check (production only)
+
 ## Catalog Workflow
 
 ### 1. Create `catalog.json`
