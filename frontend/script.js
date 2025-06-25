@@ -926,13 +926,17 @@ function downloadMockup() {
             });
     }
 
-    // Save original src
+    // Save original src and onload
     const originalSrc = artworkImage.src;
+    const originalOnload = artworkImage.onload;
 
     // Convert artwork image to data URL and set as src
     toDataURL(originalSrc, function(dataUrl) {
-        artworkImage.src = dataUrl;
+        // Set a one-time onload handler
         artworkImage.onload = function() {
+            // Remove this handler to prevent loops
+            artworkImage.onload = originalOnload;
+
             // Save original styles
             const originalOverlayTransform = artworkOverlay.style.transform;
             const originalOverlayTransition = artworkOverlay.style.transition;
@@ -964,12 +968,13 @@ function downloadMockup() {
                         }
                     }
                 }).then(function(canvas) {
-                    // Restore original styles and src
+                    // Restore original styles, src, and onload
                     artworkOverlay.style.transform = originalOverlayTransform;
                     artworkOverlay.style.transition = originalOverlayTransition;
                     artworkImage.style.transform = originalImageTransform;
                     artworkImage.style.transition = originalImageTransition;
                     artworkImage.src = originalSrc;
+                    artworkImage.onload = originalOnload;
 
                     // Create download link
                     const link = document.createElement('a');
@@ -984,12 +989,13 @@ function downloadMockup() {
                         downloadBtn.disabled = false;
                     }, 2000);
                 }).catch(function(error) {
-                    // Restore original styles and src on error
+                    // Restore original styles, src, and onload on error
                     artworkOverlay.style.transform = originalOverlayTransform;
                     artworkOverlay.style.transition = originalOverlayTransition;
                     artworkImage.style.transform = originalImageTransform;
                     artworkImage.style.transition = originalImageTransition;
                     artworkImage.src = originalSrc;
+                    artworkImage.onload = originalOnload;
                     console.error('Error generating mockup:', error);
                     downloadBtn.innerHTML = '<i class="fas fa-exclamation-triangle"></i> Error';
                     setTimeout(() => {
@@ -999,6 +1005,7 @@ function downloadMockup() {
                 });
             }
         };
+        artworkImage.src = dataUrl;
     });
 }
 
