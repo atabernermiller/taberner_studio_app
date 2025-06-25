@@ -897,6 +897,7 @@ function downloadMockup() {
     const downloadBtn = event.target.closest('button');
     const originalText = downloadBtn.innerHTML;
     
+    console.log('[downloadMockup] Button clicked');
     downloadBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Generating...';
     downloadBtn.disabled = true;
     
@@ -907,106 +908,155 @@ function downloadMockup() {
     const roomImage = document.getElementById('room-image');
     
     if (!showroom || !artworkOverlay || !artworkImage) {
-        console.error('Required elements not found for mockup generation');
+        console.error('[downloadMockup] Required elements not found for mockup generation', {showroom, artworkOverlay, artworkImage});
         downloadBtn.innerHTML = originalText;
         downloadBtn.disabled = false;
         return;
     }
 
     // Helper to convert image src to data URL
-    function toDataURL(url, callback) {
+    function toDataURL(url, callback, errorCallback) {
+        console.log('[downloadMockup] Converting to data URL:', url);
         fetch(url, {mode: 'cors'})
-            .then(response => response.blob())
+            .then(response => {
+                if (!response.ok) throw new Error('Failed to fetch image for data URL');
+                return response.blob();
+            })
             .then(blob => {
                 const reader = new FileReader();
                 reader.onloadend = function() {
+                    console.log('[downloadMockup] FileReader loaded data URL');
                     callback(reader.result);
                 };
+                reader.onerror = function(e) {
+                    errorCallback('FileReader error: ' + e);
+                };
                 reader.readAsDataURL(blob);
+            })
+            .catch(err => {
+                errorCallback('Fetch/blob error: ' + err);
             });
     }
 
     // Save original src and onload
     const originalSrc = artworkImage.src;
     const originalOnload = artworkImage.onload;
+    console.log('[downloadMockup] Original artworkImage.src:', originalSrc);
 
-    // Convert artwork image to data URL and set as src
-    toDataURL(originalSrc, function(dataUrl) {
-        // Set a one-time onload handler
-        artworkImage.onload = function() {
-            // Remove this handler to prevent loops
+    // Helper to finish/reset button
+    function finishWithError(msg) {
+        console.error('[downloadMockup] ERROR:', msg);
+        downloadBtn.innerHTML = '<i class="fas fa-exclamation-triangle"></i> Error';
+        setTimeout(() => {
+            downloadBtn.innerHTML = originalText;
+            downloadBtn.disabled = false;
+        }, 2000);
+    }
+
+    // If already a data URL, skip conversion
+    if (originalSrc.startsWith('data:')) {
+        console.log('[downloadMockup] artworkImage.src is already a data URL, proceeding directly');
+        proceedWithMockup();
+    } else {
+        let didTimeout = false;
+        // Set a timeout in case image never loads
+        const timeout = setTimeout(() => {
+            didTimeout = true;
             artworkImage.onload = originalOnload;
+            artworkImage.src = originalSrc;
+            finishWithError('Timeout: artwork image did not load as data URL');
+        }, 7000);
 
-            // Save original styles
-            const originalOverlayTransform = artworkOverlay.style.transform;
-            const originalOverlayTransition = artworkOverlay.style.transition;
-            const originalImageTransform = artworkImage.style.transform;
-            const originalImageTransition = artworkImage.style.transition;
+        toDataURL(originalSrc, function(dataUrl) {
+            if (didTimeout) return;
+            clearTimeout(timeout);
+            console.log('[downloadMockup] Setting artworkImage.src to data URL');
+            artworkImage.onload = function() {
+                artworkImage.onload = originalOnload;
+                clearTimeout(timeout);
+                console.log('[downloadMockup] artworkImage loaded as data URL, proceeding with mockup');
+                proceedWithMockup();
+            };
+            artworkImage.onerror = function(e) {
+                clearTimeout(timeout);
+                finishWithError('artworkImage onerror: ' + e);
+            };
+            artworkImage.src = dataUrl;
+        }, function(errMsg) {
+            clearTimeout(timeout);
+            finishWithError(errMsg);
+        });
+    }
 
-            // Remove transforms and transitions for html2canvas
-            artworkOverlay.style.transform = '';
-            artworkOverlay.style.transition = '';
-            artworkImage.style.transform = '';
-            artworkImage.style.transition = '';
+    function proceedWithMockup() {
+        console.log('[downloadMockup] proceedWithMockup called');
+        // Save original styles
+        const originalOverlayTransform = artworkOverlay.style.transform;
+        const originalOverlayTransition = artworkOverlay.style.transition;
+        const originalImageTransform = artworkImage.style.transform;
+        const originalImageTransition = artworkImage.style.transition;
 
-            if (typeof html2canvas !== 'undefined') {
-                html2canvas(showroom, {
-                    useCORS: true,
-                    allowTaint: true,
-                    backgroundColor: null,
-                    scale: 2,
-                    width: showroom.offsetWidth,
-                    height: showroom.offsetHeight,
-                    onclone: function(clonedDoc) {
-                        const clonedOverlay = clonedDoc.getElementById('artwork-overlay');
-                        const clonedArtwork = clonedDoc.getElementById('artwork-image');
-                        if (clonedOverlay && clonedArtwork) {
-                            clonedOverlay.style.transform = '';
-                            clonedOverlay.style.transition = '';
-                            clonedArtwork.style.transform = '';
-                            clonedArtwork.style.transition = '';
-                        }
+        // Remove transforms and transitions for html2canvas
+        artworkOverlay.style.transform = '';
+        artworkOverlay.style.transition = '';
+        artworkImage.style.transform = '';
+        artworkImage.style.transition = '';
+
+        if (typeof html2canvas !== 'undefined') {
+            console.log('[downloadMockup] Calling html2canvas...');
+            html2canvas(showroom, {
+                useCORS: true,
+                allowTaint: true,
+                backgroundColor: null,
+                scale: 2,
+                width: showroom.offsetWidth,
+                height: showroom.offsetHeight,
+                onclone: function(clonedDoc) {
+                    const clonedOverlay = clonedDoc.getElementById('artwork-overlay');
+                    const clonedArtwork = clonedDoc.getElementById('artwork-image');
+                    if (clonedOverlay && clonedArtwork) {
+                        clonedOverlay.style.transform = '';
+                        clonedOverlay.style.transition = '';
+                        clonedArtwork.style.transform = '';
+                        clonedArtwork.style.transition = '';
                     }
-                }).then(function(canvas) {
-                    // Restore original styles, src, and onload
-                    artworkOverlay.style.transform = originalOverlayTransform;
-                    artworkOverlay.style.transition = originalOverlayTransition;
-                    artworkImage.style.transform = originalImageTransform;
-                    artworkImage.style.transition = originalImageTransition;
-                    artworkImage.src = originalSrc;
-                    artworkImage.onload = originalOnload;
+                }
+            }).then(function(canvas) {
+                console.log('[downloadMockup] html2canvas finished, creating download link');
+                // Restore original styles, src, and onload
+                artworkOverlay.style.transform = originalOverlayTransform;
+                artworkOverlay.style.transition = originalOverlayTransition;
+                artworkImage.style.transform = originalImageTransform;
+                artworkImage.style.transition = originalImageTransition;
+                artworkImage.src = originalSrc;
+                artworkImage.onload = originalOnload;
 
-                    // Create download link
-                    const link = document.createElement('a');
-                    link.download = `taberner-studio-mockup-${Date.now()}.png`;
-                    link.href = canvas.toDataURL('image/png');
-                    link.click();
-                    
-                    // Reset button
-                    downloadBtn.innerHTML = '<i class="fas fa-check"></i> Downloaded!';
-                    setTimeout(() => {
-                        downloadBtn.innerHTML = originalText;
-                        downloadBtn.disabled = false;
-                    }, 2000);
-                }).catch(function(error) {
-                    // Restore original styles, src, and onload on error
-                    artworkOverlay.style.transform = originalOverlayTransform;
-                    artworkOverlay.style.transition = originalOverlayTransition;
-                    artworkImage.style.transform = originalImageTransform;
-                    artworkImage.style.transition = originalImageTransition;
-                    artworkImage.src = originalSrc;
-                    artworkImage.onload = originalOnload;
-                    console.error('Error generating mockup:', error);
-                    downloadBtn.innerHTML = '<i class="fas fa-exclamation-triangle"></i> Error';
-                    setTimeout(() => {
-                        downloadBtn.innerHTML = originalText;
-                        downloadBtn.disabled = false;
-                    }, 2000);
-                });
-            }
-        };
-        artworkImage.src = dataUrl;
-    });
+                // Create download link
+                const link = document.createElement('a');
+                link.download = `taberner-studio-mockup-${Date.now()}.png`;
+                link.href = canvas.toDataURL('image/png');
+                link.click();
+                
+                // Reset button
+                downloadBtn.innerHTML = '<i class="fas fa-check"></i> Downloaded!';
+                setTimeout(() => {
+                    downloadBtn.innerHTML = originalText;
+                    downloadBtn.disabled = false;
+                }, 2000);
+            }).catch(function(error) {
+                // Restore original styles, src, and onload on error
+                artworkOverlay.style.transform = originalOverlayTransform;
+                artworkOverlay.style.transition = originalOverlayTransition;
+                artworkImage.style.transform = originalImageTransform;
+                artworkImage.style.transition = originalImageTransition;
+                artworkImage.src = originalSrc;
+                artworkImage.onload = originalOnload;
+                finishWithError('Error generating mockup: ' + error);
+            });
+        } else {
+            finishWithError('html2canvas is not loaded');
+        }
+    }
 }
 
 // Save to favorites functionality
