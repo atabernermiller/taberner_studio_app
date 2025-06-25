@@ -913,107 +913,93 @@ function downloadMockup() {
         return;
     }
 
-    // Save original styles
-    const originalOverlayTransform = artworkOverlay.style.transform;
-    const originalOverlayTransition = artworkOverlay.style.transition;
-    const originalImageTransform = artworkImage.style.transform;
-    const originalImageTransition = artworkImage.style.transition;
-
-    // Remove transforms and transitions for html2canvas
-    artworkOverlay.style.transform = '';
-    artworkOverlay.style.transition = '';
-    artworkImage.style.transform = '';
-    artworkImage.style.transition = '';
-
-    // Use html2canvas to capture the showroom
-    if (typeof html2canvas !== 'undefined') {
-        html2canvas(showroom, {
-            useCORS: true,
-            allowTaint: true,
-            backgroundColor: null,
-            scale: 2, // Higher quality
-            width: showroom.offsetWidth,
-            height: showroom.offsetHeight,
-            onclone: function(clonedDoc) {
-                // Ensure the cloned element maintains the same styling
-                const clonedShowroom = clonedDoc.getElementById('virtual-showroom');
-                const clonedOverlay = clonedDoc.getElementById('artwork-overlay');
-                const clonedArtwork = clonedDoc.getElementById('artwork-image');
-                if (clonedShowroom && clonedOverlay && clonedArtwork) {
-                    clonedOverlay.style.transform = '';
-                    clonedOverlay.style.transition = '';
-                    clonedArtwork.style.transform = '';
-                    clonedArtwork.style.transition = '';
-                }
-            }
-        }).then(function(canvas) {
-            // Restore original styles
-            artworkOverlay.style.transform = originalOverlayTransform;
-            artworkOverlay.style.transition = originalOverlayTransition;
-            artworkImage.style.transform = originalImageTransform;
-            artworkImage.style.transition = originalImageTransition;
-
-            // Create download link
-            const link = document.createElement('a');
-            link.download = `taberner-studio-mockup-${Date.now()}.png`;
-            link.href = canvas.toDataURL('image/png');
-            link.click();
-            
-            // Reset button
-            downloadBtn.innerHTML = '<i class="fas fa-check"></i> Downloaded!';
-            setTimeout(() => {
-                downloadBtn.innerHTML = originalText;
-                downloadBtn.disabled = false;
-            }, 2000);
-        }).catch(function(error) {
-            // Restore original styles on error
-            artworkOverlay.style.transform = originalOverlayTransform;
-            artworkOverlay.style.transition = originalOverlayTransition;
-            artworkImage.style.transform = originalImageTransform;
-            artworkImage.style.transition = originalImageTransition;
-            console.error('Error generating mockup:', error);
-            downloadBtn.innerHTML = '<i class="fas fa-exclamation-triangle"></i> Error';
-            setTimeout(() => {
-                downloadBtn.innerHTML = originalText;
-                downloadBtn.disabled = false;
-            }, 2000);
-        });
-    } else {
-        // Fallback if html2canvas is not available
-        console.warn('html2canvas not available, using fallback method');
-        
-        // Create a simple canvas-based mockup
-        const canvas = document.createElement('canvas');
-        const ctx = canvas.getContext('2d');
-        
-        // Set canvas size
-        canvas.width = showroom.offsetWidth * 2;
-        canvas.height = showroom.offsetHeight * 2;
-        
-        // Create a background (room image or solid color)
-        ctx.fillStyle = '#f5f5f5';
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
-        
-        // Add text overlay
-        ctx.fillStyle = '#333';
-        ctx.font = '24px Arial';
-        ctx.textAlign = 'center';
-        ctx.fillText('Taberner Studio Mockup', canvas.width / 2, 50);
-        ctx.font = '16px Arial';
-        ctx.fillText('Artwork: ' + (allArtworks[currentArtworkIndex]?.title || 'Unknown'), canvas.width / 2, 80);
-        
-        // Download the canvas
-        const link = document.createElement('a');
-        link.download = `taberner-studio-mockup-${Date.now()}.png`;
-        link.href = canvas.toDataURL('image/png');
-        link.click();
-        
-        downloadBtn.innerHTML = '<i class="fas fa-check"></i> Downloaded!';
-        setTimeout(() => {
-            downloadBtn.innerHTML = originalText;
-            downloadBtn.disabled = false;
-        }, 2000);
+    // Helper to convert image src to data URL
+    function toDataURL(url, callback) {
+        fetch(url, {mode: 'cors'})
+            .then(response => response.blob())
+            .then(blob => {
+                const reader = new FileReader();
+                reader.onloadend = function() {
+                    callback(reader.result);
+                };
+                reader.readAsDataURL(blob);
+            });
     }
+
+    // Save original src
+    const originalSrc = artworkImage.src;
+
+    // Convert artwork image to data URL and set as src
+    toDataURL(originalSrc, function(dataUrl) {
+        artworkImage.src = dataUrl;
+        artworkImage.onload = function() {
+            // Save original styles
+            const originalOverlayTransform = artworkOverlay.style.transform;
+            const originalOverlayTransition = artworkOverlay.style.transition;
+            const originalImageTransform = artworkImage.style.transform;
+            const originalImageTransition = artworkImage.style.transition;
+
+            // Remove transforms and transitions for html2canvas
+            artworkOverlay.style.transform = '';
+            artworkOverlay.style.transition = '';
+            artworkImage.style.transform = '';
+            artworkImage.style.transition = '';
+
+            if (typeof html2canvas !== 'undefined') {
+                html2canvas(showroom, {
+                    useCORS: true,
+                    allowTaint: true,
+                    backgroundColor: null,
+                    scale: 2,
+                    width: showroom.offsetWidth,
+                    height: showroom.offsetHeight,
+                    onclone: function(clonedDoc) {
+                        const clonedOverlay = clonedDoc.getElementById('artwork-overlay');
+                        const clonedArtwork = clonedDoc.getElementById('artwork-image');
+                        if (clonedOverlay && clonedArtwork) {
+                            clonedOverlay.style.transform = '';
+                            clonedOverlay.style.transition = '';
+                            clonedArtwork.style.transform = '';
+                            clonedArtwork.style.transition = '';
+                        }
+                    }
+                }).then(function(canvas) {
+                    // Restore original styles and src
+                    artworkOverlay.style.transform = originalOverlayTransform;
+                    artworkOverlay.style.transition = originalOverlayTransition;
+                    artworkImage.style.transform = originalImageTransform;
+                    artworkImage.style.transition = originalImageTransition;
+                    artworkImage.src = originalSrc;
+
+                    // Create download link
+                    const link = document.createElement('a');
+                    link.download = `taberner-studio-mockup-${Date.now()}.png`;
+                    link.href = canvas.toDataURL('image/png');
+                    link.click();
+                    
+                    // Reset button
+                    downloadBtn.innerHTML = '<i class="fas fa-check"></i> Downloaded!';
+                    setTimeout(() => {
+                        downloadBtn.innerHTML = originalText;
+                        downloadBtn.disabled = false;
+                    }, 2000);
+                }).catch(function(error) {
+                    // Restore original styles and src on error
+                    artworkOverlay.style.transform = originalOverlayTransform;
+                    artworkOverlay.style.transition = originalOverlayTransition;
+                    artworkImage.style.transform = originalImageTransform;
+                    artworkImage.style.transition = originalImageTransition;
+                    artworkImage.src = originalSrc;
+                    console.error('Error generating mockup:', error);
+                    downloadBtn.innerHTML = '<i class="fas fa-exclamation-triangle"></i> Error';
+                    setTimeout(() => {
+                        downloadBtn.innerHTML = originalText;
+                        downloadBtn.disabled = false;
+                    }, 2000);
+                });
+            }
+        };
+    });
 }
 
 // Save to favorites functionality
