@@ -466,6 +466,13 @@ def cache_stats():
     }
     return jsonify(cache_info)
 
+@app.route('/api/reset-workflow', methods=['POST'])
+def reset_workflow():
+    """Clear cache when user resets workflow (Back to Start)."""
+    catalog_cache.clear()
+    app.logger.info("Workflow reset: Catalog cache cleared")
+    return jsonify({'message': 'Workflow reset successfully'})
+
 # Main entry point
 if __name__ == '__main__':
     app.run(debug=True, port=8000, use_reloader=True) 
