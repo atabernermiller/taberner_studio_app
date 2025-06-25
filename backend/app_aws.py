@@ -281,6 +281,10 @@ def recommend_unified():
     Unified endpoint for getting recommendations.
     Accepts either an image upload or a set of preferences.
     """
+    # Clear cache at the beginning to ensure fresh recommendations
+    catalog_cache.clear()
+    app.logger.info("Cache cleared for fresh recommendations")
+    
     data = request.get_json()
     if not data:
         return jsonify(error="Invalid request"), 400
