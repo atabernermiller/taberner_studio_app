@@ -560,9 +560,9 @@ function showResultsView() {
                 // Dynamically set the showroom and overlay aspect ratio to match the uploaded image
                 if (this.naturalWidth && this.naturalHeight && virtualShowroom && artworkOverlay) {
                     const aspectRatio = this.naturalWidth / this.naturalHeight;
-                    // Set max dimensions
-                    let maxWidth = 600;
-                    let maxHeight = 450;
+                    // Set max dimensions - increased by 20% to match our CSS changes
+                    let maxWidth = 720; // Increased from 600 to 720 (20% larger)
+                    let maxHeight = 540; // Increased from 450 to 540 (20% larger)
                     let width = maxWidth;
                     let height = width / aspectRatio;
                     if (height > maxHeight) {
@@ -806,8 +806,8 @@ function displayCurrentArtwork() {
                     console.log('Room image loaded, dimensions:', this.naturalWidth, 'x', this.naturalHeight);
                     if (this.naturalWidth && this.naturalHeight) {
                         const aspectRatio = this.naturalWidth / this.naturalHeight;
-                        let maxWidth = 600;
-                        let maxHeight = 450;
+                        let maxWidth = 720; // Increased from 600 to 720 (20% larger)
+                        let maxHeight = 540; // Increased from 450 to 540 (20% larger)
                         let width = maxWidth;
                         let height = width / aspectRatio;
                         if (height > maxHeight) {
@@ -1015,9 +1015,9 @@ async function updateArtworkDisplay(index, forceInstant) {
         const overlay = document.getElementById('artwork-overlay');
         if (overlay) {
             console.log('Artwork overlay found, updating dimensions');
-            // Use a default aspect ratio of 4:3 for initial sizing
+            // Use a default aspect ratio of 4/3 for initial sizing
             const defaultAspectRatio = 4/3;
-            const baseWidth = 250;
+            const baseWidth = 270; // Reduced from 300px to 270px (10% smaller)
             const baseHeight = baseWidth / defaultAspectRatio;
             
             overlay.style.width = baseWidth + 'px';
@@ -1053,7 +1053,7 @@ async function updateArtworkDisplay(index, forceInstant) {
             const overlay = document.getElementById('artwork-overlay');
             if (overlay && this.naturalWidth && this.naturalHeight) {
                 const aspectRatio = this.naturalWidth / this.naturalHeight;
-                const baseWidth = 250;
+                const baseWidth = 270; // Reduced from 300px to 270px (10% smaller)
                 const calculatedHeight = baseWidth / aspectRatio;
                 
                 overlay.style.width = baseWidth + 'px';

@@ -746,7 +746,7 @@ header {
 .upload-area {
     border: 2px dashed var(--glass-border);
     border-radius: var(--border-radius);
-    padding: 3rem 2rem;
+    padding: 4rem 3rem;
     text-align: center;
     background: var(--glass-bg);
     backdrop-filter: blur(10px);
@@ -798,9 +798,9 @@ header {
 }
 
 .upload-icon {
-    font-size: 3.5rem;
+    font-size: 4.5rem;
     color: var(--accent-color);
-    margin-bottom: 1rem;
+    margin-bottom: 1.5rem;
     transition: all var(--transition-speed) ease;
     position: relative;
     z-index: 2;
@@ -823,10 +823,10 @@ header {
 }
 
 .upload-text {
-    font-size: 1.2rem;
+    font-size: 1.4rem;
     font-weight: 600;
     color: var(--primary-text);
-    margin-bottom: 0.5rem;
+    margin-bottom: 0.75rem;
     transition: all var(--transition-speed) ease;
     position: relative;
     z-index: 2;
@@ -838,7 +838,7 @@ header {
 }
 
 .upload-hint {
-    font-size: 0.95rem;
+    font-size: 1.1rem;
     color: var(--secondary-text);
     transition: all var(--transition-speed) ease;
     position: relative;
@@ -936,17 +936,13 @@ header {
 .virtual-showroom {
     position: relative;
     width: 100%;
-    max-width: 600px;
-    max-height: 450px;
+    max-width: 960px;
+    max-height: 720px;
     aspect-ratio: 4/3;
-    background: var(--tertiary-bg) url('assets/mock/mock-room.jpg') no-repeat center center;
-    background-size: cover;
-    border-radius: var(--border-radius-small);
-    overflow: hidden;
+    background-color: var(--secondary-bg);
+    border-radius: var(--border-radius);
     margin-bottom: 2rem;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    overflow: hidden;
     margin-left: auto;
     margin-right: auto;
 }
@@ -962,7 +958,7 @@ header {
 #artwork-overlay {
     position: absolute;
     cursor: move;
-    border: 3px solid var(--accent-color);
+    border: 5.4px solid var(--accent-color);
     z-index: 10;
     touch-action: none;
     user-select: none;
@@ -1000,18 +996,18 @@ header {
 
 .resize-handle {
     position: absolute;
-    width: 12px;
-    height: 12px;
+    width: 20px;
+    height: 20px;
     background: white;
-    border: 2px solid var(--accent-color);
+    border: 4px solid var(--accent-color);
     border-radius: 50%;
     z-index: 20;
 }
 
-.resize-handle.top-left { top: -6px; left: -6px; cursor: nwse-resize; }
-.resize-handle.top-right { top: -6px; right: -6px; cursor: nesw-resize; }
-.resize-handle.bottom-left { bottom: -6px; left: -6px; cursor: nesw-resize; }
-.resize-handle.bottom-right { bottom: -6px; right: -6px; cursor: nwse-resize; }
+.resize-handle.top-left { top: -10px; left: -10px; cursor: nwse-resize; }
+.resize-handle.top-right { top: -10px; right: -10px; cursor: nesw-resize; }
+.resize-handle.bottom-left { bottom: -10px; left: -10px; cursor: nesw-resize; }
+.resize-handle.bottom-right { bottom: -10px; right: -10px; cursor: nwse-resize; }
 
 .resize-handle:hover {
     background: var(--accent-hover);
@@ -1438,11 +1434,44 @@ header {
 
 @media (min-width: 1024px) {
     .virtual-showroom {
-        height: 600px;
+        max-width: 1200px;
+        max-height: 900px;
+        height: 900px;
     }
     
+    .upload-area {
+        padding: 5rem 4rem;
+    }
+    
+    .upload-icon {
+        font-size: 5.5rem;
+    }
+    
+    .upload-text {
+        font-size: 1.6rem;
+    }
+    
+    .upload-hint {
+        font-size: 1.2rem;
+    }
+    
+    #artwork-overlay {
+        border: 5.4px solid var(--accent-color);
+    }
+    
+    .resize-handle {
+        width: 24px;
+        height: 24px;
+        border: 5px solid var(--accent-color);
+    }
+    
+    .resize-handle.top-left { top: -12px; left: -12px; }
+    .resize-handle.top-right { top: -12px; right: -12px; }
+    .resize-handle.bottom-left { bottom: -12px; left: -12px; }
+    .resize-handle.bottom-right { bottom: -12px; right: -12px; }
+    
     .thumbnail-gallery {
-        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
     }
 }
 
@@ -1556,12 +1585,15 @@ header {
 #virtual-showroom {
     position: relative;
     width: 100%;
-    height: 50vh;
-    min-height: 400px;
+    max-width: 960px;
+    max-height: 720px;
+    aspect-ratio: 4/3;
     background-color: var(--secondary-bg);
     border-radius: var(--border-radius);
     margin-bottom: 2rem;
     overflow: hidden;
+    margin-left: auto;
+    margin-right: auto;
 }
 
 #room-image {
@@ -1574,7 +1606,7 @@ header {
 #artwork-overlay {
     position: absolute;
     cursor: move;
-    border: 3px solid var(--accent-color);
+    border: 5.4px solid var(--accent-color);
     z-index: 10;
     touch-action: none;
     user-select: none;
