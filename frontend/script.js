@@ -207,6 +207,27 @@ function populateSelect(selectId, values, anyLabel) {
 
 // Form navigation functions
 function showUploadForm() {
+    // Clear photo cache to prevent showing previous workflow's recommendations
+    console.log('=== CLEARING PHOTO CACHE FOR UPLOAD WORKFLOW ===');
+    allArtworks = [];
+    currentArtworkIndex = 0;
+    recommendations = null;
+    currentRecommendations = null;
+    uploadedImage = null;
+    isUploading = false;
+    
+    // Clear any existing UI content
+    const recommendationsContainer = document.getElementById('thumbnail-gallery');
+    if (recommendationsContainer) {
+        recommendationsContainer.innerHTML = '';
+    }
+    
+    // Reset header text
+    const headerText = document.querySelector('.results-title');
+    if (headerText) {
+        headerText.textContent = "Here are some artworks we think you'll love!";
+    }
+    
     // Hide options and show upload form
     document.getElementById('options-section').style.display = 'none';
     document.getElementById('preferences-form-container').style.display = 'none';
@@ -219,9 +240,32 @@ function showUploadForm() {
     document.getElementById('upload-form-container').scrollIntoView({
         behavior: 'smooth'
     });
+    
+    console.log('=== UPLOAD WORKFLOW CACHE CLEARED ===');
 }
 
 function showPreferencesForm() {
+    // Clear photo cache to prevent showing previous workflow's recommendations
+    console.log('=== CLEARING PHOTO CACHE FOR PREFERENCES WORKFLOW ===');
+    allArtworks = [];
+    currentArtworkIndex = 0;
+    recommendations = null;
+    currentRecommendations = null;
+    uploadedImage = null;
+    isUploading = false;
+    
+    // Clear any existing UI content
+    const recommendationsContainer = document.getElementById('thumbnail-gallery');
+    if (recommendationsContainer) {
+        recommendationsContainer.innerHTML = '';
+    }
+    
+    // Reset header text
+    const headerText = document.querySelector('.results-title');
+    if (headerText) {
+        headerText.textContent = "Here are some artworks we think you'll love!";
+    }
+    
     // Hide options and show preferences form
     document.getElementById('options-section').style.display = 'none';
     document.getElementById('upload-form-container').style.display = 'none';
@@ -234,6 +278,8 @@ function showPreferencesForm() {
     document.getElementById('preferences-form-container').scrollIntoView({
         behavior: 'smooth'
     });
+    
+    console.log('=== PREFERENCES WORKFLOW CACHE CLEARED ===');
 }
 
 // Enhanced back button functionality
