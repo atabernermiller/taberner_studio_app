@@ -82,3 +82,216 @@
 2025-06-25 10:34:47,635 INFO Memory usage before shutdown: 144.59 MB (0.2%)
 2025-06-25 10:34:47,635 INFO === Flask Application Shutting Down ===
 2025-06-25 10:34:47,635 INFO Memory usage at application shutdown: 144.59 MB (0.2%)
+2025-06-26 12:09:19,815 INFO Entrypoint: /Users/annette/taberner-studio-apps/taberner_studio_app/backend/app.py
+2025-06-26 12:09:19,816 INFO Working directory: /Users/annette/taberner-studio-apps/taberner_studio_app/backend
+2025-06-26 12:09:19,816 INFO sys.argv: ['app.py']
+2025-06-26 12:09:19,816 INFO Python version: 3.11.5 (main, Sep 11 2023, 08:31:25) [Clang 14.0.6 ]
+2025-06-26 12:09:19,816 INFO __name__: __main__
+2025-06-26 12:09:19,816 INFO Environment variables (filtered):
+2025-06-26 12:09:19,816 INFO   MallocNanoZone=0
+2025-06-26 12:09:19,816 INFO   USER=annette
+2025-06-26 12:09:19,816 INFO   COMMAND_MODE=unix2003
+2025-06-26 12:09:19,816 INFO   __CFBundleIdentifier=com.todesktop.230313mzl4w4u92
+2025-06-26 12:09:19,816 INFO   PATH=/Users/annette/.codeium/windsurf/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin://Applications/Topaz Photo AI.app/Contents/Resources/bin:/Users/annette/.codeium/windsurf/bin:/Users/annette/anaconda3/bin:/Users/annette/anaconda3/condabin:/Users/annette/.cursor/extensions/ms-python.debugpy-2025.6.0-darwin-arm64/bundled/scripts/noConfigScripts
+2025-06-26 12:09:19,816 INFO   LOGNAME=annette
+2025-06-26 12:09:19,816 INFO   SSH_AUTH_SOCK=/private/tmp/com.apple.launchd.uONtK3gSfv/Listeners
+2025-06-26 12:09:19,816 INFO   HOME=/Users/annette
+2025-06-26 12:09:19,816 INFO   SHELL=/bin/zsh
+2025-06-26 12:09:19,816 INFO   TMPDIR=/var/folders/7j/rzhnb4z12kbbq9624j75xsy00000gn/T/
+2025-06-26 12:09:19,816 INFO   __CF_USER_TEXT_ENCODING=0x1F5:0x0:0x0
+2025-06-26 12:09:19,816 INFO   XPC_SERVICE_NAME=0
+2025-06-26 12:09:19,816 INFO   XPC_FLAGS=0x0
+2025-06-26 12:09:19,816 INFO   ORIGINAL_XDG_CURRENT_DESKTOP=undefined
+2025-06-26 12:09:19,816 INFO   CURSOR_TRACE_ID=e62722c73e1341c988598275841f1033
+2025-06-26 12:09:19,816 INFO   SHLVL=1
+2025-06-26 12:09:19,816 INFO   PWD=/Users/annette/taberner-studio-apps/taberner_studio_app/backend
+2025-06-26 12:09:19,816 INFO   OLDPWD=/Users/annette/taberner-studio-apps/taberner_studio_app
+2025-06-26 12:09:19,816 INFO   HOMEBREW_PREFIX=/opt/homebrew
+2025-06-26 12:09:19,816 INFO   HOMEBREW_CELLAR=/opt/homebrew/Cellar
+2025-06-26 12:09:19,816 INFO   HOMEBREW_REPOSITORY=/opt/homebrew
+2025-06-26 12:09:19,816 INFO   INFOPATH=/opt/homebrew/share/info:/opt/homebrew/share/info:
+2025-06-26 12:09:19,816 INFO   CONDA_EXE=/Users/annette/anaconda3/bin/conda
+2025-06-26 12:09:19,816 INFO   _CE_M=
+2025-06-26 12:09:19,816 INFO   _CE_CONDA=
+2025-06-26 12:09:19,817 INFO   CONDA_PYTHON_EXE=/Users/annette/anaconda3/bin/python
+2025-06-26 12:09:19,817 INFO   CONDA_SHLVL=1
+2025-06-26 12:09:19,817 INFO   CONDA_PREFIX=/Users/annette/anaconda3
+2025-06-26 12:09:19,817 INFO   CONDA_DEFAULT_ENV=base
+2025-06-26 12:09:19,817 INFO   CONDA_PROMPT_MODIFIER=(base) 
+2025-06-26 12:09:19,817 INFO   PAGER=head -n 10000 | cat
+2025-06-26 12:09:19,817 INFO   npm_config_yes=true
+2025-06-26 12:09:19,817 INFO   DISABLE_AUTO_UPDATE=true
+2025-06-26 12:09:19,817 INFO   PIP_NO_INPUT=true
+2025-06-26 12:09:19,817 INFO   COMPOSER_NO_INTERACTION=1
+2025-06-26 12:09:19,817 INFO   TERM_PROGRAM=vscode
+2025-06-26 12:09:19,817 INFO   TERM_PROGRAM_VERSION=1.1.3
+2025-06-26 12:09:19,817 INFO   LANG=en_US.UTF-8
+2025-06-26 12:09:19,817 INFO   COLORTERM=truecolor
+2025-06-26 12:09:19,817 INFO   PYDEVD_DISABLE_FILE_VALIDATION=1
+2025-06-26 12:09:19,817 INFO   VSCODE_DEBUGPY_ADAPTER_ENDPOINTS=/Users/annette/.cursor/extensions/ms-python.debugpy-2025.6.0-darwin-arm64/.noConfigDebugAdapterEndpoints/endpoint-0ada6dcc4fe34815.txt
+2025-06-26 12:09:19,817 INFO   BUNDLED_DEBUGPY_PATH=/Users/annette/.cursor/extensions/ms-python.debugpy-2025.6.0-darwin-arm64/bundled/libs/debugpy
+2025-06-26 12:09:19,817 INFO   GIT_ASKPASS=/Applications/Cursor.app/Contents/Resources/app/extensions/git/dist/askpass.sh
+2025-06-26 12:09:19,817 INFO   VSCODE_GIT_ASKPASS_NODE=/Applications/Cursor.app/Contents/Frameworks/Cursor Helper (Plugin).app/Contents/MacOS/Cursor Helper (Plugin)
+2025-06-26 12:09:19,817 INFO   VSCODE_GIT_ASKPASS_EXTRA_ARGS=
+2025-06-26 12:09:19,817 INFO   VSCODE_GIT_ASKPASS_MAIN=/Applications/Cursor.app/Contents/Resources/app/extensions/git/dist/askpass-main.js
+2025-06-26 12:09:19,817 INFO   VSCODE_GIT_IPC_HANDLE=/var/folders/7j/rzhnb4z12kbbq9624j75xsy00000gn/T/vscode-git-e4048c60c4.sock
+2025-06-26 12:09:19,817 INFO   TERM=xterm-256color
+2025-06-26 12:09:19,817 INFO   _=/Users/annette/anaconda3/bin/python
+2025-06-26 12:09:19,817 INFO   AWS_REGION=us-east-1
+2025-06-26 12:09:19,817 INFO   CATALOG_BUCKET_NAME=taberner-studio-catalog-images
+2025-06-26 12:09:19,817 INFO   CATALOG_TABLE_NAME=taberner-studio-catalog
+2025-06-26 12:09:19,817 INFO   APPROVED_BUCKET=taberner-studio-images
+2025-06-26 12:09:19,817 INFO   QUARANTINE_BUCKET=taberner-studio-quarantine
+2025-06-26 12:09:19,817 INFO   FLASK_RUN_HOST=127.0.0.1
+2025-06-26 12:09:19,817 INFO   FLASK_RUN_PORT=8000
+2025-06-26 12:09:19,817 INFO   FLASK_DEBUG=True
+2025-06-26 12:09:19,817 INFO   KMP_DUPLICATE_LIB_OK=True
+2025-06-26 12:09:19,817 INFO   KMP_INIT_AT_FORK=FALSE
+2025-06-26 12:09:19,817 INFO === Application Starting ===
+2025-06-26 12:09:19,817 INFO Memory usage at startup: 145.97 MB (0.2%)
+2025-06-26 12:09:19,872 INFO Found credentials in environment variables.
+2025-06-26 12:09:20,098 INFO  * Running on http://127.0.0.1:8000 (Press CTRL+C to quit)
+2025-06-26 12:09:20,153 INFO  * Restarting with watchdog (fsevents)
+2025-06-26 12:09:21,020 INFO Entrypoint: /Users/annette/taberner-studio-apps/taberner_studio_app/backend/app.py
+2025-06-26 12:09:21,021 INFO Working directory: /Users/annette/taberner-studio-apps/taberner_studio_app/backend
+2025-06-26 12:09:21,021 INFO sys.argv: ['/Users/annette/taberner-studio-apps/taberner_studio_app/backend/app.py']
+2025-06-26 12:09:21,021 INFO Python version: 3.11.5 (main, Sep 11 2023, 08:31:25) [Clang 14.0.6 ]
+2025-06-26 12:09:21,021 INFO __name__: __main__
+2025-06-26 12:09:21,021 INFO Environment variables (filtered):
+2025-06-26 12:09:21,021 INFO   MallocNanoZone=0
+2025-06-26 12:09:21,021 INFO   USER=annette
+2025-06-26 12:09:21,021 INFO   COMMAND_MODE=unix2003
+2025-06-26 12:09:21,021 INFO   __CFBundleIdentifier=com.todesktop.230313mzl4w4u92
+2025-06-26 12:09:21,021 INFO   PATH=/Users/annette/.codeium/windsurf/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin://Applications/Topaz Photo AI.app/Contents/Resources/bin:/Users/annette/.codeium/windsurf/bin:/Users/annette/anaconda3/bin:/Users/annette/anaconda3/condabin:/Users/annette/.cursor/extensions/ms-python.debugpy-2025.6.0-darwin-arm64/bundled/scripts/noConfigScripts
+2025-06-26 12:09:21,021 INFO   LOGNAME=annette
+2025-06-26 12:09:21,021 INFO   SSH_AUTH_SOCK=/private/tmp/com.apple.launchd.uONtK3gSfv/Listeners
+2025-06-26 12:09:21,021 INFO   HOME=/Users/annette
+2025-06-26 12:09:21,021 INFO   SHELL=/bin/zsh
+2025-06-26 12:09:21,021 INFO   TMPDIR=/var/folders/7j/rzhnb4z12kbbq9624j75xsy00000gn/T/
+2025-06-26 12:09:21,021 INFO   __CF_USER_TEXT_ENCODING=0x1F5:0x0:0x0
+2025-06-26 12:09:21,021 INFO   XPC_SERVICE_NAME=0
+2025-06-26 12:09:21,021 INFO   XPC_FLAGS=0x0
+2025-06-26 12:09:21,021 INFO   ORIGINAL_XDG_CURRENT_DESKTOP=undefined
+2025-06-26 12:09:21,021 INFO   CURSOR_TRACE_ID=e62722c73e1341c988598275841f1033
+2025-06-26 12:09:21,021 INFO   SHLVL=1
+2025-06-26 12:09:21,021 INFO   PWD=/Users/annette/taberner-studio-apps/taberner_studio_app/backend
+2025-06-26 12:09:21,021 INFO   OLDPWD=/Users/annette/taberner-studio-apps/taberner_studio_app
+2025-06-26 12:09:21,021 INFO   HOMEBREW_PREFIX=/opt/homebrew
+2025-06-26 12:09:21,021 INFO   HOMEBREW_CELLAR=/opt/homebrew/Cellar
+2025-06-26 12:09:21,021 INFO   HOMEBREW_REPOSITORY=/opt/homebrew
+2025-06-26 12:09:21,021 INFO   INFOPATH=/opt/homebrew/share/info:/opt/homebrew/share/info:
+2025-06-26 12:09:21,021 INFO   CONDA_EXE=/Users/annette/anaconda3/bin/conda
+2025-06-26 12:09:21,021 INFO   _CE_M=
+2025-06-26 12:09:21,021 INFO   _CE_CONDA=
+2025-06-26 12:09:21,021 INFO   CONDA_PYTHON_EXE=/Users/annette/anaconda3/bin/python
+2025-06-26 12:09:21,021 INFO   CONDA_SHLVL=1
+2025-06-26 12:09:21,021 INFO   CONDA_PREFIX=/Users/annette/anaconda3
+2025-06-26 12:09:21,021 INFO   CONDA_DEFAULT_ENV=base
+2025-06-26 12:09:21,021 INFO   CONDA_PROMPT_MODIFIER=(base) 
+2025-06-26 12:09:21,021 INFO   PAGER=head -n 10000 | cat
+2025-06-26 12:09:21,021 INFO   npm_config_yes=true
+2025-06-26 12:09:21,021 INFO   DISABLE_AUTO_UPDATE=true
+2025-06-26 12:09:21,021 INFO   PIP_NO_INPUT=true
+2025-06-26 12:09:21,021 INFO   COMPOSER_NO_INTERACTION=1
+2025-06-26 12:09:21,021 INFO   TERM_PROGRAM=vscode
+2025-06-26 12:09:21,021 INFO   TERM_PROGRAM_VERSION=1.1.3
+2025-06-26 12:09:21,021 INFO   LANG=en_US.UTF-8
+2025-06-26 12:09:21,021 INFO   COLORTERM=truecolor
+2025-06-26 12:09:21,021 INFO   PYDEVD_DISABLE_FILE_VALIDATION=1
+2025-06-26 12:09:21,021 INFO   VSCODE_DEBUGPY_ADAPTER_ENDPOINTS=/Users/annette/.cursor/extensions/ms-python.debugpy-2025.6.0-darwin-arm64/.noConfigDebugAdapterEndpoints/endpoint-0ada6dcc4fe34815.txt
+2025-06-26 12:09:21,022 INFO   BUNDLED_DEBUGPY_PATH=/Users/annette/.cursor/extensions/ms-python.debugpy-2025.6.0-darwin-arm64/bundled/libs/debugpy
+2025-06-26 12:09:21,022 INFO   GIT_ASKPASS=/Applications/Cursor.app/Contents/Resources/app/extensions/git/dist/askpass.sh
+2025-06-26 12:09:21,022 INFO   VSCODE_GIT_ASKPASS_NODE=/Applications/Cursor.app/Contents/Frameworks/Cursor Helper (Plugin).app/Contents/MacOS/Cursor Helper (Plugin)
+2025-06-26 12:09:21,022 INFO   VSCODE_GIT_ASKPASS_EXTRA_ARGS=
+2025-06-26 12:09:21,022 INFO   VSCODE_GIT_ASKPASS_MAIN=/Applications/Cursor.app/Contents/Resources/app/extensions/git/dist/askpass-main.js
+2025-06-26 12:09:21,022 INFO   VSCODE_GIT_IPC_HANDLE=/var/folders/7j/rzhnb4z12kbbq9624j75xsy00000gn/T/vscode-git-e4048c60c4.sock
+2025-06-26 12:09:21,022 INFO   TERM=xterm-256color
+2025-06-26 12:09:21,022 INFO   _=/Users/annette/anaconda3/bin/python
+2025-06-26 12:09:21,022 INFO   AWS_REGION=us-east-1
+2025-06-26 12:09:21,022 INFO   CATALOG_BUCKET_NAME=taberner-studio-catalog-images
+2025-06-26 12:09:21,022 INFO   CATALOG_TABLE_NAME=taberner-studio-catalog
+2025-06-26 12:09:21,022 INFO   APPROVED_BUCKET=taberner-studio-images
+2025-06-26 12:09:21,022 INFO   QUARANTINE_BUCKET=taberner-studio-quarantine
+2025-06-26 12:09:21,022 INFO   FLASK_RUN_HOST=127.0.0.1
+2025-06-26 12:09:21,022 INFO   FLASK_RUN_PORT=8000
+2025-06-26 12:09:21,022 INFO   FLASK_DEBUG=True
+2025-06-26 12:09:21,022 INFO   KMP_DUPLICATE_LIB_OK=True
+2025-06-26 12:09:21,022 INFO   KMP_INIT_AT_FORK=FALSE
+2025-06-26 12:09:21,022 INFO   WERKZEUG_SERVER_FD=7
+2025-06-26 12:09:21,022 INFO   WERKZEUG_RUN_MAIN=true
+2025-06-26 12:09:21,022 INFO === Application Starting ===
+2025-06-26 12:09:21,022 INFO Memory usage at startup: 146.98 MB (0.2%)
+2025-06-26 12:09:21,044 INFO Found credentials in environment variables.
+2025-06-26 12:09:21,114 WARNING  * Debugger is active!
+2025-06-26 12:09:21,123 INFO  * Debugger PIN: 138-937-889
+2025-06-26 12:09:26,564 INFO 127.0.0.1 - - [26/Jun/2025 12:09:26] "GET / HTTP/1.1" 200 -
+2025-06-26 12:09:26,584 INFO 127.0.0.1 - - [26/Jun/2025 12:09:26] "[33mGET /.well-known/appspecific/com.chrome.devtools.json HTTP/1.1[0m" 404 -
+2025-06-26 12:09:26,592 INFO 127.0.0.1 - - [26/Jun/2025 12:09:26] "GET /style.css?v=20250623w HTTP/1.1" 200 -
+2025-06-26 12:09:26,593 INFO 127.0.0.1 - - [26/Jun/2025 12:09:26] "GET /assets/Taberner-Studio-logo.png HTTP/1.1" 200 -
+2025-06-26 12:09:26,595 INFO 127.0.0.1 - - [26/Jun/2025 12:09:26] "GET /assets/mock/mock-room.jpg HTTP/1.1" 200 -
+2025-06-26 12:09:26,669 INFO 127.0.0.1 - - [26/Jun/2025 12:09:26] "GET /config.js HTTP/1.1" 200 -
+2025-06-26 12:09:26,674 INFO 127.0.0.1 - - [26/Jun/2025 12:09:26] "GET /script.js?v=20250623x HTTP/1.1" 200 -
+2025-06-26 12:09:26,875 INFO Cache miss - fetching catalog from DynamoDB
+2025-06-26 12:09:27,033 INFO 127.0.0.1 - - [26/Jun/2025 12:09:27] "GET /assets/Taberner-Studio-logo.png HTTP/1.1" 200 -
+2025-06-26 12:09:27,369 INFO Fetched 18 items from DynamoDB and cached for 600s
+2025-06-26 12:09:27,370 INFO 127.0.0.1 - - [26/Jun/2025 12:09:27] "GET /api/preferences-options HTTP/1.1" 200 -
+2025-06-26 12:09:29,622 INFO Processing PREFERENCES-based recommendation
+2025-06-26 12:09:29,622 INFO Processing preferences: {'moods': [], 'styles': [], 'subjects': [], 'colors': []}
+2025-06-26 12:09:29,622 INFO Returning cached catalog data
+2025-06-26 12:09:29,622 INFO Generated 10 recommendations for preferences
+2025-06-26 12:09:29,622 INFO === RECOMMENDATION REQUEST COMPLETE ===
+2025-06-26 12:09:29,623 INFO Returning 10 recommendations
+2025-06-26 12:09:29,623 INFO First recommendation: Artwork Silhouetted Onaqui Wild Foal
+2025-06-26 12:09:29,625 INFO 127.0.0.1 - - [26/Jun/2025 12:09:29] "POST /recommend HTTP/1.1" 200 -
+2025-06-26 12:09:29,632 INFO Generating new S3 URL for BabyHorse.jpg
+2025-06-26 12:09:29,633 INFO 127.0.0.1 - - [26/Jun/2025 12:09:29] "GET /catalog/images/BabyHorse.jpg HTTP/1.1" 200 -
+2025-06-26 12:09:29,634 INFO Generating new S3 URL for RunningFreeFiullSize.jpg
+2025-06-26 12:09:29,635 INFO Generating new S3 URL for Church_Switzerland.jpg
+2025-06-26 12:09:29,637 INFO 127.0.0.1 - - [26/Jun/2025 12:09:29] "GET /catalog/images/RunningFreeFiullSize.jpg HTTP/1.1" 200 -
+2025-06-26 12:09:29,637 INFO Returning cached S3 URL for BabyHorse.jpg
+2025-06-26 12:09:29,638 INFO 127.0.0.1 - - [26/Jun/2025 12:09:29] "GET /catalog/images/Church_Switzerland.jpg HTTP/1.1" 200 -
+2025-06-26 12:09:29,639 INFO 127.0.0.1 - - [26/Jun/2025 12:09:29] "GET /catalog/images/BabyHorse.jpg HTTP/1.1" 200 -
+2025-06-26 12:09:29,848 INFO Generating new S3 URL for Palouse_Landscape_3.jpg
+2025-06-26 12:09:29,849 INFO Generating new S3 URL for Red_Rocks_Sedona.jpg
+2025-06-26 12:09:29,850 INFO 127.0.0.1 - - [26/Jun/2025 12:09:29] "GET /catalog/images/Palouse_Landscape_3.jpg HTTP/1.1" 200 -
+2025-06-26 12:09:29,850 INFO 127.0.0.1 - - [26/Jun/2025 12:09:29] "GET /catalog/images/Red_Rocks_Sedona.jpg HTTP/1.1" 200 -
+2025-06-26 12:09:29,851 INFO Generating new S3 URL for Palouse_Landscape_2.jpg
+2025-06-26 12:09:29,852 INFO 127.0.0.1 - - [26/Jun/2025 12:09:29] "GET /catalog/images/Palouse_Landscape_2.jpg HTTP/1.1" 200 -
+2025-06-26 12:09:30,058 INFO Generating new S3 URL for Horse_Family.jpg
+2025-06-26 12:09:30,058 INFO Generating new S3 URL for Palouse_Landscape_1.jpg
+2025-06-26 12:09:30,059 INFO 127.0.0.1 - - [26/Jun/2025 12:09:30] "GET /catalog/images/Horse_Family.jpg HTTP/1.1" 200 -
+2025-06-26 12:09:30,060 INFO Generating new S3 URL for Crater_Lake.jpg
+2025-06-26 12:09:30,060 INFO 127.0.0.1 - - [26/Jun/2025 12:09:30] "GET /catalog/images/Palouse_Landscape_1.jpg HTTP/1.1" 200 -
+2025-06-26 12:09:30,061 INFO 127.0.0.1 - - [26/Jun/2025 12:09:30] "GET /catalog/images/Crater_Lake.jpg HTTP/1.1" 200 -
+2025-06-26 12:09:30,266 INFO Generating new S3 URL for Wildhorse_Silhouette_Utah_2.jpg
+2025-06-26 12:09:30,268 INFO 127.0.0.1 - - [26/Jun/2025 12:09:30] "GET /catalog/images/Wildhorse_Silhouette_Utah_2.jpg HTTP/1.1" 200 -
+2025-06-26 12:09:42,953 INFO Running AWS Rekognition moderation
+2025-06-26 12:09:44,522 INFO Successfully analyzed image colors: 5 colors found
+2025-06-26 12:09:44,522 INFO Returning cached catalog data
+2025-06-26 12:09:44,523 INFO Generated 10 recommendations for uploaded image
+2025-06-26 12:09:44,523 INFO === RECOMMENDATION REQUEST COMPLETE ===
+2025-06-26 12:09:44,523 INFO Returning 10 recommendations
+2025-06-26 12:09:44,523 INFO First recommendation: Artwork Onaqui Wild Stallions
+2025-06-26 12:09:44,524 INFO 127.0.0.1 - - [26/Jun/2025 12:09:44] "POST /recommend HTTP/1.1" 200 -
+2025-06-26 12:09:44,538 INFO Generating new S3 URL for Horse_Waltz.jpg
+2025-06-26 12:09:44,538 INFO Returning cached S3 URL for RunningFreeFiullSize.jpg
+2025-06-26 12:09:44,540 INFO 127.0.0.1 - - [26/Jun/2025 12:09:44] "GET /catalog/images/Horse_Waltz.jpg HTTP/1.1" 200 -
+2025-06-26 12:09:44,540 INFO Generating new S3 URL for Gold_Creek_Pond.jpg
+2025-06-26 12:09:44,540 INFO 127.0.0.1 - - [26/Jun/2025 12:09:44] "GET /catalog/images/RunningFreeFiullSize.jpg HTTP/1.1" 200 -
+2025-06-26 12:09:44,542 INFO 127.0.0.1 - - [26/Jun/2025 12:09:44] "GET /catalog/images/Gold_Creek_Pond.jpg HTTP/1.1" 200 -
+2025-06-26 12:09:44,543 INFO Returning cached S3 URL for Horse_Waltz.jpg
+2025-06-26 12:09:44,543 INFO 127.0.0.1 - - [26/Jun/2025 12:09:44] "GET /catalog/images/Horse_Waltz.jpg HTTP/1.1" 200 -
+2025-06-26 12:09:44,753 INFO Generating new S3 URL for ThreeSisters.jpeg
+2025-06-26 12:09:44,753 INFO Returning cached S3 URL for Church_Switzerland.jpg
+2025-06-26 12:09:44,753 INFO Generating new S3 URL for Sunset_Long_Beach_WA.jpg
+2025-06-26 12:09:44,754 INFO 127.0.0.1 - - [26/Jun/2025 12:09:44] "GET /catalog/images/ThreeSisters.jpeg HTTP/1.1" 200 -
+2025-06-26 12:09:44,754 INFO 127.0.0.1 - - [26/Jun/2025 12:09:44] "GET /catalog/images/Church_Switzerland.jpg HTTP/1.1" 200 -
+2025-06-26 12:09:44,755 INFO 127.0.0.1 - - [26/Jun/2025 12:09:44] "GET /catalog/images/Sunset_Long_Beach_WA.jpg HTTP/1.1" 200 -
+2025-06-26 12:09:44,961 INFO Returning cached S3 URL for Red_Rocks_Sedona.jpg
+2025-06-26 12:09:44,962 INFO 127.0.0.1 - - [26/Jun/2025 12:09:44] "GET /catalog/images/Red_Rocks_Sedona.jpg HTTP/1.1" 200 -
+2025-06-26 12:09:44,962 INFO Generating new S3 URL for Maui_Beach.jpg
+2025-06-26 12:09:44,964 INFO Returning cached S3 URL for Palouse_Landscape_2.jpg
+2025-06-26 12:09:44,964 INFO 127.0.0.1 - - [26/Jun/2025 12:09:44] "GET /catalog/images/Maui_Beach.jpg HTTP/1.1" 200 -
+2025-06-26 12:09:44,964 INFO 127.0.0.1 - - [26/Jun/2025 12:09:44] "GET /catalog/images/Palouse_Landscape_2.jpg HTTP/1.1" 200 -
+2025-06-26 12:09:45,175 INFO Returning cached S3 URL for Crater_Lake.jpg
+2025-06-26 12:09:45,175 INFO 127.0.0.1 - - [26/Jun/2025 12:09:45] "GET /catalog/images/Crater_Lake.jpg HTTP/1.1" 200 -
