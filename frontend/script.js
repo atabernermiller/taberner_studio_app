@@ -270,10 +270,12 @@ function backToOptions() {
     });
     
     // Clear the UI
-    const recommendationsContainer = document.getElementById('recommendations-container');
+    const recommendationsContainer = document.getElementById('thumbnail-gallery');
     if (recommendationsContainer) {
         recommendationsContainer.innerHTML = '';
-        console.log('Cleared recommendations container');
+        console.log('Cleared thumbnail gallery');
+    } else {
+        console.warn('Thumbnail gallery element not found');
     }
     
     // Reset header text
@@ -598,8 +600,13 @@ function displayResults(recommendations, type = 'upload') {
     }
     
     // Clear existing recommendations
-    const recommendationsContainer = document.getElementById('recommendations-container');
-    recommendationsContainer.innerHTML = '';
+    const recommendationsContainer = document.getElementById('thumbnail-gallery');
+    if (recommendationsContainer) {
+        recommendationsContainer.innerHTML = '';
+        console.log('Cleared thumbnail gallery');
+    } else {
+        console.warn('Thumbnail gallery element not found');
+    }
     
     // Store recommendations globally
     allArtworks = recommendations;
@@ -635,8 +642,14 @@ function displayCurrentArtwork() {
     console.log('Displaying artwork:', artwork.title);
     
     // Clear existing content
-    const recommendationsContainer = document.getElementById('recommendations-container');
-    recommendationsContainer.innerHTML = '';
+    const recommendationsContainer = document.getElementById('thumbnail-gallery');
+    if (recommendationsContainer) {
+        recommendationsContainer.innerHTML = '';
+        console.log('Cleared thumbnail gallery in displayCurrentArtwork');
+    } else {
+        console.warn('Thumbnail gallery element not found in displayCurrentArtwork');
+        return;
+    }
     
     // Create thumbnail gallery
     createThumbnailGallery();
