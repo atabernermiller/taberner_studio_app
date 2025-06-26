@@ -277,7 +277,7 @@ function backToOptions() {
     }
     
     // Reset header text
-    const headerText = document.getElementById('recommendations-header');
+    const headerText = document.querySelector('.results-title');
     if (headerText) {
         headerText.textContent = "Here are some artworks we think you'll love!";
         console.log('Reset header text to default');
@@ -585,13 +585,17 @@ function displayResults(recommendations, type = 'upload') {
     console.log('First recommendation:', recommendations[0]);
     
     // Update the header text based on recommendation type
-    const headerText = document.getElementById('recommendations-header');
-    if (type === 'preferences') {
-        headerText.textContent = "Here are some artworks we think you'll love! Based on your selected preferences";
+    const headerText = document.querySelector('.results-title');
+    if (headerText) {
+        if (type === 'preferences') {
+            headerText.textContent = "Here are some artworks we think you'll love! Based on your selected preferences";
+        } else {
+            headerText.textContent = "Here are some artworks we think you'll love! Based on your room's colors";
+        }
+        console.log('Updated header text to:', headerText.textContent);
     } else {
-        headerText.textContent = "Here are some artworks we think you'll love! Based on your room's colors";
+        console.warn('Header element not found');
     }
-    console.log('Updated header text to:', headerText.textContent);
     
     // Clear existing recommendations
     const recommendationsContainer = document.getElementById('recommendations-container');
