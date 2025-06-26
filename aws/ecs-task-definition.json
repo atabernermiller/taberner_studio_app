@@ -23,6 +23,14 @@
           "value": "aws"
         },
         {
+          "name": "MAX_RECOMMENDATIONS",
+          "value": "8"
+        },
+        {
+          "name": "MIN_RECOMMENDATIONS",
+          "value": "4"
+        },
+        {
           "name": "CATALOG_TABLE_NAME",
           "value": "taberner-studio-catalog"
         },

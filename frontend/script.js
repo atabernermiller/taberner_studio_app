@@ -12,22 +12,43 @@ window.addEventListener('beforeunload', function() {
     window.scrollTo(0, 0);
 });
 
-// AWS S3 Image URL handling
-async function getImageUrl(filename) {
-    try {
-        const response = await fetch(`/catalog/images/${filename}`);
-        if (response.ok) {
-            const data = await response.json();
-            return data.url; // S3 presigned URL
-        } else {
-            // Fallback to local path if S3 fails
-            return `/catalog/images/${filename}`;
-        }
-    } catch (error) {
-        console.warn('Failed to get S3 URL, using local path:', error);
-        // Fallback to local path
-        return `/catalog/images/${filename}`;
+// Image URL cache to reduce API calls
+const imageUrlCache = new Map();
+
+function getImageUrl(filename) {
+    // Check if we already have this URL cached
+    if (imageUrlCache.has(filename)) {
+        console.log(`[ImageCache] Using cached URL for ${filename}`);
+        return imageUrlCache.get(filename);
     }
+
+    // If not cached, fetch from backend
+    console.log(`[ImageCache] Fetching URL for ${filename}`);
+    
+    return fetch(`/catalog/images/${filename}`)
+        .then(response => {
+            if (!response.ok) {
+                if (response.status === 429) {
+                    console.warn(`[ImageCache] Rate limit hit for ${filename}, using fallback`);
+                    // Return a fallback URL or retry after delay
+                    return `/catalog/images/${filename}`;
+                }
+                throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+            }
+            return response.json();
+        })
+        .then(data => {
+            const s3Url = data.url;
+            // Cache the S3 URL for future use
+            imageUrlCache.set(filename, s3Url);
+            console.log(`[ImageCache] Cached S3 URL for ${filename}`);
+            return s3Url;
+        })
+        .catch(error => {
+            console.error(`[ImageCache] Error fetching URL for ${filename}:`, error);
+            // Return fallback URL
+            return `/catalog/images/${filename}`;
+        });
 }
 
 // Smooth scroll to options
@@ -38,11 +59,11 @@ function scrollToOptions() {
 }
 
 // Enhanced loading states
-function showLoadingState(element) {
+function showLoadingState(element, message = 'Analyzing your space...') {
     element.innerHTML = `
         <div class="loading-spinner">
             <div class="spinner"></div>
-            <span>Analyzing your space...</span>
+            <span>${message}</span>
         </div>
     `;
 }
@@ -241,6 +262,9 @@ function showUploadForm() {
     document.getElementById('preferences-form-container').style.display = 'none';
     document.getElementById('upload-form-container').style.display = 'block';
     
+    // Ensure upload form is properly reset and not stuck in loading state
+    restoreUploadForm();
+    
     // Show back button
     document.getElementById('back-button').style.display = 'flex';
     
@@ -284,7 +308,7 @@ function showPreferencesForm() {
         headerText.textContent = "Here are some artworks we think you'll love!";
     }
     
-    // Hide options and show preferences form
+    // Hide options and show preferences form FIRST
     document.getElementById('options-section').style.display = 'none';
     document.getElementById('upload-form-container').style.display = 'none';
     document.getElementById('preferences-form-container').style.display = 'block';
@@ -292,10 +316,78 @@ function showPreferencesForm() {
     // Show back button
     document.getElementById('back-button').style.display = 'flex';
     
-    // Scroll to form
-    document.getElementById('preferences-form-container').scrollIntoView({
-        behavior: 'smooth'
-    });
+    // Reset preferences form to clear any loading states
+    const preferencesFormContainer = document.getElementById('preferences-form-container');
+    if (preferencesFormContainer) {
+        // Restore the original preferences form with correct CSS classes
+        preferencesFormContainer.innerHTML = `
+            <div class="form-header">
+                <h3 class="form-title">Tell Us Your Preferences</h3>
+                <p class="form-subtitle">We'll match you with the perfect Taberner Studio artwork from our collection</p>
+            </div>
+            
+            <form id="preferences-form">
+                <div class="filter-group">
+                    <label for="mood-select">Mood:</label>
+                    <select id="mood-select">
+                        <option value="">Any Mood</option>
+                    </select>
+                </div>
+                
+                <div class="filter-group">
+                    <label for="style-select">Art Style:</label>
+                    <select id="style-select">
+                        <option value="">Any Style</option>
+                    </select>
+                </div>
+                
+                <div class="filter-group">
+                    <label for="subject-select">Subject:</label>
+                    <select id="subject-select">
+                        <option value="">Any Subject</option>
+                    </select>
+                </div>
+                
+                <div class="filter-group">
+                    <label for="color-preference">Color Preference:</label>
+                    <select id="color-preference">
+                        <option value="">Any Colors</option>
+                    </select>
+                </div>
+                
+                <button type="submit" class="button">
+                    <i class="fas fa-search"></i>
+                    Find Artwork
+                </button>
+            </form>
+        `;
+        
+        // Re-populate the select options
+        fetch('/api/preferences-options')
+            .then(res => res.json())
+            .then(options => {
+                populateSelect('mood-select', options.moods, 'Any Mood');
+                populateSelect('style-select', options.styles, 'Any Style');
+                populateSelect('subject-select', options.subjects, 'Any Subject');
+                populateSelect('color-preference', options.colors, 'Any Colors');
+            });
+        
+        // Re-add the event listener for the preferences form
+        const preferencesForm = document.getElementById('preferences-form');
+        if (preferencesForm) {
+            preferencesForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                handlePreferencesSubmit(e);
+            });
+        }
+    }
+    
+    // Scroll to form AFTER ensuring it's visible
+    setTimeout(() => {
+        document.getElementById('preferences-form-container').scrollIntoView({
+            behavior: 'smooth'
+        });
+    }, 100);
     
     console.log('=== PREFERENCES WORKFLOW CACHE CLEARED ===');
 }
@@ -349,6 +441,9 @@ function backToOptions() {
         headerText.textContent = "Here are some artworks we think you'll love!";
         console.log('Reset header text to default');
     }
+    
+    // Ensure upload form is properly reset
+    restoreUploadForm();
     
     // Show the options view
     showOptionsView();
@@ -428,39 +523,123 @@ function handleFileUpload(file) {
     
     isUploading = true;
     
-    // Show immediate loading feedback
+    // Store the original upload form HTML to restore it if needed
     const uploadFormContainer = document.getElementById('upload-form-container');
+    const originalUploadFormHTML = uploadFormContainer.innerHTML;
+    
+    // Show initial loading state
     uploadFormContainer.innerHTML = `
-        <div class="loading-spinner">
-            <div class="spinner"></div>
-            <span>Processing your image...</span>
-            <div style="margin-top: 1rem; font-size: 0.9rem; color: #666;">
-                Analyzing colors and finding perfect matches
+        <div class="loading-container">
+            <div class="loading-spinner">
+                <div class="spinner-ring"></div>
+                <div class="spinner-ring"></div>
+                <div class="spinner-ring"></div>
+            </div>
+            <h3 class="loading-title">Processing your photo...</h3>
+            <p class="loading-subtitle">Analyzing colors and room style</p>
+            <div class="progress-container">
+                <div class="progress-bar">
+                    <div class="progress-fill" id="upload-progress"></div>
+                </div>
+                <div class="progress-text">Reading image data...</div>
             </div>
         </div>
     `;
+    
+    // Start initial progress animation
+    let progress = 0;
+    const progressBar = document.getElementById('upload-progress');
+    const progressText = document.querySelector('.progress-text');
+    const progressInterval = setInterval(() => {
+        progress += Math.random() * 20;
+        if (progress > 90) progress = 90; // Don't go to 100% until we get results
+        
+        if (progressBar) progressBar.style.width = progress + '%';
+        if (progressText) {
+            if (progress < 30) {
+                progressText.textContent = 'Reading image data...';
+            } else if (progress < 60) {
+                progressText.textContent = 'Extracting color palette...';
+            } else {
+                progressText.textContent = 'Preparing for analysis...';
+            }
+        }
+    }, 150);
     
     const reader = new FileReader();
     reader.onload = function(e) {
         uploadedImage = e.target.result; // Store the uploaded image
         
-        // Update loading message
+        // Clear the initial progress interval
+        clearInterval(progressInterval);
+        
+        // Show the uploaded image with progress overlay
         uploadFormContainer.innerHTML = `
-            <div class="loading-spinner">
-                <div class="spinner"></div>
-                <span>Finding your perfect artwork...</span>
-                <div style="margin-top: 1rem; font-size: 0.9rem; color: #666;">
-                    Matching colors and styles to your space
+            <div class="uploaded-image-container">
+                <img src="${uploadedImage}" alt="Uploaded room" class="uploaded-room-image" />
+                <div class="progress-overlay">
+                    <div class="progress-content">
+                        <div class="progress-spinner">
+                            <div class="spinner-ring"></div>
+                            <div class="spinner-ring"></div>
+                            <div class="spinner-ring"></div>
+                        </div>
+                        <h3 class="progress-title">Finding great photos for your room</h3>
+                        <p class="progress-subtitle">Our AI is analyzing your space and matching it with perfect artwork</p>
+                        <div class="progress-container">
+                            <div class="progress-bar">
+                                <div class="progress-fill" id="recommendation-progress"></div>
+                            </div>
+                            <div class="progress-text">Starting analysis...</div>
+                        </div>
+                    </div>
                 </div>
             </div>
         `;
         
+        // Start recommendation progress with engaging messages
+        let recProgress = 0;
+        const recProgressBar = document.getElementById('recommendation-progress');
+        const recProgressText = document.querySelector('.progress-text');
+        const progressMessages = [
+            'Analyzing your room\'s color scheme...',
+            'Understanding your space\'s style...',
+            'Searching our curated collection...',
+            'Finding perfect color matches...',
+            'Calculating style compatibility...',
+            'Selecting the best artwork...',
+            'Preparing your personalized recommendations...',
+            'Almost ready to show you amazing options...'
+        ];
+        let messageIndex = 0;
+        
+        const recProgressInterval = setInterval(() => {
+            recProgress += Math.random() * 8 + 2; // More consistent progress
+            if (recProgress > 85) recProgress = 85;
+            
+            if (recProgressBar) recProgressBar.style.width = recProgress + '%';
+            if (recProgressText && messageIndex < progressMessages.length) {
+                // Change message every 15% progress
+                const messageChangePoint = Math.floor(recProgress / 15);
+                if (messageChangePoint > messageIndex) {
+                    messageIndex = messageChangePoint;
+                    if (messageIndex < progressMessages.length) {
+                        recProgressText.textContent = progressMessages[messageIndex];
+                    }
+                }
+            }
+        }, 250);
+        
         // Get recommendations
-        getRecommendations();
+        getRecommendations(recProgressInterval);
     };
     
     reader.onerror = function() {
+        clearInterval(progressInterval);
         isUploading = false;
+        console.error('FileReader error occurred');
+        // Restore the original upload form
+        uploadFormContainer.innerHTML = originalUploadFormHTML;
         alert('Error reading file. Please try again.');
     };
     
@@ -479,16 +658,17 @@ function handlePreferencesSubmit(event) {
     const subjectSelect = document.getElementById('subject-select');
     const colorSelect = document.getElementById('color-preference');
     
+    // Send as arrays with plural keys to match backend
     const preferences = {
-        mood: moodSelect ? moodSelect.value : '',
-        style: styleSelect ? styleSelect.value : '',
-        subject: subjectSelect ? subjectSelect.value : '',
-        color: colorSelect ? colorSelect.value : ''
+        moods: moodSelect && moodSelect.value ? [moodSelect.value] : [],
+        styles: styleSelect && styleSelect.value ? [styleSelect.value] : [],
+        subjects: subjectSelect && subjectSelect.value ? [subjectSelect.value] : [],
+        colors: colorSelect && colorSelect.value ? [colorSelect.value] : []
     };
     
-    // Show loading state
+    // Show loading state with correct message for preferences
     const preferencesFormContainer = document.getElementById('preferences-form-container');
-    showLoadingState(preferencesFormContainer);
+    showLoadingState(preferencesFormContainer, 'Analyzing your preferences...');
     
     // Get recommendations by preferences
     getRecommendationsByPreferences(preferences);
@@ -529,11 +709,44 @@ function getRecommendationsByPreferences(preferences) {
 
 // Navigation functions
 function goBackToLanding() {
+    console.log('=== GO BACK TO LANDING CALLED ===');
+    
     const uploadView = document.getElementById('upload-view');
     const resultsArea = document.getElementById('results-area');
+    const optionsSection = document.getElementById('options-section');
+    const uploadFormContainer = document.getElementById('upload-form-container');
+    const preferencesFormContainer = document.getElementById('preferences-form-container');
+    const backButton = document.getElementById('back-button');
     
+    console.log('Elements found:', {
+        uploadView: !!uploadView,
+        resultsArea: !!resultsArea,
+        optionsSection: !!optionsSection,
+        uploadFormContainer: !!uploadFormContainer,
+        preferencesFormContainer: !!preferencesFormContainer,
+        backButton: !!backButton
+    });
+    
+    // Hide results area
     resultsArea.style.display = 'none';
-    uploadView.style.display = 'block'; // Show the main view again
+    
+    // Show the main upload view
+    uploadView.style.display = 'block';
+    
+    // Ensure options section is visible
+    optionsSection.style.display = 'block';
+    
+    // Hide any forms that might be showing
+    uploadFormContainer.style.display = 'none';
+    preferencesFormContainer.style.display = 'none';
+    
+    // Hide back button
+    backButton.style.display = 'none';
+    
+    // Scroll to top
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    
+    console.log('=== GO BACK TO LANDING COMPLETE ===');
 }
 
 // Show the results view
@@ -553,28 +766,90 @@ function showResultsView() {
     const artworkOverlay = document.getElementById('artwork-overlay');
     if (roomImage) {
         if (uploadedImage) {
-            roomImage.src = uploadedImage;
-            roomImage.style.display = 'block';
-            // Wait for the image to load to get its natural dimensions
-            roomImage.onload = function() {
-                // Dynamically set the showroom and overlay aspect ratio to match the uploaded image
-                if (this.naturalWidth && this.naturalHeight && virtualShowroom && artworkOverlay) {
-                    const aspectRatio = this.naturalWidth / this.naturalHeight;
-                    // Set max dimensions - increased by 20% to match our CSS changes
-                    let maxWidth = 720; // Increased from 600 to 720 (20% larger)
-                    let maxHeight = 540; // Increased from 450 to 540 (20% larger)
-                    let width = maxWidth;
-                    let height = width / aspectRatio;
-                    if (height > maxHeight) {
-                        height = maxHeight;
-                        width = height * aspectRatio;
-                    }
-                    virtualShowroom.style.width = width + 'px';
-                    virtualShowroom.style.height = height + 'px';
-                    artworkOverlay.style.width = width + 'px';
-                    artworkOverlay.style.height = height + 'px';
-                }
+            console.log('Upload workflow - optimizing uploaded image');
+            
+            // Optimize the uploaded image for better performance
+            const optimizeImage = (dataUrl) => {
+                return new Promise((resolve) => {
+                    const img = new Image();
+                    img.onload = function() {
+                        // Create a canvas to resize and compress the image
+                        const canvas = document.createElement('canvas');
+                        const ctx = canvas.getContext('2d');
+                        
+                        // Calculate optimal dimensions (max 800px width/height)
+                        const maxSize = 800;
+                        let { width, height } = this;
+                        
+                        if (width > height) {
+                            if (width > maxSize) {
+                                height = (height * maxSize) / width;
+                                width = maxSize;
+                            }
+                        } else {
+                            if (height > maxSize) {
+                                width = (width * maxSize) / height;
+                                height = maxSize;
+                            }
+                        }
+                        
+                        canvas.width = width;
+                        canvas.height = height;
+                        
+                        // Draw and compress the image
+                        ctx.drawImage(this, 0, 0, width, height);
+                        
+                        // Convert to optimized data URL with reduced quality
+                        const optimizedDataUrl = canvas.toDataURL('image/jpeg', 0.8);
+                        console.log('Image optimized:', {
+                            originalSize: dataUrl.length,
+                            optimizedSize: optimizedDataUrl.length,
+                            reduction: Math.round((1 - optimizedDataUrl.length / dataUrl.length) * 100) + '%'
+                        });
+                        
+                        resolve(optimizedDataUrl);
+                    };
+                    img.src = dataUrl;
+                });
             };
+            
+            // Optimize the image before setting it as room background
+            optimizeImage(uploadedImage).then(optimizedImage => {
+                roomImage.src = optimizedImage;
+                roomImage.style.display = 'block';
+                console.log('Room image src set to optimized uploaded image');
+                
+                // Wait for the image to load to get its natural dimensions
+                roomImage.onload = function() {
+                    console.log('Optimized room image loaded, dimensions:', this.naturalWidth, 'x', this.naturalHeight);
+                    if (this.naturalWidth && this.naturalHeight) {
+                        const aspectRatio = this.naturalWidth / this.naturalHeight;
+                        let maxWidth = 720; // Increased from 600 to 720 (20% larger)
+                        let maxHeight = 540; // Increased from 450 to 540 (20% larger)
+                        let width = maxWidth;
+                        let height = width / aspectRatio;
+                        if (height > maxHeight) {
+                            height = maxHeight;
+                            width = height * aspectRatio;
+                        }
+                        virtualShowroom.style.width = width + 'px';
+                        virtualShowroom.style.height = height + 'px';
+                        console.log('Virtual showroom sized to:', width, 'x', height);
+                        const artworkOverlay = document.getElementById('artwork-overlay');
+                        if (artworkOverlay) {
+                            artworkOverlay.style.width = width + 'px';
+                            artworkOverlay.style.height = height + 'px';
+                            console.log('Artwork overlay sized to:', width, 'x', height);
+                        }
+                    }
+                };
+            });
+            
+            // Show spinner overlay while artwork image is loading
+            const spinnerOverlay = document.getElementById('mock-spinner-overlay');
+            if (spinnerOverlay) {
+                spinnerOverlay.style.display = 'flex';
+            }
         } else {
             // For preference-based recommendations, show a default room
             roomImage.src = 'assets/mock/mock-room.jpg';
@@ -611,7 +886,7 @@ let resizeStartX, resizeStartY;
 let originalWidth, originalHeight;
 let originalX, originalY;
 
-function getRecommendations() {
+function getRecommendations(progressInterval = null) {
     console.log('=== GET RECOMMENDATIONS DEBUG ===');
     console.log('[getRecommendations] State before API call:', {
         allArtworks,
@@ -622,27 +897,11 @@ function getRecommendations() {
     });
     if (!uploadedImage) {
         console.error('No uploaded image available');
+        isUploading = false;
+        // Restore the upload form
+        restoreUploadForm();
         return;
     }
-
-    // Start progress indicator
-    let progressCounter = 0;
-    const progressInterval = setInterval(() => {
-        progressCounter++;
-        const uploadFormContainer = document.getElementById('upload-form-container');
-        if (uploadFormContainer) {
-            const dots = '.'.repeat((progressCounter % 4) + 1);
-            uploadFormContainer.innerHTML = `
-                <div class="loading-spinner">
-                    <div class="spinner"></div>
-                    <span>Finding your perfect artwork${dots}</span>
-                    <div style="margin-top: 1rem; font-size: 0.9rem; color: #666;">
-                        Matching colors and styles to your space
-                    </div>
-                </div>
-            `;
-        }
-    }, 500);
 
     fetch('/recommend', {
         method: 'POST',
@@ -655,36 +914,80 @@ function getRecommendations() {
         }),
     })
     .then(response => {
-        clearInterval(progressInterval);
+        if (progressInterval) clearInterval(progressInterval);
         if (!response.ok) {
             return response.json().then(err => { throw new Error(err.error || 'Server error') });
         }
         return response.json();
     })
     .then(data => {
-        console.log('[getRecommendations] Received recommendations response:', data);
-        console.log('[getRecommendations] State after API call:', {
-            allArtworks,
-            currentArtworkIndex,
-            recommendations,
-            currentRecommendations,
-            uploadedImage
-        });
-        if (data.recommendations && data.recommendations.length > 0) {
-            displayResults(data.recommendations, 'upload');
-        } else {
-            showErrorState(document.getElementById('results-area'), 'No recommendations found for your image.');
-            showResultsView();
+        // Complete the progress bar
+        const progressBar = document.getElementById('recommendation-progress');
+        const progressText = document.querySelector('.progress-text');
+        if (progressBar) progressBar.style.width = '100%';
+        if (progressText) progressText.textContent = 'Ready!';
+        
+        // Show success message briefly
+        const uploadFormContainer = document.getElementById('upload-form-container');
+        if (uploadFormContainer) {
+            uploadFormContainer.innerHTML = `
+                <div class="loading-container">
+                    <div class="success-checkmark">✓</div>
+                    <h3 class="loading-title">Perfect matches found!</h3>
+                    <p class="loading-subtitle">Your personalized artwork recommendations are ready</p>
+                </div>
+            `;
         }
+        
+        // Wait a moment to show success, then display results
+        setTimeout(() => {
+            console.log('[getRecommendations] Received recommendations response:', data);
+            console.log('[getRecommendations] State after API call:', {
+                allArtworks,
+                currentArtworkIndex,
+                recommendations,
+                currentRecommendations,
+                uploadedImage
+            });
+            if (data.recommendations && data.recommendations.length > 0) {
+                displayResults(data.recommendations, 'upload');
+            } else {
+                isUploading = false;
+                showErrorState(document.getElementById('results-area'), 'No recommendations found for your image.');
+                showResultsView();
+            }
+        }, 1000);
     })
     .catch(error => {
-        clearInterval(progressInterval);
+        if (progressInterval) clearInterval(progressInterval);
+        isUploading = false;
         console.error('Error getting recommendations:', error);
+        // Restore the upload form on error
+        restoreUploadForm();
         showErrorState(document.getElementById('results-area'), 'Unable to get recommendations. Please try again.');
         showResultsView();
     });
     
     console.log('=== END GET RECOMMENDATIONS DEBUG ===');
+}
+
+// Helper function to restore the upload form
+function restoreUploadForm() {
+    const uploadFormContainer = document.getElementById('upload-form-container');
+    if (uploadFormContainer) {
+        uploadFormContainer.innerHTML = `
+            <div class="upload-form">
+                <div class="upload-area" id="upload-area">
+                    <div class="upload-icon">📸</div>
+                    <div class="upload-text">Upload a photo of your room</div>
+                    <div class="upload-hint">Click or drag and drop an image here</div>
+                </div>
+                <input type="file" id="room-photo" accept="image/*" style="display: none;">
+            </div>
+        `;
+        // Re-initialize upload functionality
+        initializeUpload();
+    }
 }
 
 function displayResults(recommendations, type = 'upload') {
@@ -747,10 +1050,21 @@ function displayResults(recommendations, type = 'upload') {
         currentArtworkIndex: currentArtworkIndex
     });
     
-    // Display the first recommendation
-    if (allArtworks.length > 0) {
-        displayCurrentArtwork();
-    }
+    // Batch load all image URLs to prevent rate limiting
+    const filenames = allArtworks.map(artwork => artwork.filename);
+    batchLoadImageUrls(filenames).then(() => {
+        console.log('[displayResults] Batch loading complete, displaying first artwork');
+        // Display the first recommendation after batch loading
+        if (allArtworks.length > 0) {
+            displayCurrentArtwork();
+        }
+    }).catch(error => {
+        console.error('[displayResults] Batch loading failed:', error);
+        // Fallback: display anyway
+        if (allArtworks.length > 0) {
+            displayCurrentArtwork();
+        }
+    });
     
     setTimeout(() => {
         console.log('[displayResults] State after updating:', {
@@ -790,6 +1104,17 @@ function displayCurrentArtwork() {
             <div id="artwork-overlay">
                 <img id="artwork-image" src="" alt="Artwork" style="width: 100%; height: 100%; object-fit: cover; opacity: 0;">
             </div>
+            <div id="mock-spinner-overlay" class="progress-overlay" style="display: none; z-index: 100;">
+                <div class="progress-content">
+                    <div class="progress-spinner">
+                        <div class="spinner-ring"></div>
+                        <div class="spinner-ring"></div>
+                        <div class="spinner-ring"></div>
+                    </div>
+                    <h3 class="progress-title">Loading your artwork preview...</h3>
+                    <p class="progress-subtitle">Please wait while we load your personalized mockup.</p>
+                </div>
+            </div>
         `;
         console.log('Virtual showroom HTML set');
         
@@ -797,34 +1122,90 @@ function displayCurrentArtwork() {
         const roomImage = document.getElementById('room-image');
         if (roomImage) {
             if (uploadedImage) {
-                console.log('Upload workflow - using uploaded image');
-                roomImage.src = uploadedImage;
-                roomImage.style.display = 'block';
-                console.log('Room image src set to uploaded image');
-                // Wait for the image to load to get its natural dimensions
-                roomImage.onload = function() {
-                    console.log('Room image loaded, dimensions:', this.naturalWidth, 'x', this.naturalHeight);
-                    if (this.naturalWidth && this.naturalHeight) {
-                        const aspectRatio = this.naturalWidth / this.naturalHeight;
-                        let maxWidth = 720; // Increased from 600 to 720 (20% larger)
-                        let maxHeight = 540; // Increased from 450 to 540 (20% larger)
-                        let width = maxWidth;
-                        let height = width / aspectRatio;
-                        if (height > maxHeight) {
-                            height = maxHeight;
-                            width = height * aspectRatio;
-                        }
-                        virtualShowroom.style.width = width + 'px';
-                        virtualShowroom.style.height = height + 'px';
-                        console.log('Virtual showroom sized to:', width, 'x', height);
-                        const artworkOverlay = document.getElementById('artwork-overlay');
-                        if (artworkOverlay) {
-                            artworkOverlay.style.width = width + 'px';
-                            artworkOverlay.style.height = height + 'px';
-                            console.log('Artwork overlay sized to:', width, 'x', height);
-                        }
-                    }
+                console.log('Upload workflow - optimizing uploaded image');
+                
+                // Optimize the uploaded image for better performance
+                const optimizeImage = (dataUrl) => {
+                    return new Promise((resolve) => {
+                        const img = new Image();
+                        img.onload = function() {
+                            // Create a canvas to resize and compress the image
+                            const canvas = document.createElement('canvas');
+                            const ctx = canvas.getContext('2d');
+                            
+                            // Calculate optimal dimensions (max 800px width/height)
+                            const maxSize = 800;
+                            let { width, height } = this;
+                            
+                            if (width > height) {
+                                if (width > maxSize) {
+                                    height = (height * maxSize) / width;
+                                    width = maxSize;
+                                }
+                            } else {
+                                if (height > maxSize) {
+                                    width = (width * maxSize) / height;
+                                    height = maxSize;
+                                }
+                            }
+                            
+                            canvas.width = width;
+                            canvas.height = height;
+                            
+                            // Draw and compress the image
+                            ctx.drawImage(this, 0, 0, width, height);
+                            
+                            // Convert to optimized data URL with reduced quality
+                            const optimizedDataUrl = canvas.toDataURL('image/jpeg', 0.8);
+                            console.log('Image optimized:', {
+                                originalSize: dataUrl.length,
+                                optimizedSize: optimizedDataUrl.length,
+                                reduction: Math.round((1 - optimizedDataUrl.length / dataUrl.length) * 100) + '%'
+                            });
+                            
+                            resolve(optimizedDataUrl);
+                        };
+                        img.src = dataUrl;
+                    });
                 };
+                
+                // Optimize the image before setting it as room background
+                optimizeImage(uploadedImage).then(optimizedImage => {
+                    roomImage.src = optimizedImage;
+                    roomImage.style.display = 'block';
+                    console.log('Room image src set to optimized uploaded image');
+                    
+                    // Wait for the image to load to get its natural dimensions
+                    roomImage.onload = function() {
+                        console.log('Optimized room image loaded, dimensions:', this.naturalWidth, 'x', this.naturalHeight);
+                        if (this.naturalWidth && this.naturalHeight) {
+                            const aspectRatio = this.naturalWidth / this.naturalHeight;
+                            let maxWidth = 720; // Increased from 600 to 720 (20% larger)
+                            let maxHeight = 540; // Increased from 450 to 540 (20% larger)
+                            let width = maxWidth;
+                            let height = width / aspectRatio;
+                            if (height > maxHeight) {
+                                height = maxHeight;
+                                width = height * aspectRatio;
+                            }
+                            virtualShowroom.style.width = width + 'px';
+                            virtualShowroom.style.height = height + 'px';
+                            console.log('Virtual showroom sized to:', width, 'x', height);
+                            const artworkOverlay = document.getElementById('artwork-overlay');
+                            if (artworkOverlay) {
+                                artworkOverlay.style.width = width + 'px';
+                                artworkOverlay.style.height = height + 'px';
+                                console.log('Artwork overlay sized to:', width, 'x', height);
+                            }
+                        }
+                    };
+                });
+                
+                // Show spinner overlay while artwork image is loading
+                const spinnerOverlay = document.getElementById('mock-spinner-overlay');
+                if (spinnerOverlay) {
+                    spinnerOverlay.style.display = 'flex';
+                }
             } else {
                 console.log('Preferences workflow - using default room image');
                 roomImage.src = 'assets/mock/mock-room.jpg';
@@ -855,7 +1236,15 @@ function displayCurrentArtwork() {
     
     // IMMEDIATELY update the main artwork
     console.log('Calling updateArtworkDisplay with forceInstant=true');
-    updateArtworkDisplay(currentArtworkIndex, true);
+    updateArtworkDisplay(currentArtworkIndex, true, function onArtworkLoaded() {
+        // Hide spinner overlay when artwork image is loaded (only for upload workflow)
+        if (uploadedImage) {
+            const spinnerOverlay = document.getElementById('mock-spinner-overlay');
+            if (spinnerOverlay) {
+                spinnerOverlay.style.display = 'none';
+            }
+        }
+    });
     
     // Create thumbnail gallery (this will replace the loading spinner when ready)
     console.log('Creating thumbnail gallery...');
@@ -863,6 +1252,7 @@ function displayCurrentArtwork() {
         console.log('Thumbnail gallery created, selecting thumbnail and initializing interaction');
         selectThumbnail(currentArtworkIndex);
         initializeArtworkInteraction();
+        const virtualShowroom = document.getElementById('virtual-showroom');
         if (virtualShowroom) {
             setTimeout(() => {
                 virtualShowroom.classList.remove('no-transition');
@@ -901,6 +1291,9 @@ function initializeArtworkInteraction() {
                     target.style.width = `${event.rect.width}px`;
                     target.style.height = `${event.rect.height}px`;
                     
+                    // Mark as user customized so it won't be reset when switching artworks
+                    target.setAttribute('data-user-customized', 'true');
+                    
                     // Debug logging during resize
                     console.log('=== RESIZE DEBUG ===');
                     console.log('Resize event rect width:', event.rect.width);
@@ -911,6 +1304,7 @@ function initializeArtworkInteraction() {
                     console.log('Target offsetHeight (including border):', target.offsetHeight);
                     console.log('Target clientWidth (excluding border):', target.clientWidth);
                     console.log('Target clientHeight (excluding border):', target.clientHeight);
+                    console.log('Marked as user customized');
                     
                     // Check the image inside
                     const artworkImage = document.getElementById('artwork-image');
@@ -935,7 +1329,7 @@ function initializeArtworkInteraction() {
 }
 
 // Update artwork display
-async function updateArtworkDisplay(index, forceInstant) {
+async function updateArtworkDisplay(index, forceInstant, onLoadedCallback) {
     const artwork = allArtworks[index];
     if (!artwork) {
         console.error('No artwork found at index:', index);
@@ -972,6 +1366,9 @@ async function updateArtworkDisplay(index, forceInstant) {
             const imgLoadEnd = performance.now();
             console.log('[ImageLoad] Image loaded:', imageSrc, 'Duration:', (imgLoadEnd).toFixed(2), 'ms');
             console.log('Image natural dimensions:', this.naturalWidth, 'x', this.naturalHeight);
+            if (typeof onLoadedCallback === 'function') {
+                onLoadedCallback();
+            }
         };
         
         const onerrorHandler = function() {
@@ -982,6 +1379,9 @@ async function updateArtworkDisplay(index, forceInstant) {
             }
             const imgLoadEnd = performance.now();
             console.log('[ImageLoad] Image failed:', imageSrc, 'Duration:', (imgLoadEnd).toFixed(2), 'ms');
+            if (typeof onLoadedCallback === 'function') {
+                onLoadedCallback();
+            }
         };
         
         // Remove any existing event handlers
@@ -1015,6 +1415,11 @@ async function updateArtworkDisplay(index, forceInstant) {
         const overlay = document.getElementById('artwork-overlay');
         if (overlay) {
             console.log('Artwork overlay found, updating dimensions');
+            
+            // Clear the user-customized flag when switching to a new artwork
+            // This ensures the first artwork gets the default size
+            overlay.removeAttribute('data-user-customized');
+            
             // Use a default aspect ratio of 4/3 for initial sizing
             const defaultAspectRatio = 4/3;
             const baseWidth = 270; // Reduced from 300px to 270px (10% smaller)
@@ -1052,12 +1457,22 @@ async function updateArtworkDisplay(index, forceInstant) {
             console.log('Image loaded successfully:', imageSrc);
             const overlay = document.getElementById('artwork-overlay');
             if (overlay && this.naturalWidth && this.naturalHeight) {
-                const aspectRatio = this.naturalWidth / this.naturalHeight;
-                const baseWidth = 270; // Reduced from 300px to 270px (10% smaller)
-                const calculatedHeight = baseWidth / aspectRatio;
+                // Check if user has already customized the size
+                const hasUserCustomized = overlay.hasAttribute('data-user-customized');
                 
-                overlay.style.width = baseWidth + 'px';
-                overlay.style.height = calculatedHeight + 'px';
+                if (!hasUserCustomized) {
+                    // Only set default size if user hasn't customized it
+                    const aspectRatio = this.naturalWidth / this.naturalHeight;
+                    const baseWidth = 270; // Reduced from 300px to 270px (10% smaller)
+                    const calculatedHeight = baseWidth / aspectRatio;
+                    
+                    overlay.style.width = baseWidth + 'px';
+                    overlay.style.height = calculatedHeight + 'px';
+                    
+                    console.log('=== SETTING DEFAULT SIZE (user has not customized) ===');
+                } else {
+                    console.log('=== PRESERVING USER CUSTOMIZED SIZE ===');
+                }
                 
                 console.log('=== AFTER IMAGE LOAD ===');
                 console.log('Artwork image natural width:', this.naturalWidth);
@@ -1070,6 +1485,7 @@ async function updateArtworkDisplay(index, forceInstant) {
                 console.log('Overlay clientHeight (excluding border):', overlay.clientHeight);
                 console.log('Border width (computed):', overlay.offsetWidth - overlay.clientWidth);
                 console.log('Border height (computed):', overlay.offsetHeight - overlay.clientHeight);
+                console.log('User customized:', hasUserCustomized);
             }
         };
         
@@ -1253,185 +1669,6 @@ function updateThumbnailSelection(index) {
     });
 }
 
-// Download mockup functionality
-function downloadMockup() {
-    const downloadBtn = event.target.closest('button');
-    const originalText = downloadBtn.innerHTML;
-    
-    console.log('[downloadMockup] Button clicked');
-    downloadBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Generating...';
-    downloadBtn.disabled = true;
-    
-    // Get the virtual showroom element
-    const showroom = document.getElementById('virtual-showroom');
-    const artworkOverlay = document.getElementById('artwork-overlay');
-    const artworkImage = document.getElementById('artwork-image');
-    const roomImage = document.getElementById('room-image');
-    
-    if (!showroom || !artworkOverlay || !artworkImage) {
-        console.error('[downloadMockup] Required elements not found for mockup generation', {showroom, artworkOverlay, artworkImage});
-        downloadBtn.innerHTML = originalText;
-        downloadBtn.disabled = false;
-        return;
-    }
-
-    // Helper to convert image src to data URL
-    function toDataURL(url, callback, errorCallback) {
-        console.log('[downloadMockup] Converting to data URL via backend:', url);
-        
-        // Use backend endpoint to avoid CORS issues
-        fetch(`/api/convert-image-to-data-url?url=${encodeURIComponent(url)}`)
-            .then(response => {
-                if (!response.ok) throw new Error('Backend failed to convert image');
-                return response.json();
-            })
-            .then(data => {
-                if (data.error) {
-                    throw new Error(data.error);
-                }
-                console.log('[downloadMockup] Backend returned data URL');
-                callback(data.data_url);
-            })
-            .catch(err => {
-                errorCallback('Backend conversion error: ' + err);
-            });
-    }
-
-    // Save original src and onload
-    const originalSrc = artworkImage.src;
-    const originalOnload = artworkImage.onload;
-    console.log('[downloadMockup] Original artworkImage.src:', originalSrc);
-
-    // Helper to finish/reset button
-    function finishWithError(msg) {
-        console.error('[downloadMockup] ERROR:', msg);
-        downloadBtn.innerHTML = '<i class="fas fa-exclamation-triangle"></i> Error';
-        setTimeout(() => {
-            downloadBtn.innerHTML = originalText;
-            downloadBtn.disabled = false;
-        }, 2000);
-    }
-
-    // If already a data URL, skip conversion
-    if (originalSrc.startsWith('data:')) {
-        console.log('[downloadMockup] artworkImage.src is already a data URL, proceeding directly');
-        proceedWithMockup();
-    } else {
-        let didTimeout = false;
-        // Set a timeout in case image never loads
-        const timeout = setTimeout(() => {
-            didTimeout = true;
-            artworkImage.onload = originalOnload;
-            artworkImage.src = originalSrc;
-            finishWithError('Timeout: artwork image did not load as data URL');
-        }, 7000);
-
-        toDataURL(originalSrc, function(dataUrl) {
-            if (didTimeout) return;
-            clearTimeout(timeout);
-            console.log('[downloadMockup] Setting artworkImage.src to data URL');
-            artworkImage.onload = function() {
-                artworkImage.onload = originalOnload;
-                clearTimeout(timeout);
-                console.log('[downloadMockup] artworkImage loaded as data URL, proceeding with mockup');
-                proceedWithMockup();
-            };
-            artworkImage.onerror = function(e) {
-                clearTimeout(timeout);
-                finishWithError('artworkImage onerror: ' + e);
-            };
-            artworkImage.src = dataUrl;
-        }, function(errMsg) {
-            clearTimeout(timeout);
-            finishWithError(errMsg);
-        });
-    }
-
-    function proceedWithMockup() {
-        console.log('[downloadMockup] proceedWithMockup called');
-        
-        // Save original styles
-        const originalOverlayTransform = artworkOverlay.style.transform;
-        const originalOverlayTransition = artworkOverlay.style.transition;
-        const originalImageTransform = artworkImage.style.transform;
-        const originalImageTransition = artworkImage.style.transition;
-
-        // Remove only transitions for html2canvas (keep transforms for positioning)
-        artworkOverlay.style.transition = '';
-        artworkImage.style.transition = '';
-
-        if (typeof html2canvas !== 'undefined') {
-            console.log('[downloadMockup] Calling html2canvas...');
-            html2canvas(showroom, {
-                useCORS: true,
-                allowTaint: true,
-                backgroundColor: null,
-                scale: 2,
-                width: showroom.offsetWidth,
-                height: showroom.offsetHeight,
-                onclone: function(clonedDoc) {
-                    const clonedOverlay = clonedDoc.getElementById('artwork-overlay');
-                    const clonedArtwork = clonedDoc.getElementById('artwork-image');
-                    if (clonedOverlay && clonedArtwork) {
-                        // Preserve the current transform values (user positioning)
-                        clonedOverlay.style.transform = originalOverlayTransform;
-                        clonedOverlay.style.transition = '';
-                        clonedArtwork.style.transform = originalImageTransform;
-                        clonedArtwork.style.transition = '';
-                    }
-                }
-            }).then(function(canvas) {
-                console.log('[downloadMockup] html2canvas finished, creating download link');
-                // Restore original styles, src, and onload
-                artworkOverlay.style.transform = originalOverlayTransform;
-                artworkOverlay.style.transition = originalOverlayTransition;
-                artworkImage.style.transform = originalImageTransform;
-                artworkImage.style.transition = originalImageTransition;
-                artworkImage.src = originalSrc;
-                artworkImage.onload = originalOnload;
-
-                // Create download link
-                const link = document.createElement('a');
-                link.download = `taberner-studio-mockup-${Date.now()}.png`;
-                link.href = canvas.toDataURL('image/png');
-                link.click();
-                
-                // Reset button
-                downloadBtn.innerHTML = '<i class="fas fa-check"></i> Downloaded!';
-                setTimeout(() => {
-                    downloadBtn.innerHTML = originalText;
-                    downloadBtn.disabled = false;
-                }, 2000);
-            }).catch(function(error) {
-                // Restore original styles, src, and onload on error
-                artworkOverlay.style.transform = originalOverlayTransform;
-                artworkOverlay.style.transition = originalOverlayTransition;
-                artworkImage.style.transform = originalImageTransform;
-                artworkImage.style.transition = originalImageTransition;
-                artworkImage.src = originalSrc;
-                artworkImage.onload = originalOnload;
-                finishWithError('Error generating mockup: ' + error);
-            });
-        } else {
-            finishWithError('html2canvas is not loaded');
-        }
-    }
-}
-
-// Save to favorites functionality
-function saveFavorites() {
-    const saveBtn = event.target.closest('button');
-    const originalText = saveBtn.innerHTML;
-    
-    saveBtn.innerHTML = '<i class="fas fa-heart"></i> Saved!';
-    saveBtn.classList.add('saved');
-    
-    setTimeout(() => {
-        saveBtn.innerHTML = originalText;
-        saveBtn.classList.remove('saved');
-    }, 2000);
-}
-
 // Update navigation buttons
 function updateNavigationButtons() {
     const prevBtn = document.getElementById('prev-artwork');
@@ -1466,14 +1703,8 @@ function nextArtwork() {
 
 // Initialize event listeners
 function initializeEventListeners() {
-    // Add event listeners for back buttons
-    const backButtons = document.querySelectorAll('.back-button');
-    backButtons.forEach(button => {
-        button.addEventListener('click', backToOptions);
-    });
-    
-    // Note: Upload form and preferences form event listeners are already handled in initializeUpload()
-    // to prevent duplicate event listeners that cause double submissions
+    // Note: Back button event listeners are handled via HTML onclick attributes
+    // to prevent conflicts with duplicate event listeners
     
     // Add event listeners for navigation buttons
     const getStartedBtn = document.getElementById('get-started-btn');
@@ -1533,4 +1764,25 @@ function updatePurchaseButton() {
             console.warn('No product URL available, purchase button disabled');
         }
     }
+}
+
+// Batch load all image URLs to reduce API calls
+async function batchLoadImageUrls(filenames) {
+    console.log(`[BatchLoad] Pre-loading ${filenames.length} image URLs`);
+    
+    const promises = filenames.map(async (filename) => {
+        try {
+            const url = await getImageUrl(filename);
+            return { filename, url, success: true };
+        } catch (error) {
+            console.error(`[BatchLoad] Failed to load URL for ${filename}:`, error);
+            return { filename, url: null, success: false };
+        }
+    });
+    
+    const results = await Promise.allSettled(promises);
+    const successful = results.filter(r => r.status === 'fulfilled' && r.value.success);
+    
+    console.log(`[BatchLoad] Successfully pre-loaded ${successful.length}/${filenames.length} image URLs`);
+    return successful.map(r => r.value);
 } 

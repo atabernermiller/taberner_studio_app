@@ -18,6 +18,7 @@ from flask_cors import CORS
 import time
 from functools import lru_cache
 import hashlib
+import sys
 
 # Configure Flask app
 FRONTEND_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), 'static'))
@@ -32,6 +33,10 @@ CATALOG_TABLE_NAME = os.environ.get('CATALOG_TABLE_NAME', 'taberner-studio-catal
 CATALOG_BUCKET_NAME = os.environ.get('CATALOG_BUCKET_NAME', 'taberner-studio-catalog-images')
 APPROVED_BUCKET = os.environ.get('APPROVED_BUCKET', 'taberner-studio-images')
 QUARANTINE_BUCKET = os.environ.get('QUARANTINE_BUCKET', 'taberner-studio-quarantine')
+
+# Configuration
+MAX_RECOMMENDATIONS = int(os.environ.get('MAX_RECOMMENDATIONS', '8'))  # Default to 8 for better UX
+MIN_RECOMMENDATIONS = int(os.environ.get('MIN_RECOMMENDATIONS', '4'))  # Minimum to show
 
 # AWS Clients
 dynamodb = boto3.resource('dynamodb')
@@ -77,6 +82,25 @@ presigned_url_cache = SimpleCache(ttl_seconds=3600)  # 1 hour cache for S3 URLs
 moderation_cache = SimpleCache(ttl_seconds=600)  # 10 minutes cache for moderation results
 
 # Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s %(levelname)s %(message)s",
+    handlers=[
+        logging.StreamHandler(sys.stdout)
+    ]
+)
+
+logging.info(f"Entrypoint: {__file__}")
+logging.info(f"Working directory: {os.getcwd()}")
+logging.info(f"sys.argv: {sys.argv}")
+logging.info(f"Python version: {sys.version}")
+logging.info(f"__name__: {__name__}")
+logging.info("Environment variables (filtered):")
+for k, v in os.environ.items():
+    if not any(s in k for s in ["KEY", "SECRET", "PASSWORD"]):
+        logging.info(f"  {k}={v}")
+
+logging.info("=== Application Starting ===")
 
 # --- Core Logic: Color Analysis, Moderation, Storage ---
 
@@ -152,6 +176,71 @@ def load_catalog_from_dynamodb():
         app.logger.error(f"Error loading catalog from DynamoDB: {str(e)}")
         return []
 
+def get_smart_recommendations(user_colors, max_recs=MAX_RECOMMENDATIONS):
+    """Smart recommendation algorithm that balances quality and diversity"""
+    recommendations = []
+    
+    # Load catalog from DynamoDB
+    art_catalog = load_catalog_from_dynamodb()
+    if not art_catalog:
+        return recommendations
+
+    # Calculate scores for all artworks
+    scored_artworks = []
+    for artwork in art_catalog:
+        catalog_colors = artwork['attributes']['dominant_colors']
+        if not catalog_colors:
+            continue
+
+        # Convert hex to RGB for comparison, and ensure percentages are float
+        user_rgb = {item['color']: (tuple(int(item['color'][i:i+2], 16) for i in (1, 3, 5)), float(item['percentage'])) for item in user_colors}
+        catalog_rgb = {item['color']: (tuple(int(item['color'][i:i+2], 16) for i in (1, 3, 5)), float(item['percentage'])) for item in catalog_colors}
+
+        # Weighted color distance score
+        total_score = 0
+        for uc_hex, (uc_rgb, uc_perc) in user_rgb.items():
+            for cc_hex, (cc_rgb, cc_perc) in catalog_rgb.items():
+                dist = np.linalg.norm(np.array(uc_rgb) - np.array(cc_rgb))
+                # Weight the distance by the product of the color percentages
+                total_score += dist * uc_perc * cc_perc
+        
+        if total_score > 0:
+            scored_artworks.append({
+                'artwork': artwork,
+                'score': total_score
+            })
+
+    # Sort by score (ascending, lower is better)
+    scored_artworks.sort(key=lambda x: x['score'])
+    
+    # Take top recommendations, but ensure diversity
+    selected = []
+    used_colors = set()
+    
+    for item in scored_artworks:
+        if len(selected) >= max_recs:
+            break
+            
+        artwork = item['artwork']
+        catalog_colors = artwork['attributes']['dominant_colors']
+        
+        # Check for color diversity
+        artwork_dominant_color = catalog_colors[0]['color'] if catalog_colors else None
+        if artwork_dominant_color and artwork_dominant_color in used_colors:
+            # Skip if we already have an artwork with this dominant color
+            continue
+            
+        selected.append(item)
+        if artwork_dominant_color:
+            used_colors.add(artwork_dominant_color)
+    
+    # If we don't have enough diverse recommendations, fill with remaining top scores
+    if len(selected) < max_recs:
+        remaining = [item for item in scored_artworks if item not in selected]
+        selected.extend(remaining[:max_recs - len(selected)])
+    
+    return selected
+
 def get_recommendations(user_colors):
     """Finds the best matching artworks from the catalog based on weighted color harmony."""
     recommendations = []
@@ -186,7 +275,7 @@ def get_recommendations(user_colors):
 
     # Sort by score (ascending, lower is better)
     recommendations.sort(key=lambda x: x['score'])
-    return recommendations[:10]
+    return recommendations[:MAX_RECOMMENDATIONS]
 
 def get_recommendations_by_filter(filters):
     """Finds artworks matching the selected mood, style, subject, and color filters."""
@@ -199,7 +288,7 @@ def get_recommendations_by_filter(filters):
     all_selected_filters = filters.get('moods', []) + filters.get('styles', []) + filters.get('subjects', []) + filters.get('colors', [])
     if not all_selected_filters:
         # If no filters are provided, return a default list of recommendations.
-        return [{'artwork': art, 'score': 0} for art in art_catalog[:10]]
+        return [{'artwork': art, 'score': 0} for art in art_catalog[:MAX_RECOMMENDATIONS]]
 
     filtered_artworks = []
 
@@ -251,7 +340,7 @@ def get_recommendations_by_filter(filters):
             })
 
     filtered_artworks.sort(key=lambda x: x['score'], reverse=True)
-    return filtered_artworks[:9]
+    return filtered_artworks[:MAX_RECOMMENDATIONS]
 
 def moderate_image_content(image_bytes):
     """Moderate image content using AWS Rekognition with caching"""
@@ -355,7 +444,7 @@ def recommend_unified():
                 return jsonify(error="Could not analyze image colors."), 500
             
             app.logger.info(f"Successfully analyzed image colors: {len(user_colors)} colors found")
-            recs = get_recommendations(user_colors)
+            recs = get_smart_recommendations(user_colors)
             recommendations = [rec['artwork'] for rec in recs]
             app.logger.info(f"Generated {len(recommendations)} recommendations for uploaded image")
 
@@ -466,6 +555,7 @@ def convert_image_to_data_url():
         return jsonify({'error': 'Failed to convert image'}), 500
 
 @app.route('/catalog/images/<path:filename>')
+@limiter.limit("200 per hour")  # Higher limit for image requests
 def serve_catalog_image(filename):
     """Serve catalog images from S3 with caching"""
     try:

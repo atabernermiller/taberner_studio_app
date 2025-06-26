@@ -27,6 +27,9 @@ import time
 from functools import lru_cache
 from flask_cors import CORS
 import hashlib
+import cv2
+import re
+from io import BytesIO
 
 logging.basicConfig(
     level=logging.INFO,
@@ -85,6 +88,10 @@ CORS(app)
 
 # --- AWS Configuration ---
 APP_ENV = os.environ.get('APP_ENV', 'aws')  # Default to AWS mode
+
+# Recommendation Configuration
+MAX_RECOMMENDATIONS = int(os.environ.get('MAX_RECOMMENDATIONS', '8'))  # Default to 8 for better UX
+MIN_RECOMMENDATIONS = int(os.environ.get('MIN_RECOMMENDATIONS', '4'))  # Minimum to show
 
 # AWS Resource Names
 CATALOG_TABLE_NAME = os.environ.get('CATALOG_TABLE_NAME', 'taberner-studio-catalog')
@@ -208,6 +215,73 @@ def load_catalog_from_dynamodb():
         app.logger.error(f"Error loading catalog from DynamoDB: {str(e)}")
         return []
 
+def get_smart_recommendations(user_colors, max_recs=MAX_RECOMMENDATIONS):
+    """Smart recommendation system that considers quality, diversity, and user experience."""
+    recommendations = []
+    
+    # Load catalog from DynamoDB
+    art_catalog = load_catalog_from_dynamodb()
+    if not art_catalog:
+        return recommendations
+
+    # Calculate scores for all artworks
+    scored_artworks = []
+    for artwork in art_catalog:
+        catalog_colors = artwork['attributes']['dominant_colors']
+        if not catalog_colors:
+            continue
+
+        # Convert hex to RGB for comparison
+        user_rgb = {item['color']: (tuple(int(item['color'][i:i+2], 16) for i in (1, 3, 5)), float(item['percentage'])) for item in user_colors}
+        catalog_rgb = {item['color']: (tuple(int(item['color'][i:i+2], 16) for i in (1, 3, 5)), float(item['percentage'])) for item in catalog_colors}
+
+        # Weighted color distance score
+        total_score = 0
+        for uc_hex, (uc_rgb, uc_perc) in user_rgb.items():
+            for cc_hex, (cc_rgb, cc_perc) in catalog_rgb.items():
+                dist = np.linalg.norm(np.array(uc_rgb) - np.array(cc_rgb))
+                total_score += dist * uc_perc * cc_perc
+        
+        if total_score > 0:
+            scored_artworks.append({
+                'artwork': artwork,
+                'score': total_score
+            })
+
+    # Sort by score (ascending, lower is better)
+    scored_artworks.sort(key=lambda x: x['score'])
+    
+    # Smart selection strategy
+    if len(scored_artworks) <= max_recs:
+        # If we have fewer than max, return all
+        return scored_artworks
+    
+    # Quality-based selection: take top 60% by score
+    quality_count = min(max_recs, int(max_recs * 0.6))
+    quality_recs = scored_artworks[:quality_count]
+    
+    # Diversity-based selection: add some variety from middle range
+    remaining_count = max_recs - quality_count
+    if remaining_count > 0 and len(scored_artworks) > quality_count:
+        # Take some from middle range for diversity
+        middle_start = quality_count
+        middle_end = min(len(scored_artworks), quality_count + remaining_count * 2)
+        diversity_candidates = scored_artworks[middle_start:middle_end]
+        
+        # Randomly select from diversity candidates
+        import random
+        if len(diversity_candidates) > remaining_count:
+            diversity_recs = random.sample(diversity_candidates, remaining_count)
+        else:
+            diversity_recs = diversity_candidates
+        
+        # Combine quality and diversity recommendations
+        final_recs = quality_recs + diversity_recs
+        final_recs.sort(key=lambda x: x['score'])  # Re-sort by score
+        return final_recs
+    
+    return quality_recs
+
 def get_recommendations(user_colors):
     """Finds the best matching artworks from the catalog based on weighted color harmony."""
     recommendations = []
@@ -242,7 +316,7 @@ def get_recommendations(user_colors):
 
     # Sort by score (ascending, lower is better)
     recommendations.sort(key=lambda x: x['score'])
-    return recommendations[:10]
+    return recommendations[:MAX_RECOMMENDATIONS]
 
 def get_recommendations_by_filter(filters):
     """Finds artworks matching the selected mood, style, subject, and color filters."""
@@ -255,7 +329,7 @@ def get_recommendations_by_filter(filters):
     all_selected_filters = filters.get('moods', []) + filters.get('styles', []) + filters.get('subjects', []) + filters.get('colors', [])
     if not all_selected_filters:
         # If no filters are provided, return a default list of recommendations.
-        return [{'artwork': art, 'score': 0} for art in art_catalog[:10]]
+        return [{'artwork': art, 'score': 0} for art in art_catalog[:MAX_RECOMMENDATIONS]]
 
     filtered_artworks = []
 
@@ -270,7 +344,7 @@ def get_recommendations_by_filter(filters):
         if mood_match and style_match and subject_match:
             filtered_artworks.append({'artwork': artwork, 'score': 0})
     
-    return filtered_artworks[:10]
+    return filtered_artworks[:MAX_RECOMMENDATIONS]
 
 def moderate_image_content(image_bytes):
     """Moderate image content using AWS Rekognition with caching"""
@@ -352,7 +426,7 @@ def recommend_unified():
                 return jsonify(error="Could not analyze image colors."), 500
             
             app.logger.info(f"Successfully analyzed image colors: {len(user_colors)} colors found")
-            recs = get_recommendations(user_colors)
+            recs = get_smart_recommendations(user_colors)
             recommendations = [rec['artwork'] for rec in recs]
             app.logger.info(f"Generated {len(recommendations)} recommendations for uploaded image")
 
@@ -435,6 +509,124 @@ def preferences_options():
         'colors': sorted(list(colors))
     })
 
+@app.route('/api/generate-mockup', methods=['POST'])
+@limiter.limit("10 per minute")
+def generate_mockup():
+    """Generate a mockup image by compositing artwork onto room background using PIL with optimized color preservation"""
+    try:
+        data = request.get_json()
+        if not data:
+            return jsonify({'success': False, 'error': 'No data provided'}), 400
+        
+        artwork_url = data.get('artwork_url')
+        room_url = data.get('room_url')
+        artwork_position = data.get('artwork_position', {})
+        
+        if not artwork_url or not room_url:
+            return jsonify({'success': False, 'error': 'Missing artwork_url or room_url'}), 400
+        
+        app.logger.info(f"Generating mockup - Artwork URL type: {'data_url' if artwork_url.startswith('data:') else 'http_url'}")
+        
+        # Load images with better color preservation
+        if artwork_url.startswith('data:'):
+            # Handle data URL
+            header, encoded = artwork_url.split(",", 1)
+            artwork_data = base64.b64decode(encoded)
+            artwork_img = Image.open(BytesIO(artwork_data))
+        else:
+            # Handle HTTP URL
+            artwork_response = requests.get(artwork_url, timeout=30)
+            artwork_response.raise_for_status()
+            artwork_img = Image.open(BytesIO(artwork_response.content))
+        
+        if room_url.startswith('data:'):
+            # Handle data URL
+            header, encoded = room_url.split(",", 1)
+            room_data = base64.b64decode(encoded)
+            room_img = Image.open(BytesIO(room_data))
+        else:
+            # Handle HTTP URL
+            room_response = requests.get(room_url, timeout=30)
+            room_response.raise_for_status()
+            room_img = Image.open(BytesIO(room_response.content))
+        
+        # Preserve original color modes to maintain vibrancy
+        original_artwork_mode = artwork_img.mode
+        original_room_mode = room_img.mode
+        
+        app.logger.info(f"Original artwork mode: {original_artwork_mode}, room mode: {original_room_mode}")
+        
+        # Only convert to RGB if absolutely necessary, and preserve color information
+        if artwork_img.mode not in ['RGB', 'RGBA']:
+            artwork_img = artwork_img.convert('RGB')
+        if room_img.mode not in ['RGB', 'RGBA']:
+            room_img = room_img.convert('RGB')
+        
+        # Get dimensions
+        room_width, room_height = room_img.size
+        artwork_width, artwork_height = artwork_img.size
+        
+        app.logger.info(f"Room dimensions: {room_width}x{room_height}")
+        app.logger.info(f"Artwork dimensions: {artwork_width}x{artwork_height}")
+        app.logger.info(f"Artwork position: {artwork_position}")
+        
+        # Calculate artwork size (limit to 30% of room size)
+        artwork_ratio = artwork_width / artwork_height
+        if artwork_ratio > 1:  # Landscape
+            new_artwork_width = min(int(room_width * 0.3), artwork_width)
+            new_artwork_height = int(new_artwork_width / artwork_ratio)
+        else:  # Portrait
+            new_artwork_height = min(int(room_height * 0.3), artwork_height)
+            new_artwork_width = int(new_artwork_height * artwork_ratio)
+        
+        # Resize artwork with high quality resampling to preserve colors
+        artwork_img = artwork_img.resize((new_artwork_width, new_artwork_height), Image.Resampling.LANCZOS)
+        
+        app.logger.info(f"Final artwork size: {new_artwork_width}x{new_artwork_height}")
+        
+        # Calculate position
+        x_percent = artwork_position.get('x', 50) / 100.0
+        y_percent = artwork_position.get('y', 50) / 100.0
+        
+        # Calculate paste position (center the artwork at the calculated position)
+        paste_x = int((room_width * x_percent) - (new_artwork_width / 2))
+        paste_y = int((room_height * y_percent) - (new_artwork_height / 2))
+        
+        app.logger.info(f"Final paste position: ({paste_x}, {paste_y})")
+        
+        # Create result image with same mode as room image for better color preservation
+        result_img = room_img.copy()
+        
+        # Paste artwork onto room background
+        if artwork_img.mode == 'RGBA':
+            # If artwork has transparency, use alpha compositing
+            result_img.paste(artwork_img, (paste_x, paste_y), artwork_img)
+        else:
+            # Otherwise, paste directly
+            result_img.paste(artwork_img, (paste_x, paste_y))
+        
+        # Convert to bytes with maximum quality JPEG for best color preservation
+        output_buffer = BytesIO()
+        result_img.save(output_buffer, format='JPEG', quality=100, optimize=False, progressive=False, subsampling=0)
+        output_buffer.seek(0)
+        
+        app.logger.info(f"Mockup saved as JPEG with quality 100, size: {len(output_buffer.getvalue())} bytes")
+        
+        # Convert to base64
+        image_data = base64.b64encode(output_buffer.getvalue()).decode('utf-8')
+        data_url = f"data:image/jpeg;base64,{image_data}"
+        
+        app.logger.info(f"Mockup generated successfully as JPEG data URL (length: {len(data_url)} chars)")
+        
+        return jsonify({
+            'success': True,
+            'data_url': data_url
+        })
+        
+    except Exception as e:
+        app.logger.error(f"Error generating mockup: {str(e)}")
+        return jsonify({'success': False, 'error': str(e)}), 500
+
 @app.route('/api/convert-image-to-data-url')
 def convert_image_to_data_url():
     """Convert an S3 image URL to a data URL to avoid CORS issues."""
@@ -463,6 +655,7 @@ def convert_image_to_data_url():
         return jsonify({'error': 'Failed to convert image'}), 500
 
 @app.route('/catalog/images/<path:filename>')
+@limiter.limit("200 per hour")  # Higher limit for image requests
 def serve_catalog_image(filename):
     """Serve catalog images from S3 with caching"""
     try:
