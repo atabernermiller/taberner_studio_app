@@ -777,21 +777,50 @@ function showResultsView() {
                         const canvas = document.createElement('canvas');
                         const ctx = canvas.getContext('2d');
                         
-                        // Calculate optimal dimensions (max 800px width/height)
-                        const maxSize = 800;
+                        // Calculate optimal dimensions with better handling for HEIC files
+                        // HEIC files from iPhones are often very large, so we need more aggressive resizing
+                        const maxSize = 600; // Reduced from 800 to 600 for better performance
+                        const maxWidth = 800; // Maximum width for very wide images
+                        const maxHeight = 600; // Maximum height for very tall images
+                        
                         let { width, height } = this;
                         
-                        if (width > height) {
-                            if (width > maxSize) {
-                                height = (height * maxSize) / width;
-                                width = maxSize;
+                        console.log('Original image dimensions:', width, 'x', height);
+                        
+                        // Handle very large images (like HEIC from iPhones)
+                        if (width > 2000 || height > 2000) {
+                            // For very large images, be more aggressive with resizing
+                            if (width > height) {
+                                if (width > maxWidth) {
+                                    height = (height * maxWidth) / width;
+                                    width = maxWidth;
+                                }
+                            } else {
+                                if (height > maxHeight) {
+                                    width = (width * maxHeight) / height;
+                                    height = maxHeight;
+                                }
                             }
                         } else {
-                            if (height > maxSize) {
-                                width = (width * maxSize) / height;
-                                height = maxSize;
+                            // For smaller images, use the standard maxSize approach
+                            if (width > height) {
+                                if (width > maxSize) {
+                                    height = (height * maxSize) / width;
+                                    width = maxSize;
+                                }
+                            } else {
+                                if (height > maxSize) {
+                                    width = (width * maxSize) / height;
+                                    height = maxSize;
+                                }
                             }
                         }
+                        
+                        // Ensure dimensions are integers
+                        width = Math.round(width);
+                        height = Math.round(height);
+                        
+                        console.log('Optimized image dimensions:', width, 'x', height);
                         
                         canvas.width = width;
                         canvas.height = height;
@@ -1133,21 +1162,50 @@ function displayCurrentArtwork() {
                             const canvas = document.createElement('canvas');
                             const ctx = canvas.getContext('2d');
                             
-                            // Calculate optimal dimensions (max 800px width/height)
-                            const maxSize = 800;
+                            // Calculate optimal dimensions with better handling for HEIC files
+                            // HEIC files from iPhones are often very large, so we need more aggressive resizing
+                            const maxSize = 600; // Reduced from 800 to 600 for better performance
+                            const maxWidth = 800; // Maximum width for very wide images
+                            const maxHeight = 600; // Maximum height for very tall images
+                            
                             let { width, height } = this;
                             
-                            if (width > height) {
-                                if (width > maxSize) {
-                                    height = (height * maxSize) / width;
-                                    width = maxSize;
+                            console.log('Original image dimensions:', width, 'x', height);
+                            
+                            // Handle very large images (like HEIC from iPhones)
+                            if (width > 2000 || height > 2000) {
+                                // For very large images, be more aggressive with resizing
+                                if (width > height) {
+                                    if (width > maxWidth) {
+                                        height = (height * maxWidth) / width;
+                                        width = maxWidth;
+                                    }
+                                } else {
+                                    if (height > maxHeight) {
+                                        width = (width * maxHeight) / height;
+                                        height = maxHeight;
+                                    }
                                 }
                             } else {
-                                if (height > maxSize) {
-                                    width = (width * maxSize) / height;
-                                    height = maxSize;
+                                // For smaller images, use the standard maxSize approach
+                                if (width > height) {
+                                    if (width > maxSize) {
+                                        height = (height * maxSize) / width;
+                                        width = maxSize;
+                                    }
+                                } else {
+                                    if (height > maxSize) {
+                                        width = (width * maxSize) / height;
+                                        height = maxSize;
+                                    }
                                 }
                             }
+                            
+                            // Ensure dimensions are integers
+                            width = Math.round(width);
+                            height = Math.round(height);
+                            
+                            console.log('Optimized image dimensions:', width, 'x', height);
                             
                             canvas.width = width;
                             canvas.height = height;

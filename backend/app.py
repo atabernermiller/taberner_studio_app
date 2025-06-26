@@ -151,6 +151,17 @@ def extract_dominant_colors(image_stream, n_colors=5):
     """Extracts dominant colors from an image stream with their percentages."""
     try:
         img = Image.open(image_stream).convert('RGB')
+        # Aggressively resize very large images (like HEIC from iPhones)
+        max_dim = 1200  # Don't process images larger than 1200x1200 for color extraction
+        if img.width > max_dim or img.height > max_dim:
+            aspect = img.width / img.height
+            if img.width > img.height:
+                new_width = max_dim
+                new_height = int(max_dim / aspect)
+            else:
+                new_height = max_dim
+                new_width = int(max_dim * aspect)
+            img = img.resize((new_width, new_height), Image.Resampling.LANCZOS)
         img.thumbnail((100, 100))
         pixels = np.array(img).reshape(-1, 3)
         kmeans = KMeans(n_clusters=n_colors, random_state=42, n_init='auto').fit(pixels)
