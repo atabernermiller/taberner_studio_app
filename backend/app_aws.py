@@ -17,6 +17,7 @@ import logging
 from flask_cors import CORS
 import time
 from functools import lru_cache
+import hashlib
 
 # Configure Flask app
 FRONTEND_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), 'static'))
@@ -70,8 +71,10 @@ class SimpleCache:
     def clear(self):
         self.cache.clear()
 
-# Initialize cache
+# Initialize caches
 catalog_cache = SimpleCache(ttl_seconds=300)  # 5 minutes cache
+presigned_url_cache = SimpleCache(ttl_seconds=3600)  # 1 hour cache for S3 URLs
+moderation_cache = SimpleCache(ttl_seconds=600)  # 10 minutes cache for moderation results
 
 # Configure logging
 
@@ -112,7 +115,7 @@ def extract_dominant_colors(image_stream, n_colors=5):
         return []
 
 def load_catalog_from_dynamodb():
-    """Load art catalog from DynamoDB with caching."""
+    """Load art catalog from DynamoDB with improved caching."""
     # Check cache first
     cached_data = catalog_cache.get('art_catalog')
     if cached_data:
@@ -122,17 +125,27 @@ def load_catalog_from_dynamodb():
     # Cache miss - fetch from DynamoDB
     app.logger.info("Cache miss - fetching catalog from DynamoDB")
     try:
-        response = catalog_table.scan()
+        # Use a more efficient scan with projection
+        response = catalog_table.scan(
+            ProjectionExpression='id, title, artist, description, price, product_url, filename, attributes'
+        )
         items = response.get('Items', [])
         
-        # Handle pagination if needed
-        while 'LastEvaluatedKey' in response:
-            response = catalog_table.scan(ExclusiveStartKey=response['LastEvaluatedKey'])
+        # Handle pagination if needed (but limit to reasonable size)
+        scan_count = 1
+        while 'LastEvaluatedKey' in response and scan_count < 5:  # Limit to 5 scans max
+            response = catalog_table.scan(
+                ExclusiveStartKey=response['LastEvaluatedKey'],
+                ProjectionExpression='id, title, artist, description, price, product_url, filename, attributes'
+            )
             items.extend(response.get('Items', []))
+            scan_count += 1
         
-        # Store in cache
+        # Store in cache with longer TTL in production
+        cache_ttl = 600 if APP_ENV == 'aws' else 300  # 10 minutes in production, 5 in dev
+        catalog_cache.ttl = cache_ttl
         catalog_cache.set('art_catalog', items)
-        app.logger.info(f"Fetched {len(items)} items from DynamoDB and cached")
+        app.logger.info(f"Fetched {len(items)} items from DynamoDB and cached for {cache_ttl}s")
         
         return items
     except Exception as e:
@@ -241,16 +254,39 @@ def get_recommendations_by_filter(filters):
     return filtered_artworks[:9]
 
 def moderate_image_content(image_bytes):
-    """Moderate image content using AWS Rekognition"""
+    """Moderate image content using AWS Rekognition with caching"""
+    # Create a hash of the image for caching
+    image_hash = hashlib.md5(image_bytes).hexdigest()
+    
+    # Check cache first
+    cached_result = moderation_cache.get(image_hash)
+    if cached_result:
+        app.logger.info("Returning cached moderation result")
+        return cached_result
+    
     try:
-        response = rekognition.detect_moderation_labels(Image={'Bytes': image_bytes}, MinConfidence=75)
-        if response['ModerationLabels']:
-            labels = {l['Name'] for l in response['ModerationLabels']}
-            return False, f"Inappropriate content detected: {', '.join(labels)}"
-        return True, "Image approved"
+        # Only moderate in production, skip in development for speed
+        if APP_ENV == 'development':
+            app.logger.info("Skipping moderation in development mode")
+            result = (True, "Skipped in development")
+        else:
+            app.logger.info("Running AWS Rekognition moderation")
+            response = rekognition.detect_moderation_labels(Image={'Bytes': image_bytes}, MinConfidence=75)
+            if response['ModerationLabels']:
+                labels = {l['Name'] for l in response['ModerationLabels']}
+                result = (False, f"Inappropriate content detected: {', '.join(labels)}")
+            else:
+                result = (True, "Image approved")
+        
+        # Cache the result
+        moderation_cache.set(image_hash, result)
+        return result
+        
     except Exception as e:
         app.logger.error(f"Error during moderation: {e}. Approving by default.")
-        return True, "Moderation check failed, approved by default"
+        result = (True, "Moderation check failed, approved by default")
+        moderation_cache.set(image_hash, result)
+        return result
 
 def store_quarantined_image(image_bytes, filename, reason):
     """Store quarantined image in S3"""
@@ -431,9 +467,17 @@ def convert_image_to_data_url():
 
 @app.route('/catalog/images/<path:filename>')
 def serve_catalog_image(filename):
-    """Serve catalog images from S3"""
+    """Serve catalog images from S3 with caching"""
     try:
-        # Generate a presigned URL for the image in S3
+        # Check cache first
+        cache_key = f"s3_url_{filename}"
+        cached_url = presigned_url_cache.get(cache_key)
+        if cached_url:
+            app.logger.info(f"Returning cached S3 URL for {filename}")
+            return jsonify({'url': cached_url})
+        
+        # Generate new presigned URL
+        app.logger.info(f"Generating new S3 URL for {filename}")
         url = s3.generate_presigned_url(
             'get_object',
             Params={
@@ -442,7 +486,11 @@ def serve_catalog_image(filename):
             },
             ExpiresIn=3600  # URL expires in 1 hour
         )
+        
+        # Cache the URL
+        presigned_url_cache.set(cache_key, url)
         return jsonify({'url': url})
+        
     except Exception as e:
         app.logger.error(f"Error generating S3 URL for {filename}: {e}")
         return jsonify(error="Image not found"), 404
