@@ -829,6 +829,9 @@ async function updateArtworkDisplay(index) {
         artworkPrice.textContent = `$${cleanPrice}`;
     }
     
+    // Update purchase button with current artwork's product URL
+    updatePurchaseButton();
+    
     // Update current artwork index
     currentArtworkIndex = index;
     
@@ -1186,4 +1189,31 @@ function showOptionsView() {
     
     console.log('UI reset complete');
     console.log('=== END SHOW OPTIONS VIEW DEBUG ===');
+}
+
+// Handle purchase button click
+function handlePurchaseClick() {
+    const currentArtwork = allArtworks[currentArtworkIndex];
+    if (currentArtwork && currentArtwork.product_url) {
+        window.open(currentArtwork.product_url, '_blank');
+    } else {
+        console.warn('No product URL available for current artwork');
+    }
+}
+
+// Update purchase button with current artwork's product URL
+function updatePurchaseButton() {
+    const purchaseButton = document.getElementById('purchase-button');
+    if (purchaseButton) {
+        const currentArtwork = allArtworks[currentArtworkIndex];
+        if (currentArtwork && currentArtwork.product_url) {
+            purchaseButton.onclick = handlePurchaseClick;
+            purchaseButton.disabled = false;
+            console.log('Updated purchase button with URL:', currentArtwork.product_url);
+        } else {
+            purchaseButton.onclick = null;
+            purchaseButton.disabled = true;
+            console.warn('No product URL available, purchase button disabled');
+        }
+    }
 } 
