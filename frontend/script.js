@@ -207,6 +207,7 @@ function populateSelect(selectId, values, anyLabel) {
 
 // Form navigation functions
 function showUploadForm() {
+    console.log('=== SWITCHING TO UPLOAD WORKFLOW ===');
     // Clear photo cache to prevent showing previous workflow's recommendations
     console.log('=== CLEARING PHOTO CACHE FOR UPLOAD WORKFLOW ===');
     allArtworks = [];
@@ -245,6 +246,7 @@ function showUploadForm() {
 }
 
 function showPreferencesForm() {
+    console.log('=== SWITCHING TO PREFERENCES WORKFLOW ===');
     // Clear photo cache to prevent showing previous workflow's recommendations
     console.log('=== CLEARING PHOTO CACHE FOR PREFERENCES WORKFLOW ===');
     allArtworks = [];
@@ -284,6 +286,7 @@ function showPreferencesForm() {
 
 // Enhanced back button functionality
 function backToOptions() {
+    console.log('=== SWITCHING BACK TO OPTIONS ===');
     console.log('=== BACK TO OPTIONS CALLED ===');
     console.log('Current state:', {
         currentArtworkIndex,
@@ -602,13 +605,7 @@ function getRecommendations() {
         return response.json();
     })
     .then(data => {
-        console.log('Received recommendations response:', {
-            type: data.type,
-            recommendationsCount: data.recommendations ? data.recommendations.length : 0,
-            firstRecommendation: data.recommendations ? data.recommendations[0].title : 'None'
-        });
-        
-        isUploading = false; // Reset flag on success
+        console.log('Received recommendations response:', data);
         if (data.recommendations && data.recommendations.length > 0) {
             displayResults(data.recommendations, 'upload');
         } else {
@@ -618,7 +615,6 @@ function getRecommendations() {
     })
     .catch(error => {
         console.error('Error getting recommendations:', error);
-        isUploading = false; // Reset flag on error
         showErrorState(document.getElementById('results-area'), 'Unable to get recommendations. Please try again.');
         showResultsView();
     });
@@ -776,8 +772,10 @@ async function updateArtworkDisplay(index) {
         console.error('No artwork found at index:', index);
         return;
     }
-    
     console.log('Updating artwork display for:', artwork);
+    // Get image URL (S3 or local fallback)
+    const imageSrc = await getImageUrl(artwork.filename);
+    console.log('Artwork image URL being used:', imageSrc);
     
     // Update overlay image
     const artworkImage = document.getElementById('artwork-image');
