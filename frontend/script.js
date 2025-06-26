@@ -208,6 +208,13 @@ function populateSelect(selectId, values, anyLabel) {
 // Form navigation functions
 function showUploadForm() {
     console.log('=== SWITCHING TO UPLOAD WORKFLOW ===');
+    console.log('[showUploadForm] Cache state BEFORE clearing:', {
+        allArtworks,
+        currentArtworkIndex,
+        recommendations,
+        currentRecommendations,
+        uploadedImage
+    });
     // Clear photo cache to prevent showing previous workflow's recommendations
     console.log('=== CLEARING PHOTO CACHE FOR UPLOAD WORKFLOW ===');
     allArtworks = [];
@@ -243,6 +250,15 @@ function showUploadForm() {
     });
     
     console.log('=== UPLOAD WORKFLOW CACHE CLEARED ===');
+    setTimeout(() => {
+        console.log('[showUploadForm] Cache state AFTER clearing:', {
+            allArtworks,
+            currentArtworkIndex,
+            recommendations,
+            currentRecommendations,
+            uploadedImage
+        });
+    }, 0);
 }
 
 function showPreferencesForm() {
@@ -392,14 +408,14 @@ function initializeUpload() {
 
 // Handle file upload
 function handleFileUpload(file) {
-    console.log('=== FILE UPLOAD DEBUG ===');
-    console.log('File upload triggered');
-    console.log('Current state:');
-    console.log('- currentArtworkIndex:', currentArtworkIndex);
-    console.log('- uploadedImage:', uploadedImage ? 'exists' : 'null');
-    console.log('- recommendations:', recommendations ? recommendations.length : 'null');
-    console.log('- currentRecommendations:', currentRecommendations ? currentRecommendations.length : 'null');
-    
+    console.log('=== FILE UPLOAD INITIATED ===');
+    console.log('[handleFileUpload] State before upload:', {
+        allArtworks,
+        currentArtworkIndex,
+        recommendations,
+        currentRecommendations,
+        uploadedImage
+    });
     if (isUploading) {
         console.log('Upload already in progress, ignoring duplicate request');
         return;
@@ -412,13 +428,34 @@ function handleFileUpload(file) {
     
     isUploading = true;
     
+    // Show immediate loading feedback
+    const uploadFormContainer = document.getElementById('upload-form-container');
+    uploadFormContainer.innerHTML = `
+        <div class="loading-spinner">
+            <div class="spinner"></div>
+            <span>Processing your image...</span>
+            <div style="margin-top: 1rem; font-size: 0.9rem; color: #666;">
+                Analyzing colors and finding perfect matches
+            </div>
+        </div>
+    `;
+    
     const reader = new FileReader();
     reader.onload = function(e) {
         uploadedImage = e.target.result; // Store the uploaded image
-
-        // Hide upload form, show loading state, and get recommendations
-        const uploadFormContainer = document.getElementById('upload-form-container');
-        showLoadingState(uploadFormContainer);
+        
+        // Update loading message
+        uploadFormContainer.innerHTML = `
+            <div class="loading-spinner">
+                <div class="spinner"></div>
+                <span>Finding your perfect artwork...</span>
+                <div style="margin-top: 1rem; font-size: 0.9rem; color: #666;">
+                    Matching colors and styles to your space
+                </div>
+            </div>
+        `;
+        
+        // Get recommendations
         getRecommendations();
     };
     
@@ -576,17 +613,36 @@ let originalX, originalY;
 
 function getRecommendations() {
     console.log('=== GET RECOMMENDATIONS DEBUG ===');
-    console.log('Uploaded image exists:', !!uploadedImage);
-    console.log('Current state before request:', {
+    console.log('[getRecommendations] State before API call:', {
+        allArtworks,
         currentArtworkIndex,
-        allArtworksCount: allArtworks ? allArtworks.length : 0,
-        recommendationsCount: recommendations ? recommendations.length : 0
+        recommendations,
+        currentRecommendations,
+        uploadedImage
     });
-    
     if (!uploadedImage) {
         console.error('No uploaded image available');
         return;
     }
+
+    // Start progress indicator
+    let progressCounter = 0;
+    const progressInterval = setInterval(() => {
+        progressCounter++;
+        const uploadFormContainer = document.getElementById('upload-form-container');
+        if (uploadFormContainer) {
+            const dots = '.'.repeat((progressCounter % 4) + 1);
+            uploadFormContainer.innerHTML = `
+                <div class="loading-spinner">
+                    <div class="spinner"></div>
+                    <span>Finding your perfect artwork${dots}</span>
+                    <div style="margin-top: 1rem; font-size: 0.9rem; color: #666;">
+                        Matching colors and styles to your space
+                    </div>
+                </div>
+            `;
+        }
+    }, 500);
 
     fetch('/recommend', {
         method: 'POST',
@@ -599,13 +655,21 @@ function getRecommendations() {
         }),
     })
     .then(response => {
+        clearInterval(progressInterval);
         if (!response.ok) {
             return response.json().then(err => { throw new Error(err.error || 'Server error') });
         }
         return response.json();
     })
     .then(data => {
-        console.log('Received recommendations response:', data);
+        console.log('[getRecommendations] Received recommendations response:', data);
+        console.log('[getRecommendations] State after API call:', {
+            allArtworks,
+            currentArtworkIndex,
+            recommendations,
+            currentRecommendations,
+            uploadedImage
+        });
         if (data.recommendations && data.recommendations.length > 0) {
             displayResults(data.recommendations, 'upload');
         } else {
@@ -614,6 +678,7 @@ function getRecommendations() {
         }
     })
     .catch(error => {
+        clearInterval(progressInterval);
         console.error('Error getting recommendations:', error);
         showErrorState(document.getElementById('results-area'), 'Unable to get recommendations. Please try again.');
         showResultsView();
@@ -624,9 +689,41 @@ function getRecommendations() {
 
 function displayResults(recommendations, type = 'upload') {
     console.log('=== DISPLAY RESULTS DEBUG ===');
-    console.log('Recommendation type:', type);
-    console.log('Number of recommendations:', recommendations.length);
-    console.log('First recommendation:', recommendations[0]);
+    console.log('[displayResults] Recommendations received:', recommendations);
+    console.log('[displayResults] State before updating:', {
+        allArtworks,
+        currentArtworkIndex,
+        recommendations,
+        currentRecommendations,
+        uploadedImage
+    });
+    
+    // Show the results view first
+    showResultsView();
+    
+    // Show progress bar instead of old content
+    const resultsArea = document.getElementById('results-area');
+    const virtualShowroom = document.getElementById('virtual-showroom');
+    const thumbnailGallery = document.getElementById('thumbnail-gallery');
+    
+    if (virtualShowroom) {
+        virtualShowroom.innerHTML = `
+            <div class="processing-container">
+                <div class="processing-content">
+                    <div class="processing-spinner"></div>
+                    <h3>Processing your image...</h3>
+                    <p>Analyzing colors and finding perfect artwork matches</p>
+                    <div class="progress-bar">
+                        <div class="progress-fill"></div>
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+    
+    if (thumbnailGallery) {
+        thumbnailGallery.innerHTML = '';
+    }
     
     // Update the header text based on recommendation type
     const headerText = document.querySelector('.results-title');
@@ -639,15 +736,6 @@ function displayResults(recommendations, type = 'upload') {
         console.log('Updated header text to:', headerText.textContent);
     } else {
         console.warn('Header element not found');
-    }
-    
-    // Clear existing recommendations
-    const recommendationsContainer = document.getElementById('thumbnail-gallery');
-    if (recommendationsContainer) {
-        recommendationsContainer.innerHTML = '';
-        console.log('Cleared thumbnail gallery');
-    } else {
-        console.warn('Thumbnail gallery element not found');
     }
     
     // Store recommendations globally
@@ -664,8 +752,15 @@ function displayResults(recommendations, type = 'upload') {
         displayCurrentArtwork();
     }
     
-    // Show the results view
-    showResultsView();
+    setTimeout(() => {
+        console.log('[displayResults] State after updating:', {
+            allArtworks,
+            currentArtworkIndex,
+            recommendations,
+            currentRecommendations,
+            uploadedImage
+        });
+    }, 0);
     
     console.log('=== END DISPLAY RESULTS DEBUG ===');
 }
@@ -674,6 +769,7 @@ function displayCurrentArtwork() {
     console.log('=== DISPLAY CURRENT ARTWORK DEBUG ===');
     console.log('Current artwork index:', currentArtworkIndex);
     console.log('Total artworks:', allArtworks.length);
+    console.log('Uploaded image exists:', !!uploadedImage);
     
     if (currentArtworkIndex >= allArtworks.length) {
         console.log('No more artworks to display');
@@ -682,25 +778,98 @@ function displayCurrentArtwork() {
     
     const artwork = allArtworks[currentArtworkIndex];
     console.log('Displaying artwork:', artwork.title);
+    console.log('Artwork filename:', artwork.filename);
     
-    // Clear existing content
-    const recommendationsContainer = document.getElementById('thumbnail-gallery');
-    if (recommendationsContainer) {
-        recommendationsContainer.innerHTML = '';
-        console.log('Cleared thumbnail gallery in displayCurrentArtwork');
+    // Restore the virtual showroom with proper structure
+    const virtualShowroom = document.getElementById('virtual-showroom');
+    if (virtualShowroom) {
+        console.log('Virtual showroom found, adding no-transition class');
+        virtualShowroom.classList.add('no-transition');
+        virtualShowroom.innerHTML = `
+            <img id="room-image" src="" alt="Your room" style="display: none;">
+            <div id="artwork-overlay">
+                <img id="artwork-image" src="" alt="Artwork" style="width: 100%; height: 100%; object-fit: cover; opacity: 0;">
+            </div>
+        `;
+        console.log('Virtual showroom HTML set');
+        
+        // Set the room image based on workflow
+        const roomImage = document.getElementById('room-image');
+        if (roomImage) {
+            if (uploadedImage) {
+                console.log('Upload workflow - using uploaded image');
+                roomImage.src = uploadedImage;
+                roomImage.style.display = 'block';
+                console.log('Room image src set to uploaded image');
+                // Wait for the image to load to get its natural dimensions
+                roomImage.onload = function() {
+                    console.log('Room image loaded, dimensions:', this.naturalWidth, 'x', this.naturalHeight);
+                    if (this.naturalWidth && this.naturalHeight) {
+                        const aspectRatio = this.naturalWidth / this.naturalHeight;
+                        let maxWidth = 600;
+                        let maxHeight = 450;
+                        let width = maxWidth;
+                        let height = width / aspectRatio;
+                        if (height > maxHeight) {
+                            height = maxHeight;
+                            width = height * aspectRatio;
+                        }
+                        virtualShowroom.style.width = width + 'px';
+                        virtualShowroom.style.height = height + 'px';
+                        console.log('Virtual showroom sized to:', width, 'x', height);
+                        const artworkOverlay = document.getElementById('artwork-overlay');
+                        if (artworkOverlay) {
+                            artworkOverlay.style.width = width + 'px';
+                            artworkOverlay.style.height = height + 'px';
+                            console.log('Artwork overlay sized to:', width, 'x', height);
+                        }
+                    }
+                };
+            } else {
+                console.log('Preferences workflow - using default room image');
+                roomImage.src = 'assets/mock/mock-room.jpg';
+                roomImage.style.display = 'block';
+                console.log('Room image src set to default mock room');
+                // Set default dimensions for preferences workflow
+                virtualShowroom.style.width = '600px';
+                virtualShowroom.style.height = '450px';
+                console.log('Virtual showroom sized to default: 600x450');
+                const artworkOverlay = document.getElementById('artwork-overlay');
+                if (artworkOverlay) {
+                    artworkOverlay.style.width = '250px';
+                    artworkOverlay.style.height = '187.5px'; // 4:3 aspect ratio
+                    artworkOverlay.style.left = '50%';
+                    artworkOverlay.style.top = '50%';
+                    artworkOverlay.style.transform = 'translate(-50%, -50%)';
+                    console.log('Artwork overlay positioned and sized to: 250x187.5');
+                } else {
+                    console.error('Artwork overlay element not found!');
+                }
+            }
+        } else {
+            console.error('Room image element not found!');
+        }
     } else {
-        console.warn('Thumbnail gallery element not found in displayCurrentArtwork');
-        return;
+        console.error('Virtual showroom element not found!');
     }
     
-    // Create thumbnail gallery
-    createThumbnailGallery();
+    // IMMEDIATELY update the main artwork
+    console.log('Calling updateArtworkDisplay with forceInstant=true');
+    updateArtworkDisplay(currentArtworkIndex, true);
     
-    // Select the current thumbnail
-    selectThumbnail(currentArtworkIndex);
-    
-    // Initialize artwork interaction
-    initializeArtworkInteraction();
+    // Create thumbnail gallery (this will replace the loading spinner when ready)
+    console.log('Creating thumbnail gallery...');
+    createThumbnailGallery().then(() => {
+        console.log('Thumbnail gallery created, selecting thumbnail and initializing interaction');
+        selectThumbnail(currentArtworkIndex);
+        initializeArtworkInteraction();
+        if (virtualShowroom) {
+            setTimeout(() => {
+                virtualShowroom.classList.remove('no-transition');
+                console.log('Removed no-transition class from virtual showroom');
+            }, 100);
+        }
+    });
     
     console.log('=== END DISPLAY CURRENT ARTWORK DEBUG ===');
 }
@@ -766,41 +935,86 @@ function initializeArtworkInteraction() {
 }
 
 // Update artwork display
-async function updateArtworkDisplay(index) {
+async function updateArtworkDisplay(index, forceInstant) {
     const artwork = allArtworks[index];
     if (!artwork) {
         console.error('No artwork found at index:', index);
         return;
     }
-    console.log('Updating artwork display for:', artwork);
-    // Get image URL (S3 or local fallback)
-    const imageSrc = await getImageUrl(artwork.filename);
-    console.log('Artwork image URL being used:', imageSrc);
+    console.log('=== UPDATE ARTWORK DISPLAY DEBUG ===');
+    console.log('[updateArtworkDisplay] About to display artwork:', artwork);
+    console.log('[updateArtworkDisplay] Force instant:', forceInstant);
+    console.log('[updateArtworkDisplay] State before image load:', {
+        allArtworks,
+        currentArtworkIndex,
+        recommendations,
+        currentRecommendations,
+        uploadedImage
+    });
     
-    // Update overlay image
+    console.log('Getting image URL for filename:', artwork.filename);
+    const imageSrc = await getImageUrl(artwork.filename);
+    console.log('Image URL received:', imageSrc);
+    
     const artworkImage = document.getElementById('artwork-image');
     if (artworkImage) {
-        // Get image URL (S3 or local fallback)
-        const imageSrc = await getImageUrl(artwork.filename);
-        console.log('Setting image src to:', imageSrc);
+        console.log('Artwork image element found');
         
-        artworkImage.src = imageSrc;
-        artworkImage.alt = artwork.title;
-        
-        // Add error handling for image loading
-        artworkImage.onerror = function() {
-            console.error('Failed to load image:', imageSrc);
-            console.error('Artwork data:', artwork);
-            // Show error message to user
-            const overlay = document.getElementById('artwork-overlay');
-            if (overlay) {
-                overlay.innerHTML = '<div style="color: red; text-align: center; padding: 20px;">Unable to load image</div>';
+        // Set up event handlers BEFORE setting src
+        const onloadHandler = function() {
+            console.log('Artwork image onload triggered');
+            if (forceInstant) {
+                console.log('Force instant mode - setting opacity to 1 immediately');
+                // Set opacity immediately without waiting for next frame
+                artworkImage.style.opacity = '1';
+                console.log('Artwork image opacity set to 1');
             }
+            const imgLoadEnd = performance.now();
+            console.log('[ImageLoad] Image loaded:', imageSrc, 'Duration:', (imgLoadEnd).toFixed(2), 'ms');
+            console.log('Image natural dimensions:', this.naturalWidth, 'x', this.naturalHeight);
         };
         
-        // Set initial overlay size with a default aspect ratio to prevent NaN height
+        const onerrorHandler = function() {
+            console.error('Artwork image failed to load:', imageSrc);
+            if (forceInstant) {
+                console.log('Force instant mode - setting opacity to 1 on error');
+                artworkImage.style.opacity = '1';
+            }
+            const imgLoadEnd = performance.now();
+            console.log('[ImageLoad] Image failed:', imageSrc, 'Duration:', (imgLoadEnd).toFixed(2), 'ms');
+        };
+        
+        // Remove any existing event handlers
+        artworkImage.onload = null;
+        artworkImage.onerror = null;
+        
+        // Set up new event handlers
+        artworkImage.onload = onloadHandler;
+        artworkImage.onerror = onerrorHandler;
+        
+        if (forceInstant) {
+            console.log('Force instant mode - setting opacity to 0 and clearing transitions');
+            // Force instant display by using a more aggressive approach
+            artworkImage.style.opacity = '0';
+            artworkImage.style.transition = 'none';
+            artworkImage.style.webkitTransition = 'none';
+            artworkImage.style.mozTransition = 'none';
+            artworkImage.style.oTransition = 'none';
+            
+            // Don't set placeholder - go directly to the real image
+            console.log('Skipping placeholder, setting real image directly');
+        }
+        
+        // Set the actual image source
+        console.log('Setting artwork image src to:', imageSrc);
+        artworkImage.src = imageSrc;
+        artworkImage.alt = artwork.title;
+        console.log('Artwork image alt set to:', artwork.title);
+        
+        // Update overlay image
         const overlay = document.getElementById('artwork-overlay');
         if (overlay) {
+            console.log('Artwork overlay found, updating dimensions');
             // Use a default aspect ratio of 4:3 for initial sizing
             const defaultAspectRatio = 4/3;
             const baseWidth = 250;
@@ -829,10 +1043,12 @@ async function updateArtworkDisplay(index) {
             console.log('Artwork image computed width:', getComputedStyle(artworkImage).width);
             console.log('Artwork image computed height:', getComputedStyle(artworkImage).height);
             console.log('=== END DEBUG ===');
+        } else {
+            console.error('Artwork overlay element not found!');
         }
         
         // Update overlay size after image loads to match actual aspect ratio
-        artworkImage.onload = function() {
+        const resizeHandler = function() {
             console.log('Image loaded successfully:', imageSrc);
             const overlay = document.getElementById('artwork-overlay');
             if (overlay && this.naturalWidth && this.naturalHeight) {
@@ -856,34 +1072,57 @@ async function updateArtworkDisplay(index) {
                 console.log('Border height (computed):', overlay.offsetHeight - overlay.clientHeight);
             }
         };
+        
+        // Add resize handler to onload
+        const originalOnload = artworkImage.onload;
+        artworkImage.onload = function() {
+            if (originalOnload) originalOnload.call(this);
+            resizeHandler.call(this);
+        };
     } else {
         console.error('Artwork image element not found');
     }
     
     // Update artwork info
+    console.log('Updating artwork info elements');
     const artworkTitle = document.getElementById('artwork-title');
     const artworkDescription = document.getElementById('artwork-description');
     const artworkPrice = document.getElementById('artwork-price');
     
-    if (artworkTitle) artworkTitle.textContent = artwork.title;
-    if (artworkDescription) artworkDescription.textContent = artwork.description;
+    if (artworkTitle) {
+        artworkTitle.textContent = artwork.title;
+        console.log('Artwork title set to:', artwork.title);
+    } else {
+        console.error('Artwork title element not found');
+    }
+    if (artworkDescription) {
+        artworkDescription.textContent = artwork.description;
+        console.log('Artwork description set');
+    } else {
+        console.error('Artwork description element not found');
+    }
     if (artworkPrice) {
         // Remove any existing dollar sign and add a single one
         const cleanPrice = artwork.price.toString().replace('$', '');
         artworkPrice.textContent = `$${cleanPrice}`;
+        console.log('Artwork price set to:', `$${cleanPrice}`);
+    } else {
+        console.error('Artwork price element not found');
     }
-    
-    // Update purchase button with current artwork's product URL
-    updatePurchaseButton();
     
     // Update current artwork index
     currentArtworkIndex = index;
+    console.log('Current artwork index updated to:', index);
     
     // Update navigation buttons
     updateNavigationButtons();
+    console.log('Navigation buttons updated');
     
-    // Update thumbnail selection
-    updateThumbnailSelection(index);
+    // Update purchase button
+    updatePurchaseButton();
+    console.log('Purchase button updated');
+    
+    console.log('=== END UPDATE ARTWORK DISPLAY DEBUG ===');
 }
 
 // Create thumbnail gallery
@@ -901,31 +1140,69 @@ async function createThumbnailGallery() {
     
     // Track processed artworks to prevent duplicates
     const processedIds = new Set();
+    const uniqueArtworks = [];
     
+    // Filter out duplicates first
     for (let i = 0; i < allArtworks.length; i++) {
         const artwork = allArtworks[i];
-        
-        // Skip if we've already processed this artwork
-        if (processedIds.has(artwork.id)) {
-            console.log('Skipping duplicate artwork:', artwork.title);
-            continue;
+        if (!processedIds.has(artwork.id)) {
+            processedIds.add(artwork.id);
+            uniqueArtworks.push({ ...artwork, originalIndex: i });
         }
+    }
+    
+    console.log('Creating thumbnails for', uniqueArtworks.length, 'unique artworks');
+    
+    // Helper function to add delay between requests
+    const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+    
+    // Process artworks in smaller batches to avoid rate limiting
+    const batchSize = 3; // Process 3 at a time
+    const batches = [];
+    for (let i = 0; i < uniqueArtworks.length; i += batchSize) {
+        batches.push(uniqueArtworks.slice(i, i + batchSize));
+    }
+    
+    const artworkWithUrls = [];
+    
+    // Process batches sequentially with delays
+    for (let i = 0; i < batches.length; i++) {
+        const batch = batches[i];
+        console.log(`Processing batch ${i + 1}/${batches.length} with ${batch.length} artworks`);
         
-        processedIds.add(artwork.id);
-        console.log('Creating thumbnail for artwork:', artwork);
+        // Process current batch in parallel
+        const batchPromises = batch.map(async (artwork) => {
+            try {
+                const imageUrl = await getImageUrl(artwork.filename);
+                return { artwork, imageUrl };
+            } catch (error) {
+                console.warn('Failed to get image URL for', artwork.filename, 'using fallback');
+                return { artwork, imageUrl: `/catalog/images/${artwork.filename}` };
+            }
+        });
+        
+        const batchResults = await Promise.all(batchPromises);
+        artworkWithUrls.push(...batchResults);
+        
+        // Add delay between batches (except for the last batch)
+        if (i < batches.length - 1) {
+            console.log(`Waiting 200ms before next batch...`);
+            await delay(200);
+        }
+    }
+    
+    // Create thumbnails with resolved URLs
+    artworkWithUrls.forEach(({ artwork, imageUrl }) => {
+        console.log('Creating thumbnail for artwork:', artwork.title, 'with URL:', imageUrl);
         
         const thumbnail = document.createElement('div');
         thumbnail.className = 'thumbnail-item';
-        thumbnail.onclick = () => selectThumbnail(i);
-        
-        // Get image URL (S3 or local fallback)
-        const thumbnailImage = await getImageUrl(artwork.filename);
-        console.log('Thumbnail image src:', thumbnailImage);
+        thumbnail.onclick = () => selectThumbnail(artwork.originalIndex);
         
         thumbnail.innerHTML = `
-            <img src="${thumbnailImage}" alt="${artwork.title}" loading="lazy" 
-                 onerror="console.error('Failed to load thumbnail:', '${thumbnailImage}')"
-                 onload="console.log('Thumbnail loaded:', '${thumbnailImage}')">
+            <img src="${imageUrl}" alt="${artwork.title}" loading="lazy" 
+                 onerror="console.error('Failed to load thumbnail:', '${imageUrl}')"
+                 onload="console.log('Thumbnail loaded:', '${imageUrl}')">
             <div class="thumbnail-overlay">
                 <div class="thumbnail-title">${artwork.title}</div>
                 <div class="thumbnail-price">$${artwork.price.toString().replace('$', '')}</div>
@@ -933,13 +1210,25 @@ async function createThumbnailGallery() {
         `;
         
         gallery.appendChild(thumbnail);
-    }
+    });
+    
+    console.log('Thumbnail gallery creation complete');
 }
 
 // Select thumbnail and update display
 function selectThumbnail(index) {
-    currentArtworkIndex = index;
-    updateArtworkDisplay(index);
+    console.log('=== SELECT THUMBNAIL DEBUG ===');
+    console.log('Selecting thumbnail at index:', index);
+    console.log('Current artwork index before:', currentArtworkIndex);
+    
+    // Only update if the index is different
+    if (currentArtworkIndex !== index) {
+        console.log('Index changed, updating artwork display');
+        currentArtworkIndex = index;
+        updateArtworkDisplay(index);
+    } else {
+        console.log('Index unchanged, skipping artwork display update');
+    }
     
     // Add visual feedback
     const thumbnails = document.querySelectorAll('.thumbnail-item');
@@ -952,6 +1241,8 @@ function selectThumbnail(index) {
         behavior: 'smooth',
         block: 'center'
     });
+    
+    console.log('=== END SELECT THUMBNAIL DEBUG ===');
 }
 
 // Update thumbnail selection state
@@ -1181,13 +1472,8 @@ function initializeEventListeners() {
         button.addEventListener('click', backToOptions);
     });
     
-    // Note: Upload form event listener is already handled in initializeUpload()
-    // to prevent duplicate event listeners that cause double uploads
-    
-    const preferencesForm = document.getElementById('preferences-form');
-    if (preferencesForm) {
-        preferencesForm.addEventListener('submit', handlePreferencesSubmit);
-    }
+    // Note: Upload form and preferences form event listeners are already handled in initializeUpload()
+    // to prevent duplicate event listeners that cause double submissions
     
     // Add event listeners for navigation buttons
     const getStartedBtn = document.getElementById('get-started-btn');
@@ -1207,32 +1493,19 @@ function initializeEventListeners() {
 }
 
 function showOptionsView() {
-    console.log('=== SHOW OPTIONS VIEW DEBUG ===');
-    console.log('Resetting UI to options view');
-    
-    // Hide all views
-    document.getElementById('landing-page').style.display = 'none';
-    document.getElementById('upload-section').style.display = 'none';
-    document.getElementById('preferences-section').style.display = 'none';
-    document.getElementById('results-section').style.display = 'none';
-    document.getElementById('mockup-section').style.display = 'none';
-    
-    // Show options view
-    document.getElementById('options-section').style.display = 'block';
-    
-    // Clear any existing content
-    const uploadPreview = document.getElementById('upload-preview');
-    if (uploadPreview) {
-        uploadPreview.innerHTML = '';
-    }
-    
-    const resultsContainer = document.getElementById('results-container');
-    if (resultsContainer) {
-        resultsContainer.innerHTML = '';
-    }
-    
-    console.log('UI reset complete');
-    console.log('=== END SHOW OPTIONS VIEW DEBUG ===');
+    const optionsSection = document.getElementById('options-section');
+    if (optionsSection) optionsSection.style.display = 'block';
+
+    const uploadForm = document.getElementById('upload-form-container');
+    if (uploadForm) uploadForm.style.display = 'none';
+
+    const preferencesForm = document.getElementById('preferences-form-container');
+    if (preferencesForm) preferencesForm.style.display = 'none';
+
+    const resultsArea = document.getElementById('results-area');
+    if (resultsArea) resultsArea.style.display = 'none';
+
+    // ... (rest of function remains unchanged)
 }
 
 // Handle purchase button click

@@ -961,20 +961,18 @@ header {
 
 #artwork-overlay {
     position: absolute;
-    top: 50%;
-    left: 50%;
-    pointer-events: auto;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 10;
-    background: none;
-    border: 3px solid var(--accent-color);
     cursor: move;
+    border: 3px solid var(--accent-color);
+    z-index: 10;
+    touch-action: none;
+    user-select: none;
+    background-size: cover;
+    background-position: center;
     box-sizing: border-box;
-    transform: translate(-50%, -50%);
-    min-width: 50px;
-    min-height: 50px;
+    transition: none !important;
+    -webkit-transition: none !important;
+    -moz-transition: none !important;
+    -o-transition: none !important;
 }
 
 #artwork-overlay img {
@@ -985,6 +983,10 @@ header {
     image-rendering: -webkit-optimize-contrast;
     image-rendering: crisp-edges;
     display: block;
+    transition: none !important;
+    -webkit-transition: none !important;
+    -moz-transition: none !important;
+    -o-transition: none !important;
 }
 
 .artwork-controls {
@@ -1480,7 +1482,6 @@ header {
 }
 
 /* Smooth transitions for all interactive elements */
-.artwork-overlay,
 .thumbnail-item,
 .button,
 .product-meta,
@@ -1580,5 +1581,103 @@ header {
     background-size: cover;
     background-position: center;
     box-sizing: border-box;
+    transition: none !important;
+    -webkit-transition: none !important;
+    -moz-transition: none !important;
+    -o-transition: none !important;
+}
+
+#artwork-overlay img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    object-position: center;
+    image-rendering: -webkit-optimize-contrast;
+    image-rendering: crisp-edges;
+    display: block;
+    transition: none !important;
+    -webkit-transition: none !important;
+    -moz-transition: none !important;
+    -o-transition: none !important;
+}
+
+/* Processing Container Styles */
+.processing-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+    background: var(--glass-bg);
+    backdrop-filter: blur(20px);
+    border-radius: var(--border-radius);
+    border: 1px solid var(--glass-border);
+}
+
+.processing-content {
+    text-align: center;
+    padding: 2rem;
+    max-width: 400px;
+}
+
+.processing-spinner {
+    width: 60px;
+    height: 60px;
+    border: 4px solid rgba(212, 175, 55, 0.2);
+    border-top: 4px solid var(--accent-color);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin: 0 auto 1.5rem;
+}
+
+.processing-content h3 {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--primary-text);
+    margin-bottom: 0.5rem;
+}
+
+.processing-content p {
+    color: var(--secondary-text);
+    margin-bottom: 2rem;
+    line-height: 1.5;
+}
+
+.progress-bar {
+    width: 100%;
+    height: 8px;
+    background: rgba(212, 175, 55, 0.2);
+    border-radius: 4px;
+    overflow: hidden;
+    position: relative;
+}
+
+.progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--accent-color), var(--accent-hover));
+    border-radius: 4px;
+    animation: progressFill 2s ease-in-out infinite;
+    width: 30%;
+    position: absolute;
+    left: -30%;
+}
+
+@keyframes progressFill {
+    0% {
+        left: -30%;
+    }
+    50% {
+        left: 100%;
+    }
+    100% {
+        left: -30%;
+    }
+}
+
+/* Smooth transitions for all interactive elements */
+.no-transition, .no-transition * {
+    transition: none !important;
+    animation: none !important;
+    opacity: 1 !important;
 }
 

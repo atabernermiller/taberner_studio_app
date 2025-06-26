@@ -281,11 +281,7 @@ def recommend_unified():
     Unified endpoint for getting recommendations.
     Accepts either an image upload or a set of preferences.
     """
-    # Clear cache at the beginning to ensure fresh recommendations
     app.logger.info("=== RECOMMENDATION REQUEST START ===")
-    app.logger.info(f"Cache size before clearing: {len(catalog_cache.cache)}")
-    catalog_cache.clear()
-    app.logger.info(f"Cache cleared. Cache size after clearing: {len(catalog_cache.cache)}")
     
     data = request.get_json()
     if not data:
@@ -476,9 +472,14 @@ def health_check():
 @app.route('/api/clear-cache')
 def clear_cache():
     """Clear the catalog cache (admin endpoint)."""
-    catalog_cache.clear()
-    app.logger.info("Catalog cache cleared")
-    return jsonify({'message': 'Cache cleared successfully'})
+    # Only clear cache in development mode to avoid performance issues in production
+    if APP_ENV == 'development':
+        catalog_cache.clear()
+        app.logger.info("Catalog cache cleared (development mode)")
+        return jsonify({'message': 'Cache cleared successfully'})
+    else:
+        app.logger.info("Cache clear request ignored in production mode")
+        return jsonify({'message': 'Cache clearing disabled in production'})
 
 @app.route('/api/cache-stats')
 def cache_stats():
@@ -493,8 +494,12 @@ def cache_stats():
 @app.route('/api/reset-workflow', methods=['POST'])
 def reset_workflow():
     """Clear cache when user resets workflow (Back to Start)."""
-    catalog_cache.clear()
-    app.logger.info("Workflow reset: Catalog cache cleared")
+    # Only clear cache in development mode to avoid performance issues in production
+    if APP_ENV == 'development':
+        catalog_cache.clear()
+        app.logger.info("Workflow reset: Catalog cache cleared (development mode)")
+    else:
+        app.logger.info("Workflow reset: Cache clearing skipped in production mode")
     return jsonify({'message': 'Workflow reset successfully'})
 
 # Main entry point
