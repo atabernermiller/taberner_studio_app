@@ -31,7 +31,6 @@ import re
 from io import BytesIO
 from werkzeug.utils import secure_filename
 from botocore.exceptions import ClientError, NoCredentialsError
-import redis
 
 logging.basicConfig(
     level=logging.INFO,
