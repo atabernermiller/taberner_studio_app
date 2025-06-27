@@ -177,18 +177,6 @@
                     
                     <form id="preferences-form">
                         <div class="filter-group">
-                            <label for="mood-select">Mood:</label>
-                            <select id="mood-select">
-                                <option value="">Any Mood</option>
-                                <option value="calm">Calm & Serene</option>
-                                <option value="energetic">Energetic & Vibrant</option>
-                                <option value="sophisticated">Sophisticated & Elegant</option>
-                                <option value="cozy">Cozy & Warm</option>
-                                <option value="minimalist">Minimalist & Clean</option>
-                            </select>
-                        </div>
-                        
-                        <div class="filter-group">
                             <label for="style-select">Art Style:</label>
                             <select id="style-select">
                                 <option value="">Any Style</option>
@@ -199,7 +187,6 @@
                                 <option value="contemporary">Contemporary</option>
                             </select>
                         </div>
-                        
                         <div class="filter-group">
                             <label for="subject-select">Subject:</label>
                             <select id="subject-select">
@@ -211,19 +198,6 @@
                                 <option value="nature">Nature</option>
                             </select>
                         </div>
-                        
-                        <div class="filter-group">
-                            <label for="color-preference">Color Preference:</label>
-                            <select id="color-preference">
-                                <option value="">Any Colors</option>
-                                <option value="warm">Warm Tones</option>
-                                <option value="cool">Cool Tones</option>
-                                <option value="neutral">Neutral</option>
-                                <option value="bold">Bold & Bright</option>
-                                <option value="pastel">Soft & Pastel</option>
-                            </select>
-                        </div>
-                        
                         <button type="submit" class="button">
                             <i class="fas fa-search"></i>
                             Find Artwork
@@ -237,13 +211,12 @@
         <section id="results-area" class="view" style="display: none;">
             <div class="results-header">
                 <h2 class="results-title">Here are some artworks we think you'll love!</h2>
-                <p class="results-subtitle">Based on your selected preferences</p>
             </div>
             
             <!-- Interactive Showroom -->
             <div class="showroom-container">
                 <div class="showroom-header">
-                    <p>Drag and resize the artwork to see how it looks in your room</p>
+                    <p class="drag-hint">Drag and resize the artwork to see how it looks in your room</p>
                 </div>
                 
                 <div class="virtual-showroom" id="virtual-showroom">

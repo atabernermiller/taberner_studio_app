@@ -293,68 +293,22 @@ def get_recommendations(user_colors):
     return recommendations[:MAX_RECOMMENDATIONS]
 
 def get_recommendations_by_filter(filters):
-    """Finds artworks matching the selected mood, style, subject, and color filters."""
-    # Load catalog from DynamoDB
+    """Finds artworks matching the selected style and subject filters."""
     art_catalog = load_catalog_from_dynamodb()
     if not art_catalog:
         return []
 
-    # Check if any actual filter values were selected
-    all_selected_filters = filters.get('moods', []) + filters.get('styles', []) + filters.get('subjects', []) + filters.get('colors', [])
+    all_selected_filters = filters.get('styles', []) + filters.get('subjects', [])
     if not all_selected_filters:
-        # If no filters are provided, return a default list of recommendations.
         return [{'artwork': art, 'score': 0} for art in art_catalog[:MAX_RECOMMENDATIONS]]
 
     filtered_artworks = []
-
     for artwork in art_catalog:
         attrs = artwork.get('attributes', {})
-        
-        # Check if artwork matches the selected filters
-        mood_match = not filters.get('moods') or (attrs.get('mood') and any(f.lower() in attrs.get('mood', '').lower() for f in filters['moods']))
         style_match = not filters.get('styles') or (attrs.get('style') and any(f.lower() in attrs.get('style', '').lower() for f in filters['styles']))
         subject_match = not filters.get('subjects') or (attrs.get('subject') and any(f.lower() in attrs.get('subject', '').lower() for f in filters['subjects']))
-        
-        # For color matching, we'll use the dominant colors instead of color_scheme
-        color_match = True  # Default to True if no color filter
-        if filters.get('colors'):
-            # Check if any of the dominant colors match the color preference
-            dominant_colors = attrs.get('dominant_colors', [])
-            if dominant_colors:
-                # Simple color matching based on color names
-                color_match = False
-                for color_info in dominant_colors:
-                    color_hex = color_info.get('color', '').lower()
-                    for color_filter in filters['colors']:
-                        if color_filter.lower() in ['warm', 'cool', 'neutral', 'bold', 'pastel']:
-                            # Basic color categorization
-                            if color_filter.lower() == 'warm' and any(c in color_hex for c in ['ff', 'f0', 'e0', 'd0', 'c0', 'b0', 'a0', '90', '80', '70', '60', '50', '40', '30', '20', '10']):
-                                color_match = True
-                                break
-                            elif color_filter.lower() == 'cool' and any(c in color_hex for c in ['00', '10', '20', '30', '40', '50', '60', '70', '80', '90', 'a0', 'b0', 'c0', 'd0', 'e0', 'f0']):
-                                color_match = True
-                                break
-                            elif color_filter.lower() == 'neutral' and any(c in color_hex for c in ['88', '99', 'aa', 'bb', 'cc', 'dd', 'ee', 'ff']):
-                                color_match = True
-                                break
-                        if color_match:
-                            break
-                    if color_match:
-                        break
-
-        if mood_match and style_match and subject_match and color_match:
-            score = 0
-            if filters.get('moods'): score += 1
-            if filters.get('styles'): score += 1
-            if filters.get('subjects'): score += 1
-            if filters.get('colors'): score += 1
-            
-            filtered_artworks.append({
-                'artwork': artwork,
-                'score': score
-            })
-
-    filtered_artworks.sort(key=lambda x: x['score'], reverse=True)
+        if style_match and subject_match:
+            filtered_artworks.append({'artwork': artwork, 'score': 0})
     return filtered_artworks[:MAX_RECOMMENDATIONS]
 
 def moderate_image_content(image_bytes):
@@ -474,12 +428,9 @@ def recommend_unified():
             app.logger.error("No preferences provided for preferences type")
             return jsonify(error="No preferences provided for preferences type"), 400
         
-        # Filter out empty values and adapt the preferences to the format expected by get_recommendations_by_filter
         filters = {
-            'moods': [preferences['mood']] if preferences.get('mood') and preferences['mood'].strip() else [],
             'styles': [preferences['style']] if preferences.get('style') and preferences['style'].strip() else [],
             'subjects': [preferences['subject']] if preferences.get('subject') and preferences['subject'].strip() else [],
-            'colors': [preferences['color']] if preferences.get('color') and preferences['color'].strip() else [],
         }
         
         app.logger.info(f"Processing preferences: {filters}")
@@ -517,29 +468,18 @@ def recommend_unified():
 
 @app.route('/api/preferences-options')
 def preferences_options():
-    """Return unique styles, moods, subjects, and colors from the catalog."""
     items = load_catalog_from_dynamodb()
     styles = set()
-    moods = set()
     subjects = set()
-    colors = set()
     for art in items:
         attrs = art.get('attributes', {})
         if attrs.get('style'):
             styles.add(attrs['style'])
-        if attrs.get('mood'):
-            moods.add(attrs['mood'])
         if attrs.get('subject'):
             subjects.add(attrs['subject'])
-        if attrs.get('dominant_colors'):
-            for color in attrs['dominant_colors']:
-                if color.get('color'):
-                    colors.add(color['color'])
     return jsonify({
         'styles': sorted(list(styles)),
-        'moods': sorted(list(moods)),
-        'subjects': sorted(list(subjects)),
-        'colors': sorted(list(colors))
+        'subjects': sorted(list(subjects))
     })
 
 @app.route('/api/convert-image-to-data-url')

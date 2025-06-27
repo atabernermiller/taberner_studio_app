@@ -331,31 +331,22 @@ def get_recommendations(user_colors):
     return recommendations[:MAX_RECOMMENDATIONS]
 
 def get_recommendations_by_filter(filters):
-    """Finds artworks matching the selected mood, style, subject, and color filters."""
-    # Load catalog from DynamoDB
+    """Finds artworks matching the selected style and subject filters."""
     art_catalog = load_catalog_from_dynamodb()
     if not art_catalog:
         return []
 
-    # Check if any actual filter values were selected
-    all_selected_filters = filters.get('moods', []) + filters.get('styles', []) + filters.get('subjects', []) + filters.get('colors', [])
+    all_selected_filters = filters.get('styles', []) + filters.get('subjects', [])
     if not all_selected_filters:
-        # If no filters are provided, return a default list of recommendations.
         return [{'artwork': art, 'score': 0} for art in art_catalog[:MAX_RECOMMENDATIONS]]
 
     filtered_artworks = []
-
     for artwork in art_catalog:
         attrs = artwork.get('attributes', {})
-        
-        # Check if artwork matches the selected filters
-        mood_match = not filters.get('moods') or (attrs.get('mood') and any(f.lower() in attrs.get('mood', '').lower() for f in filters['moods']))
         style_match = not filters.get('styles') or (attrs.get('style') and any(f.lower() in attrs.get('style', '').lower() for f in filters['styles']))
         subject_match = not filters.get('subjects') or (attrs.get('subject') and any(f.lower() in attrs.get('subject', '').lower() for f in filters['subjects']))
-        
-        if mood_match and style_match and subject_match:
+        if style_match and subject_match:
             filtered_artworks.append({'artwork': artwork, 'score': 0})
-    
     return filtered_artworks[:MAX_RECOMMENDATIONS]
 
 def moderate_image_content(image_bytes):
@@ -453,12 +444,9 @@ def recommend_unified():
             app.logger.error("No preferences provided for preferences type")
             return jsonify(error="No preferences provided for preferences type"), 400
         
-        # Filter out empty values and adapt the preferences to the format expected by get_recommendations_by_filter
         filters = {
-            'moods': [preferences['mood']] if preferences.get('mood') and preferences['mood'].strip() else [],
             'styles': [preferences['style']] if preferences.get('style') and preferences['style'].strip() else [],
             'subjects': [preferences['subject']] if preferences.get('subject') and preferences['subject'].strip() else [],
-            'colors': [preferences['color']] if preferences.get('color') and preferences['color'].strip() else [],
         }
         
         app.logger.info(f"Processing preferences: {filters}")
@@ -496,29 +484,18 @@ def recommend_unified():
 
 @app.route('/api/preferences-options')
 def preferences_options():
-    """Return unique styles, moods, subjects, and colors from the catalog."""
     items = load_catalog_from_dynamodb()
     styles = set()
-    moods = set()
     subjects = set()
-    colors = set()
     for art in items:
         attrs = art.get('attributes', {})
         if attrs.get('style'):
             styles.add(attrs['style'])
-        if attrs.get('mood'):
-            moods.add(attrs['mood'])
         if attrs.get('subject'):
             subjects.add(attrs['subject'])
-        if attrs.get('dominant_colors'):
-            for color in attrs['dominant_colors']:
-                if color.get('color'):
-                    colors.add(color['color'])
     return jsonify({
         'styles': sorted(list(styles)),
-        'moods': sorted(list(moods)),
-        'subjects': sorted(list(subjects)),
-        'colors': sorted(list(colors))
+        'subjects': sorted(list(subjects))
     })
 
 @app.route('/api/generate-mockup', methods=['POST'])

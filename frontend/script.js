@@ -100,6 +100,15 @@ let isUploading = false; // Flag to prevent multiple uploads
 let recommendations = null;
 let currentRecommendations = null;
 
+// Add at the top of the file (or near other globals)
+let overlayState = {
+    x: 0,
+    y: 0,
+    width: null,
+    height: null,
+    userCustomized: false
+};
+
 // Initialize the application when DOM is loaded
 document.addEventListener('DOMContentLoaded', function() {
     console.log('=== LANDING PAGE LOAD DEBUG ===');
@@ -328,13 +337,6 @@ function showPreferencesForm() {
             
             <form id="preferences-form">
                 <div class="filter-group">
-                    <label for="mood-select">Mood:</label>
-                    <select id="mood-select">
-                        <option value="">Any Mood</option>
-                    </select>
-                </div>
-                
-                <div class="filter-group">
                     <label for="style-select">Art Style:</label>
                     <select id="style-select">
                         <option value="">Any Style</option>
@@ -345,13 +347,6 @@ function showPreferencesForm() {
                     <label for="subject-select">Subject:</label>
                     <select id="subject-select">
                         <option value="">Any Subject</option>
-                    </select>
-                </div>
-                
-                <div class="filter-group">
-                    <label for="color-preference">Color Preference:</label>
-                    <select id="color-preference">
-                        <option value="">Any Colors</option>
                     </select>
                 </div>
                 
@@ -366,10 +361,8 @@ function showPreferencesForm() {
         fetch('/api/preferences-options')
             .then(res => res.json())
             .then(options => {
-                populateSelect('mood-select', options.moods, 'Any Mood');
                 populateSelect('style-select', options.styles, 'Any Style');
                 populateSelect('subject-select', options.subjects, 'Any Subject');
-                populateSelect('color-preference', options.colors, 'Any Colors');
             });
         
         // Re-add the event listener for the preferences form
@@ -653,17 +646,13 @@ function handlePreferencesSubmit(event) {
     event.preventDefault();
     
     // Get form data
-    const moodSelect = document.getElementById('mood-select');
     const styleSelect = document.getElementById('style-select');
     const subjectSelect = document.getElementById('subject-select');
-    const colorSelect = document.getElementById('color-preference');
     
     // Send as arrays with plural keys to match backend
     const preferences = {
-        moods: moodSelect && moodSelect.value ? [moodSelect.value] : [],
-        styles: styleSelect && styleSelect.value ? [styleSelect.value] : [],
-        subjects: subjectSelect && subjectSelect.value ? [subjectSelect.value] : [],
-        colors: colorSelect && colorSelect.value ? [colorSelect.value] : []
+        style: styleSelect && styleSelect.value ? [styleSelect.value] : [],
+        subject: subjectSelect && subjectSelect.value ? [subjectSelect.value] : []
     };
     
     // Show loading state with correct message for preferences
@@ -828,9 +817,9 @@ function showResultsView() {
                         const viewportWidth = window.innerWidth;
                         const viewportHeight = window.innerHeight;
                         
-                        // Use 80% of viewport width and 60% of viewport height as maximum
-                        const maxShowroomWidth = Math.min(viewportWidth * 0.8, 800);
-                        const maxShowroomHeight = Math.min(viewportHeight * 0.6, 600);
+                        // Use 95% of viewport width and 80% of viewport height as maximum
+                        const maxShowroomWidth = Math.min(viewportWidth * 0.95, 1200);
+                        const maxShowroomHeight = Math.min(viewportHeight * 0.8, 900);
                         
                         let width = maxShowroomWidth;
                         let height = width / aspectRatio;
@@ -901,6 +890,29 @@ let dragStartX, dragStartY;
 let resizeStartX, resizeStartY;
 let originalWidth, originalHeight;
 let originalX, originalY;
+
+function getRenderedImageSize(roomImage) {
+    if (!roomImage || !roomImage.complete || roomImage.naturalWidth === 0) {
+        return { width: roomImage.offsetWidth, height: roomImage.offsetHeight };
+    }
+
+    const containerWidth = roomImage.offsetWidth;
+    const containerHeight = roomImage.offsetHeight;
+    const imageNaturalWidth = roomImage.naturalWidth;
+    const imageNaturalHeight = roomImage.naturalHeight;
+
+    const imageAspectRatio = imageNaturalWidth / imageNaturalHeight;
+    const containerAspectRatio = containerWidth / containerHeight;
+
+    let renderedWidth;
+    if (imageAspectRatio > containerAspectRatio) {
+        renderedWidth = containerWidth;
+    } else {
+        renderedWidth = containerHeight * imageAspectRatio;
+    }
+    
+    return { width: renderedWidth };
+}
 
 function getRecommendations(progressInterval = null) {
     console.log('=== GET RECOMMENDATIONS DEBUG ===');
@@ -1047,11 +1059,7 @@ function displayResults(recommendations, type = 'upload') {
     // Update the header text based on recommendation type
     const headerText = document.querySelector('.results-title');
     if (headerText) {
-        if (type === 'preferences') {
-            headerText.textContent = "Here are some artworks we think you'll love! Based on your selected preferences";
-        } else {
-            headerText.textContent = "Here are some artworks we think you'll love! Based on your room's colors";
-        }
+        headerText.textContent = "Here are some artworks we think you'll love!";
         console.log('Updated header text to:', headerText.textContent);
     } else {
         console.warn('Header element not found');
@@ -1200,9 +1208,9 @@ function displayCurrentArtwork() {
                             const viewportWidth = window.innerWidth;
                             const viewportHeight = window.innerHeight;
                             
-                            // Use 80% of viewport width and 60% of viewport height as maximum
-                            const maxShowroomWidth = Math.min(viewportWidth * 0.8, 800);
-                            const maxShowroomHeight = Math.min(viewportHeight * 0.6, 600);
+                            // Use 95% of viewport width and 80% of viewport height as maximum
+                            const maxShowroomWidth = Math.min(viewportWidth * 0.95, 1200);
+                            const maxShowroomHeight = Math.min(viewportHeight * 0.8, 900);
                             
                             let width = maxShowroomWidth;
                             let height = width / aspectRatio;
@@ -1248,9 +1256,9 @@ function displayCurrentArtwork() {
                 const viewportWidth = window.innerWidth;
                 const viewportHeight = window.innerHeight;
                 
-                // Use 70% of viewport width and 50% of viewport height as maximum for default room
-                const maxShowroomWidth = Math.min(viewportWidth * 0.7, 600);
-                const maxShowroomHeight = Math.min(viewportHeight * 0.5, 450);
+                // Use 90% of viewport width and 75% of viewport height as maximum for default room
+                const maxShowroomWidth = Math.min(viewportWidth * 0.9, 1000);
+                const maxShowroomHeight = Math.min(viewportHeight * 0.75, 750);
                 
                 // Default room aspect ratio is 4:3
                 const aspectRatio = 4/3;
@@ -1333,6 +1341,10 @@ function initializeArtworkInteraction() {
                     target.style.transform = `translate(-50%, -50%) translate(${x}px, ${y}px)`;
                     target.setAttribute('data-x', x);
                     target.setAttribute('data-y', y);
+                    // Store position
+                    overlayState.x = x;
+                    overlayState.y = y;
+                    overlayState.userCustomized = true;
                 }
             }
         })
@@ -1348,31 +1360,12 @@ function initializeArtworkInteraction() {
                     const target = event.target;
                     target.style.width = `${event.rect.width}px`;
                     target.style.height = `${event.rect.height}px`;
-                    
                     // Mark as user customized so it won't be reset when switching artworks
                     target.setAttribute('data-user-customized', 'true');
-                    
-                    // Debug logging during resize
-                    console.log('=== RESIZE DEBUG ===');
-                    console.log('Resize event rect width:', event.rect.width);
-                    console.log('Resize event rect height:', event.rect.height);
-                    console.log('Target style width:', target.style.width);
-                    console.log('Target style height:', target.style.height);
-                    console.log('Target offsetWidth (including border):', target.offsetWidth);
-                    console.log('Target offsetHeight (including border):', target.offsetHeight);
-                    console.log('Target clientWidth (excluding border):', target.clientWidth);
-                    console.log('Target clientHeight (excluding border):', target.clientHeight);
-                    console.log('Marked as user customized');
-                    
-                    // Check the image inside
-                    const artworkImage = document.getElementById('artwork-image');
-                    if (artworkImage) {
-                        console.log('Image offsetWidth:', artworkImage.offsetWidth);
-                        console.log('Image offsetHeight:', artworkImage.offsetHeight);
-                        console.log('Image naturalWidth:', artworkImage.naturalWidth);
-                        console.log('Image naturalHeight:', artworkImage.naturalHeight);
-                    }
-                    console.log('=== END RESIZE DEBUG ===');
+                    // Store size
+                    overlayState.width = target.style.width;
+                    overlayState.height = target.style.height;
+                    overlayState.userCustomized = true;
                 },
             },
             modifiers: [interact.modifiers.restrictSize({
@@ -1473,39 +1466,33 @@ async function updateArtworkDisplay(index, forceInstant, onLoadedCallback) {
         const overlay = document.getElementById('artwork-overlay');
         if (overlay) {
             console.log('Artwork overlay found, updating dimensions');
-            
-            // Clear the user-customized flag when switching to a new artwork
-            // This ensures the first artwork gets the default size
-            overlay.removeAttribute('data-user-customized');
-            
-            // Use a default aspect ratio of 4/3 for initial sizing
-            const defaultAspectRatio = 4/3;
-            const baseWidth = 270; // Reduced from 300px to 270px (10% smaller)
-            const baseHeight = baseWidth / defaultAspectRatio;
-            
-            overlay.style.width = baseWidth + 'px';
-            overlay.style.height = baseHeight + 'px';
-            overlay.style.left = '50%';
-            overlay.style.top = '50%';
-            overlay.style.transform = 'translate(-50%, -50%)';
-            overlay.setAttribute('data-x', '0');
-            overlay.setAttribute('data-y', '0');
-            
-            console.log('=== YELLOW BOX SIZING DEBUG ===');
-            console.log('Artwork dimensions:', artwork.width, 'x', artwork.height);
-            console.log('Default aspect ratio used:', defaultAspectRatio);
-            console.log('Initial overlay size:', baseWidth, 'x', baseHeight);
-            console.log('Overlay computed style width:', getComputedStyle(overlay).width);
-            console.log('Overlay computed style height:', getComputedStyle(overlay).height);
-            console.log('Overlay offsetWidth (including border):', overlay.offsetWidth);
-            console.log('Overlay offsetHeight (including border):', overlay.offsetHeight);
-            console.log('Overlay clientWidth (excluding border):', overlay.clientWidth);
-            console.log('Overlay clientHeight (excluding border):', overlay.clientHeight);
-            console.log('Artwork image natural width:', artworkImage.naturalWidth);
-            console.log('Artwork image natural height:', artworkImage.naturalHeight);
-            console.log('Artwork image computed width:', getComputedStyle(artworkImage).width);
-            console.log('Artwork image computed height:', getComputedStyle(artworkImage).height);
-            console.log('=== END DEBUG ===');
+            if (overlayState.userCustomized && overlayState.width && overlayState.height) {
+                // Restore previous position and size
+                overlay.style.width = overlayState.width;
+                overlay.style.height = overlayState.height;
+                overlay.style.left = '50%';
+                overlay.style.top = '50%';
+                overlay.style.transform = `translate(-50%, -50%) translate(${overlayState.x}px, ${overlayState.y}px)`;
+                overlay.setAttribute('data-x', overlayState.x);
+                overlay.setAttribute('data-y', overlayState.y);
+                overlay.setAttribute('data-user-customized', 'true');
+                console.log('Restored overlayState:', overlayState);
+            } else {
+                // Default behavior (existing code for default size/position)
+                const defaultAspectRatio = 4/3;
+                const baseWidth = 270;
+                const baseHeight = baseWidth / defaultAspectRatio;
+                overlay.style.width = baseWidth + 'px';
+                overlay.style.height = baseHeight + 'px';
+                overlay.style.left = '50%';
+                overlay.style.top = '50%';
+                overlay.style.transform = 'translate(-50%, -50%)';
+                overlay.setAttribute('data-x', '0');
+                overlay.setAttribute('data-y', '0');
+                overlay.removeAttribute('data-user-customized');
+                // Also reset overlayState
+                overlayState = { x: 0, y: 0, width: overlay.style.width, height: overlay.style.height, userCustomized: false };
+            }
         } else {
             console.error('Artwork overlay element not found!');
         }
@@ -1514,14 +1501,15 @@ async function updateArtworkDisplay(index, forceInstant, onLoadedCallback) {
         const resizeHandler = function() {
             console.log('Image loaded successfully:', imageSrc);
             const overlay = document.getElementById('artwork-overlay');
+            const roomImage = document.getElementById('room-image');
+
             if (overlay && this.naturalWidth && this.naturalHeight) {
-                // Check if user has already customized the size
                 const hasUserCustomized = overlay.hasAttribute('data-user-customized');
                 
                 if (!hasUserCustomized) {
-                    // Only set default size if user hasn't customized it
+                    const { width: renderedRoomWidth } = getRenderedImageSize(roomImage);
                     const aspectRatio = this.naturalWidth / this.naturalHeight;
-                    const baseWidth = 270; // Reduced from 300px to 270px (10% smaller)
+                    const baseWidth = renderedRoomWidth * 0.50; // 50% of rendered background image width
                     const calculatedHeight = baseWidth / aspectRatio;
                     
                     overlay.style.width = baseWidth + 'px';
@@ -1582,6 +1570,19 @@ async function updateArtworkDisplay(index, forceInstant, onLoadedCallback) {
         console.log('Artwork price set to:', `$${cleanPrice}`);
     } else {
         console.error('Artwork price element not found');
+    }
+
+    const artworkInfo = document.getElementById('artwork-info');
+    if (artworkInfo) {
+        let priceHTML = artwork.price ? `<div class="price-tag">$${artwork.price}</div>` : '';
+        artworkInfo.innerHTML = `
+            ${priceHTML}
+            <div class="product-actions">
+                <button id="buy-now-btn" class="button">
+                    <i class="fas fa-shopping-cart"></i> Buy Now
+                </button>
+            </div>
+        `;
     }
     
     // Update current artwork index
@@ -1797,11 +1798,11 @@ function initializeEventListeners() {
                 const viewportWidth = window.innerWidth;
                 const viewportHeight = window.innerHeight;
                 
-                if (roomImage.src && roomImage.src !== 'assets/mock/mock-room.jpg') {
+                if (roomImage.src && roomImage.src !== 'assets/mock/mock-room.jpg' && roomImage.naturalWidth > 0) {
                     // For uploaded images, recalculate based on image aspect ratio
                     const aspectRatio = roomImage.naturalWidth / roomImage.naturalHeight;
-                    const maxShowroomWidth = Math.min(viewportWidth * 0.8, 800);
-                    const maxShowroomHeight = Math.min(viewportHeight * 0.6, 600);
+                    const maxShowroomWidth = Math.min(viewportWidth * 0.95, 1200);
+                    const maxShowroomHeight = Math.min(viewportHeight * 0.8, 900);
                     
                     let width = maxShowroomWidth;
                     let height = width / aspectRatio;
@@ -1828,8 +1829,8 @@ function initializeEventListeners() {
                 } else {
                     // For default room, use 4:3 aspect ratio
                     const aspectRatio = 4/3;
-                    const maxShowroomWidth = Math.min(viewportWidth * 0.7, 600);
-                    const maxShowroomHeight = Math.min(viewportHeight * 0.5, 450);
+                    const maxShowroomWidth = Math.min(viewportWidth * 0.9, 1000);
+                    const maxShowroomHeight = Math.min(viewportHeight * 0.75, 750);
                     
                     let width = maxShowroomWidth;
                     let height = width / aspectRatio;
@@ -1852,6 +1853,22 @@ function initializeEventListeners() {
                     artworkOverlay.style.height = overlayHeight + 'px';
                     
                     console.log('Resized default showroom to:', width, 'x', height);
+                    console.log('Resized overlay to:', overlayWidth, 'x', overlayHeight);
+                }
+
+                const hasUserCustomized = artworkOverlay.hasAttribute('data-user-customized');
+                if (!hasUserCustomized) {
+                    // Recalculate overlay size based on the new rendered size of the room image
+                    const { width: renderedRoomWidth } = getRenderedImageSize(roomImage);
+                    const artworkImage = document.getElementById('artwork-image');
+                    let artworkAspectRatio = 4/3;
+                    if (artworkImage && artworkImage.naturalWidth > 0) {
+                        artworkAspectRatio = artworkImage.naturalWidth / artworkImage.naturalHeight;
+                    }
+                    const overlayWidth = renderedRoomWidth * 0.50;
+                    const overlayHeight = overlayWidth / artworkAspectRatio;
+                    artworkOverlay.style.width = overlayWidth + 'px';
+                    artworkOverlay.style.height = overlayHeight + 'px';
                     console.log('Resized overlay to:', overlayWidth, 'x', overlayHeight);
                 }
             }
@@ -1887,7 +1904,7 @@ function handlePurchaseClick() {
 
 // Update purchase button with current artwork's product URL
 function updatePurchaseButton() {
-    const purchaseButton = document.getElementById('purchase-button');
+    const purchaseButton = document.getElementById('buy-now-btn');
     if (purchaseButton) {
         const currentArtwork = allArtworks[currentArtworkIndex];
         if (currentArtwork && currentArtwork.product_url) {
