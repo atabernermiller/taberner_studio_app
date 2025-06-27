@@ -1,6 +1,6 @@
 [
     {
-        "id": "207c49d8-060b-4f90-b51b-7c7894f2c4c1",
+        "id": "a8dc6e77-09f1-4627-ab30-6c3ad856e064",
         "filename": "ThreeSisters.jpeg",
         "title": "Wild Onaqui Mares",
         "artist": "Annette Taberner",
@@ -31,18 +31,120 @@
                 }
             ],
             "mood": null,
-            "style": {
-                "label": "Black and White",
-                "confidence": 0.35141515731811523
-            },
-            "subject": {
-                "label": "Animals",
-                "confidence": 0.9098624587059021
-            }
+            "style": null,
+            "subject": null
         }
     },
     {
-        "id": "d0e00a69-354a-4ab0-93cf-b82cae8a8987",
+        "id": "53c4a44f-7bd7-4eed-b4ed-98c054037d06",
+        "filename": "Fall_Maple_Leaf.jpg",
+        "title": "Autumn\u2019s Signature",
+        "artist": "Annette Taberner",
+        "description": "A single red maple leaf rests in quiet dignity\u2014a timeless symbol of change, beauty, and the fleeting grace of autumn.",
+        "price": "12.95",
+        "product_url": "https://tabernerstudio.artstorefronts.com/warehouse-open-edition-prints/art_print_products/red-maple-leaf",
+        "attributes": {
+            "dominant_colors": [
+                {
+                    "color": "#342117",
+                    "percentage": 0.43946666666666667
+                },
+                {
+                    "color": "#743d14",
+                    "percentage": 0.27466666666666667
+                },
+                {
+                    "color": "#cc4926",
+                    "percentage": 0.13746666666666665
+                },
+                {
+                    "color": "#dc7769",
+                    "percentage": 0.09373333333333334
+                },
+                {
+                    "color": "#7b5342",
+                    "percentage": 0.05466666666666667
+                }
+            ],
+            "mood": null,
+            "style": null,
+            "subject": null
+        }
+    },
+    {
+        "id": "92d2bcb7-8c09-4e93-bf89-5ae5ab2a3e55",
+        "filename": "Leopard.jpg",
+        "title": "Artwork Gaze of the Wild",
+        "artist": "Annette Taberner",
+        "description": "Captured in a rare moment of stillness, the leopard embodies strength, grace, and untamed beauty.",
+        "price": "12.95",
+        "product_url": "https://tabernerstudio.artstorefronts.com/warehouse-open-edition-prints/art_print_products/leopard",
+        "attributes": {
+            "dominant_colors": [
+                {
+                    "color": "#4f603a",
+                    "percentage": 0.2996
+                },
+                {
+                    "color": "#838650",
+                    "percentage": 0.27786666666666665
+                },
+                {
+                    "color": "#18342d",
+                    "percentage": 0.24666666666666667
+                },
+                {
+                    "color": "#bbb5a2",
+                    "percentage": 0.09173333333333333
+                },
+                {
+                    "color": "#c2bf29",
+                    "percentage": 0.08413333333333334
+                }
+            ],
+            "mood": null,
+            "style": null,
+            "subject": null
+        }
+    },
+    {
+        "id": "f7ec8ef3-fae9-411c-8c0e-413d30f92d07",
+        "filename": "LongBeach3.jpg",
+        "title": "Artwork Between Sky and Sea",
+        "artist": "Annette Taberner",
+        "description": "Soft light and still waters meet at the horizon\u2014an invitation to slow down and breathe deeply.",
+        "price": "12.95",
+        "product_url": "https://tabernerstudio.artstorefronts.com/warehouse-open-edition-prints/art_print_products/long-beach-wa-sunset",
+        "attributes": {
+            "dominant_colors": [
+                {
+                    "color": "#e9aa7b",
+                    "percentage": 0.29773333333333335
+                },
+                {
+                    "color": "#86b0e7",
+                    "percentage": 0.2132
+                },
+                {
+                    "color": "#d8dee7",
+                    "percentage": 0.20026666666666668
+                },
+                {
+                    "color": "#9a6250",
+                    "percentage": 0.17346666666666666
+                },
+                {
+                    "color": "#294a7f",
+                    "percentage": 0.11533333333333333
+                }
+            ],
+            "mood": null,
+            "style": null,
+            "subject": null
+        }
+    },
+    {
+        "id": "6a7c9d39-1b44-43a2-9986-a0acc4057d47",
         "filename": "Red_Rocks_Sedona.jpg",
         "title": "Artwork Bell Rock and Courthouse Butte, Sedona",
         "artist": "Annette Taberner",
@@ -73,18 +175,48 @@
                 }
             ],
             "mood": null,
-            "style": {
-                "label": "Nature",
-                "confidence": 0.42788392305374146
-            },
-            "subject": {
-                "label": "Landscape",
-                "confidence": 0.8522997498512268
-            }
+            "style": null,
+            "subject": null
         }
     },
     {
-        "id": "e5e58744-9d43-4a9d-a8e9-d257bdc30437",
+        "id": "93075bd6-7674-44a7-b49d-7265207ae719",
+        "filename": "Palouse_Farm.jpg",
+        "title": "Artwork The Quiet Heartland",
+        "artist": "Annette Taberner",
+        "description": "A humble farmhouse nestled in golden fields, this image captures the enduring spirit of the American heartland.",
+        "price": "12.95",
+        "product_url": "https://tabernerstudio.artstorefronts.com/warehouse-open-edition-prints/art_print_products/farmhouse-palouse",
+        "attributes": {
+            "dominant_colors": [
+                {
+                    "color": "#57799c",
+                    "percentage": 0.3081333333333333
+                },
+                {
+                    "color": "#5f4918",
+                    "percentage": 0.2534666666666667
+                },
+                {
+                    "color": "#846e20",
+                    "percentage": 0.1584
+                },
+                {
+                    "color": "#382a17",
+                    "percentage": 0.15066666666666667
+                },
+                {
+                    "color": "#a9b0b5",
+                    "percentage": 0.12933333333333333
+                }
+            ],
+            "mood": null,
+            "style": null,
+            "subject": null
+        }
+    },
+    {
+        "id": "752d2a25-04ec-4dae-9739-a0340cf17b98",
         "filename": "Gold_Creek_Pond.jpg",
         "title": "Artwork Gold Creek Pond",
         "artist": "Annette Taberner",
@@ -115,18 +247,84 @@
                 }
             ],
             "mood": null,
-            "style": {
-                "label": "Nature",
-                "confidence": 0.7900828123092651
-            },
-            "subject": {
-                "label": "Landscape",
-                "confidence": 0.9363395571708679
-            }
+            "style": null,
+            "subject": null
         }
     },
     {
-        "id": "117c37b2-9e92-4a0c-9faf-016d3d81613b",
+        "id": "34a33da9-a1d1-492f-b50e-645a6a1749ce",
+        "filename": "HouseStrausberg.jpg",
+        "title": "Artwork Strasbourg Charm",
+        "artist": "Annette Taberner",
+        "description": "Add a touch of European charm to your space with this peaceful portrait of a historic Strasbourg home.",
+        "price": "12.95",
+        "product_url": "https://tabernerstudio.artstorefronts.com/warehouse-open-edition-prints/art_print_products/strasbourg-charm-france",
+        "attributes": {
+            "dominant_colors": [
+                {
+                    "color": "#96aed2",
+                    "percentage": 0.3696
+                },
+                {
+                    "color": "#7f5a28",
+                    "percentage": 0.17893333333333333
+                },
+                {
+                    "color": "#b6893e",
+                    "percentage": 0.16026666666666667
+                },
+                {
+                    "color": "#432c10",
+                    "percentage": 0.15746666666666667
+                },
+                {
+                    "color": "#f4c556",
+                    "percentage": 0.13373333333333334
+                }
+            ],
+            "mood": null,
+            "style": null,
+            "subject": null
+        }
+    },
+    {
+        "id": "05dd11c5-361a-412e-9106-30e123c2ebef",
+        "filename": "Birds_on_a_wire.jpg",
+        "title": "Artwork Birds_on_a_wire",
+        "artist": "Annette Taberner",
+        "description": "A simple, striking composition that speaks to balance, togetherness, and the beauty of everyday moments.",
+        "price": "12.95",
+        "product_url": "https://tabernerstudio.artstorefronts.com/warehouse-open-edition-prints/art_print_products/birds-on-a-wire",
+        "attributes": {
+            "dominant_colors": [
+                {
+                    "color": "#198ce9",
+                    "percentage": 0.3332
+                },
+                {
+                    "color": "#5c9eec",
+                    "percentage": 0.2776
+                },
+                {
+                    "color": "#3995ec",
+                    "percentage": 0.2588
+                },
+                {
+                    "color": "#9c8286",
+                    "percentage": 0.0692
+                },
+                {
+                    "color": "#5e3f41",
+                    "percentage": 0.0612
+                }
+            ],
+            "mood": null,
+            "style": null,
+            "subject": null
+        }
+    },
+    {
+        "id": "73ebf8a0-ff70-4efa-9f17-8576bcf8bc0d",
         "filename": "Horse_Sillouette1.jpg",
         "title": "Artwork Sunset Shudder, Onaqui Wild Horse",
         "artist": "Annette Taberner",
@@ -157,18 +355,12 @@
                 }
             ],
             "mood": null,
-            "style": {
-                "label": "Nature",
-                "confidence": 0.5367475152015686
-            },
-            "subject": {
-                "label": "Landscape",
-                "confidence": 0.3953173756599426
-            }
+            "style": null,
+            "subject": null
         }
     },
     {
-        "id": "e26faf3f-a0f7-468f-a8bf-edc98de27bf8",
+        "id": "d386361d-d057-4597-bcb9-fc840fbf1e35",
         "filename": "Sunset_Long_Beach_WA.jpg",
         "title": "Artwork Long Beach WA Sunset",
         "artist": "Annette Taberner",
@@ -199,18 +391,156 @@
                 }
             ],
             "mood": null,
-            "style": {
-                "label": "Nature",
-                "confidence": 0.7383813858032227
-            },
-            "subject": {
-                "label": "Seascape",
-                "confidence": 0.8476685881614685
-            }
+            "style": null,
+            "subject": null
         }
     },
     {
-        "id": "27fa415f-ff34-451a-a061-319eedcd2976",
+        "id": "d5c8714f-28a6-4a44-a468-6e862e457374",
+        "filename": "Plaouse3.jpg",
+        "title": "Artwork Waves of Earth",
+        "artist": "Annette Taberner",
+        "description": "Golden hills rise and fall like waves, capturing the quiet rhythm of the Palouse countryside",
+        "price": "12.95",
+        "product_url": "https://tabernerstudio.artstorefronts.com/warehouse-open-edition-prints/art_print_products/rolling-hills-palouse-wa",
+        "attributes": {
+            "dominant_colors": [
+                {
+                    "color": "#334f0e",
+                    "percentage": 0.39
+                },
+                {
+                    "color": "#8eabc5",
+                    "percentage": 0.2136
+                },
+                {
+                    "color": "#5e7790",
+                    "percentage": 0.15026666666666666
+                },
+                {
+                    "color": "#d4dce4",
+                    "percentage": 0.13946666666666666
+                },
+                {
+                    "color": "#94a93a",
+                    "percentage": 0.10666666666666667
+                }
+            ],
+            "mood": null,
+            "style": null,
+            "subject": null
+        }
+    },
+    {
+        "id": "da4bec20-9d1c-494c-a729-3e4ee2f43478",
+        "filename": "Palouse_Road.jpg",
+        "title": "Artwork Country Road, Palouse WA",
+        "artist": "Annette Taberner",
+        "description": "The Palouse is a rolling patchwork of golden hills and green fields, where timeless farmland offers quiet beauty and a sense of endless possibility.",
+        "price": "12.95",
+        "product_url": "https://tabernerstudio.artstorefronts.com/warehouse-open-edition-prints/art_print_products/country-road-palouse",
+        "attributes": {
+            "dominant_colors": [
+                {
+                    "color": "#67615e",
+                    "percentage": 0.31893333333333335
+                },
+                {
+                    "color": "#a9dbfb",
+                    "percentage": 0.1984
+                },
+                {
+                    "color": "#2aadf7",
+                    "percentage": 0.17573333333333332
+                },
+                {
+                    "color": "#c8ac83",
+                    "percentage": 0.15933333333333333
+                },
+                {
+                    "color": "#503728",
+                    "percentage": 0.1476
+                }
+            ],
+            "mood": null,
+            "style": null,
+            "subject": null
+        }
+    },
+    {
+        "id": "3b126554-4950-4f1a-9b7d-0cbeaf9b89c9",
+        "filename": "Winter_Trees.jpg",
+        "title": "Artwork Winter Trees",
+        "artist": "Annette Taberner",
+        "description": "Stark and graceful, these winter trees stand in silent harmony against the chill of the season.",
+        "price": "12.95",
+        "product_url": "https://tabernerstudio.artstorefronts.com/warehouse-open-edition-prints/art_print_products/winter-trees",
+        "attributes": {
+            "dominant_colors": [
+                {
+                    "color": "#635e42",
+                    "percentage": 0.25053333333333333
+                },
+                {
+                    "color": "#3a351a",
+                    "percentage": 0.2492
+                },
+                {
+                    "color": "#a4aec1",
+                    "percentage": 0.19186666666666666
+                },
+                {
+                    "color": "#8e8a79",
+                    "percentage": 0.1816
+                },
+                {
+                    "color": "#d0d2d9",
+                    "percentage": 0.1268
+                }
+            ],
+            "mood": null,
+            "style": null,
+            "subject": null
+        }
+    },
+    {
+        "id": "ef2932c9-fd86-4d3e-948e-dda2f4f5d667",
+        "filename": "PalouseBarn2.jpg",
+        "title": "Artwork Heritage Hill",
+        "artist": "Annette Taberner",
+        "description": "Nestled in golden fields and soft light, this barn evokes a deep sense of place, endurance, and peace.",
+        "price": "12.95",
+        "product_url": "https://tabernerstudio.artstorefronts.com/warehouse-open-edition-prints/art_print_products/palouse-wa-barn",
+        "attributes": {
+            "dominant_colors": [
+                {
+                    "color": "#b6e2f8",
+                    "percentage": 0.37533333333333335
+                },
+                {
+                    "color": "#cfc62e",
+                    "percentage": 0.2676
+                },
+                {
+                    "color": "#96ab89",
+                    "percentage": 0.13453333333333334
+                },
+                {
+                    "color": "#90971d",
+                    "percentage": 0.11866666666666667
+                },
+                {
+                    "color": "#5c3215",
+                    "percentage": 0.10386666666666666
+                }
+            ],
+            "mood": null,
+            "style": null,
+            "subject": null
+        }
+    },
+    {
+        "id": "499ffc7f-35a9-4125-b81e-b5ee7df7bfb3",
         "filename": "Palouse_Landscape_1.jpg",
         "title": "Artwork American Farmland, Palouse WA",
         "artist": "Annette Taberner",
@@ -241,18 +571,12 @@
                 }
             ],
             "mood": null,
-            "style": {
-                "label": "Long Exposure",
-                "confidence": 0.3361140489578247
-            },
-            "subject": {
-                "label": "Landscape",
-                "confidence": 0.9170712232589722
-            }
+            "style": null,
+            "subject": null
         }
     },
     {
-        "id": "8ad4497e-b59a-4549-9579-01b64eb2ec44",
+        "id": "4d65e8c3-a226-4004-89b8-72896f506b46",
         "filename": "Palouse_Landscape_2.jpg",
         "title": "Artwork American Farmland, Palouse WA",
         "artist": "Annette Taberner",
@@ -283,18 +607,12 @@
                 }
             ],
             "mood": null,
-            "style": {
-                "label": "Nature",
-                "confidence": 0.48776891827583313
-            },
-            "subject": {
-                "label": "Landscape",
-                "confidence": 0.947299599647522
-            }
+            "style": null,
+            "subject": null
         }
     },
     {
-        "id": "6da8c254-060f-4920-ab76-567a2279d740",
+        "id": "a3b1c401-4838-44b2-b01b-aa116aa75e9a",
         "filename": "Horse_Family.jpg",
         "title": "Artwork Wild Onaqui Foal and Mare, Utah",
         "artist": "Annette Taberner",
@@ -325,18 +643,12 @@
                 }
             ],
             "mood": null,
-            "style": {
-                "label": "Nature",
-                "confidence": 0.603184163570404
-            },
-            "subject": {
-                "label": "Animals",
-                "confidence": 0.6104158163070679
-            }
+            "style": null,
+            "subject": null
         }
     },
     {
-        "id": "f9bed99e-331a-4a87-9ba7-eaf7686b5b23",
+        "id": "9ac9994c-3b00-4493-ac05-a0271531bb2d",
         "filename": "Palouse_Landscape_3.jpg",
         "title": "Artwork Colors of Palouse, WA",
         "artist": "Annette Taberner",
@@ -367,18 +679,12 @@
                 }
             ],
             "mood": null,
-            "style": {
-                "label": "Nature",
-                "confidence": 0.4244876503944397
-            },
-            "subject": {
-                "label": "Landscape",
-                "confidence": 0.8984593152999878
-            }
+            "style": null,
+            "subject": null
         }
     },
     {
-        "id": "bdaaa82e-4888-408c-bd55-eea56d682dce",
+        "id": "fa77646a-5397-416e-8f5b-7126405a8260",
         "filename": "Maui_Beach.jpg",
         "title": "Artwork Maui Beach, Hawaii",
         "artist": "Annette Taberner",
@@ -409,18 +715,12 @@
                 }
             ],
             "mood": null,
-            "style": {
-                "label": "Modern",
-                "confidence": 0.3948821425437927
-            },
-            "subject": {
-                "label": "Seascape",
-                "confidence": 0.8028216361999512
-            }
+            "style": null,
+            "subject": null
         }
     },
     {
-        "id": "8b566784-47d3-4f65-92d9-7440bd1382fe",
+        "id": "d2f56a55-4056-41e1-8572-c5da9d72da30",
         "filename": "Crater_Lake.jpg",
         "title": "Artwork Crater Lake, Oregon",
         "artist": "Annette Taberner",
@@ -451,18 +751,12 @@
                 }
             ],
             "mood": null,
-            "style": {
-                "label": "Nature",
-                "confidence": 0.7918949127197266
-            },
-            "subject": {
-                "label": "Landscape",
-                "confidence": 0.6406627893447876
-            }
+            "style": null,
+            "subject": null
         }
     },
     {
-        "id": "ff4f7ded-cce4-482d-93e1-4c4b8f7f2a1c",
+        "id": "9f289027-7ea0-4838-ace8-977799005b60",
         "filename": "BabyHorse.jpg",
         "title": "Artwork Silhouetted Onaqui Wild Foal",
         "artist": "Annette Taberner",
@@ -493,18 +787,48 @@
                 }
             ],
             "mood": null,
-            "style": {
-                "label": "Nature",
-                "confidence": 0.6512840986251831
-            },
-            "subject": {
-                "label": "Animals",
-                "confidence": 0.3066864609718323
-            }
+            "style": null,
+            "subject": null
         }
     },
     {
-        "id": "c1b7e185-a0f5-45ab-8e14-ae85e42b4fea",
+        "id": "d902e280-bf6b-47d4-a3bb-883cc5e6ff6f",
+        "filename": "Rooster.jpg",
+        "title": "Artwork Rooster",
+        "artist": "Annette Taberner",
+        "description": "Head held high and feathers ablaze, this rooster stands as a bold symbol of strength, rhythm, and pride.",
+        "price": "12.95",
+        "product_url": "https://tabernerstudio.artstorefronts.com/warehouse-open-edition-prints/art_print_products/rooster",
+        "attributes": {
+            "dominant_colors": [
+                {
+                    "color": "#010100",
+                    "percentage": 0.7616
+                },
+                {
+                    "color": "#20170f",
+                    "percentage": 0.11466666666666667
+                },
+                {
+                    "color": "#60230e",
+                    "percentage": 0.059333333333333335
+                },
+                {
+                    "color": "#c2441e",
+                    "percentage": 0.046533333333333336
+                },
+                {
+                    "color": "#75513d",
+                    "percentage": 0.017866666666666666
+                }
+            ],
+            "mood": null,
+            "style": null,
+            "subject": null
+        }
+    },
+    {
+        "id": "52829bf5-4921-4ddf-8f04-91b97fd1973b",
         "filename": "Wildhorse_Silhouette_Utah_2.jpg",
         "title": "Artwork Wild Onaqui Horses - A Walk in the Clouds",
         "artist": "Annette Taberner",
@@ -535,18 +859,12 @@
                 }
             ],
             "mood": null,
-            "style": {
-                "label": "Nature",
-                "confidence": 0.262673556804657
-            },
-            "subject": {
-                "label": "Landscape",
-                "confidence": 0.3014717996120453
-            }
+            "style": null,
+            "subject": null
         }
     },
     {
-        "id": "22ce7b6d-a29e-4e25-a70b-30238096428a",
+        "id": "1ccbad19-16d3-46c4-b3b2-7074330fb450",
         "filename": "Horse_Waltz.jpg",
         "title": "Artwork Onaqui Wild Stallions",
         "artist": "Annette Taberner",
@@ -577,18 +895,12 @@
                 }
             ],
             "mood": null,
-            "style": {
-                "label": "Nature",
-                "confidence": 0.4639776349067688
-            },
-            "subject": {
-                "label": "Animals",
-                "confidence": 0.8590959310531616
-            }
+            "style": null,
+            "subject": null
         }
     },
     {
-        "id": "23ad6956-5a34-4414-ab08-b63caec3409c",
+        "id": "1dff3977-2ea1-4897-beb1-7af9451ab25b",
         "filename": "Seattle_Skyline.jpg",
         "title": "Artwork Seattle Skyline",
         "artist": "Annette Taberner",
@@ -619,18 +931,156 @@
                 }
             ],
             "mood": null,
-            "style": {
-                "label": "Architectural",
-                "confidence": 0.23769032955169678
-            },
-            "subject": {
-                "label": "Cityscape",
-                "confidence": 0.9094256162643433
-            }
+            "style": null,
+            "subject": null
         }
     },
     {
-        "id": "e96b0f57-6354-432f-a055-b04bf255e395",
+        "id": "f5f11e39-844a-4c64-91ae-695ccff0fd0c",
+        "filename": "Leaves.jpg",
+        "title": "Artwork Whispers of Fall",
+        "artist": "Annette Taberner",
+        "description": "A quiet celebration of change, these autumn leaves speak to beauty in impermanence and the poetry of letting go.",
+        "price": "12.95",
+        "product_url": "https://tabernerstudio.artstorefronts.com/warehouse-open-edition-prints/art_print_products/autumn-leaves",
+        "attributes": {
+            "dominant_colors": [
+                {
+                    "color": "#524742",
+                    "percentage": 0.2769333333333333
+                },
+                {
+                    "color": "#706c65",
+                    "percentage": 0.27426666666666666
+                },
+                {
+                    "color": "#999087",
+                    "percentage": 0.2044
+                },
+                {
+                    "color": "#252625",
+                    "percentage": 0.15826666666666667
+                },
+                {
+                    "color": "#db7d35",
+                    "percentage": 0.08613333333333334
+                }
+            ],
+            "mood": null,
+            "style": null,
+            "subject": null
+        }
+    },
+    {
+        "id": "db9a21a7-81e7-4e85-bb77-7d3bb42c4723",
+        "filename": "HawiiBeach.jpg",
+        "title": "Artwork Evening in Paradise",
+        "artist": "Annette Taberner",
+        "description": "Bring home the warmth, color, and calm of island evenings with this radiant sunset from the shores of Maui.",
+        "price": "12.95",
+        "product_url": "https://tabernerstudio.artstorefronts.com/warehouse-open-edition-prints/art_print_products/maui-sunset-dream",
+        "attributes": {
+            "dominant_colors": [
+                {
+                    "color": "#c18157",
+                    "percentage": 0.2945333333333333
+                },
+                {
+                    "color": "#efbe85",
+                    "percentage": 0.23426666666666668
+                },
+                {
+                    "color": "#6b666a",
+                    "percentage": 0.20413333333333333
+                },
+                {
+                    "color": "#8ea2b4",
+                    "percentage": 0.156
+                },
+                {
+                    "color": "#382921",
+                    "percentage": 0.11106666666666666
+                }
+            ],
+            "mood": null,
+            "style": null,
+            "subject": null
+        }
+    },
+    {
+        "id": "7bbfb108-10cc-46ae-b64c-bf44bfc03fb6",
+        "filename": "Peace.jpg",
+        "title": "Artwork Peace",
+        "artist": "Annette Taberner",
+        "description": "A symbol of hope and harmony, this peaceful dove adds warmth and quiet meaning to your home.",
+        "price": "12.95",
+        "product_url": "https://tabernerstudio.artstorefronts.com/warehouse-open-edition-prints/art_print_products/dove",
+        "attributes": {
+            "dominant_colors": [
+                {
+                    "color": "#54622b",
+                    "percentage": 0.2908
+                },
+                {
+                    "color": "#272e11",
+                    "percentage": 0.2748
+                },
+                {
+                    "color": "#aac34e",
+                    "percentage": 0.178
+                },
+                {
+                    "color": "#8c7a7b",
+                    "percentage": 0.1508
+                },
+                {
+                    "color": "#cec1bc",
+                    "percentage": 0.1056
+                }
+            ],
+            "mood": null,
+            "style": null,
+            "subject": null
+        }
+    },
+    {
+        "id": "580405dc-1654-426a-9213-a7d5f62883c0",
+        "filename": "Swiss Cabin.jpg",
+        "title": "Artwork Swiss Cabin",
+        "artist": "Annette Taberner",
+        "description": "Tucked among alpine slopes, this Swiss cabin invites dreams of quiet mornings, crisp air, and rustic peace.",
+        "price": "12.95",
+        "product_url": "https://tabernerstudio.artstorefronts.com/warehouse-open-edition-prints/art_print_products/swiss-cabin",
+        "attributes": {
+            "dominant_colors": [
+                {
+                    "color": "#284e2a",
+                    "percentage": 0.5026666666666667
+                },
+                {
+                    "color": "#f9f9fa",
+                    "percentage": 0.22426666666666667
+                },
+                {
+                    "color": "#8fa913",
+                    "percentage": 0.10746666666666667
+                },
+                {
+                    "color": "#b3bdc6",
+                    "percentage": 0.08986666666666666
+                },
+                {
+                    "color": "#5c858a",
+                    "percentage": 0.07573333333333333
+                }
+            ],
+            "mood": null,
+            "style": null,
+            "subject": null
+        }
+    },
+    {
+        "id": "ee2af713-9c2d-403d-991c-d9322d13326a",
         "filename": "Church_Switzerland.jpg",
         "title": "Artwork Church of St. Cassian in Sils im Domleschg, Switzerland (UNESCO World Heritage)",
         "artist": "Annette Taberner",
@@ -661,18 +1111,12 @@
                 }
             ],
             "mood": null,
-            "style": {
-                "label": "Nature",
-                "confidence": 0.48431655764579773
-            },
-            "subject": {
-                "label": "Landscape",
-                "confidence": 0.9739514589309692
-            }
+            "style": null,
+            "subject": null
         }
     },
     {
-        "id": "e21cb583-7a93-4a59-a1a2-fb01afc9f011",
+        "id": "f28c9235-cf87-46e5-8020-bb2ae4f572b2",
         "filename": "Seattle_Space_Needle.jpg",
         "title": "Artwork Seattle Space Needle",
         "artist": "Annette Taberner",
@@ -703,18 +1147,12 @@
                 }
             ],
             "mood": null,
-            "style": {
-                "label": "Abstract",
-                "confidence": 0.2088029384613037
-            },
-            "subject": {
-                "label": "Cityscape",
-                "confidence": 0.908679187297821
-            }
+            "style": null,
+            "subject": null
         }
     },
     {
-        "id": "22cc2d2c-0851-4969-a204-53b059b0a9c4",
+        "id": "631a0d9d-b0c2-4ffa-8aae-8ec54bef9c1c",
         "filename": "RunningFreeFiullSize.jpg",
         "title": "Artwork Onaqui Wild Horses of Utah",
         "artist": "Annette Taberner",
@@ -745,14 +1183,8 @@
                 }
             ],
             "mood": null,
-            "style": {
-                "label": "Nature",
-                "confidence": 0.38777393102645874
-            },
-            "subject": {
-                "label": "Landscape",
-                "confidence": 0.4038550555706024
-            }
+            "style": null,
+            "subject": null
         }
     }
 ]

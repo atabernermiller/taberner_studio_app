@@ -220,16 +220,16 @@
         "Peace.jpg": {
             "title": "Artwork Peace",
             "artist": "Annette Taberner",
-            "description": "A beautiful piece of art from Taberner Studio. This piece explores themes of color and form, creating a vibrant and engaging visual experience.",
+            "description": "A symbol of hope and harmony, this peaceful dove adds warmth and quiet meaning to your home.",
             "price": "12.95",
-            "product_url": "https://www.tabernerstudio.com/shop"
+            "product_url": "https://tabernerstudio.artstorefronts.com/warehouse-open-edition-prints/art_print_products/dove"
         },
         "Swiss Cabin.jpg": {
             "title": "Artwork Swiss Cabin",
             "artist": "Annette Taberner",
-            "description": "A beautiful piece of art from Taberner Studio. This piece explores themes of color and form, creating a vibrant and engaging visual experience.",
+            "description": "Tucked among alpine slopes, this Swiss cabin invites dreams of quiet mornings, crisp air, and rustic peace.",
             "price": "12.95",
-            "product_url": "https://www.tabernerstudio.com/shop"
+            "product_url": "https://tabernerstudio.artstorefronts.com/warehouse-open-edition-prints/art_print_products/swiss-cabin"
         }
     },
     "defaults": {
