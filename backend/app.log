@@ -18068,3 +18068,156 @@
 2025-06-27 12:51:35,382 INFO 127.0.0.1 - - [27/Jun/2025 12:51:35] "GET /catalog/images/Seattle_Skyline.jpg HTTP/1.1" 200 -
 2025-06-27 12:51:35,383 INFO Generating new S3 URL for Seattle_Space_Needle.jpg
 2025-06-27 12:51:35,384 INFO 127.0.0.1 - - [27/Jun/2025 12:51:35] "GET /catalog/images/Seattle_Space_Needle.jpg HTTP/1.1" 200 -
+2025-06-27 13:09:49,712 INFO  * Detected change in '/Users/annette/taberner-studio-apps/taberner_studio_app/backend/enrich_catalog.py', reloading
+2025-06-27 13:09:49,712 INFO  * Detected change in '/Users/annette/taberner-studio-apps/taberner_studio_app/backend/process_catalog.py', reloading
+2025-06-27 13:09:49,713 INFO  * Detected change in '/Users/annette/taberner-studio-apps/taberner_studio_app/backend/bulk_add_images.py', reloading
+2025-06-27 13:09:49,713 INFO  * Detected change in '/Users/annette/taberner-studio-apps/taberner_studio_app/backend/update_metadata.py', reloading
+2025-06-27 13:09:49,713 INFO  * Detected change in '/Users/annette/taberner-studio-apps/taberner_studio_app/backend/cleanup_dynamodb.py', reloading
+2025-06-27 13:09:50,955 INFO  * Restarting with watchdog (fsevents)
+2025-06-27 13:09:52,176 INFO Entrypoint: /Users/annette/taberner-studio-apps/taberner_studio_app/backend/app.py
+2025-06-27 13:09:52,176 INFO Working directory: /Users/annette/taberner-studio-apps/taberner_studio_app/backend
+2025-06-27 13:09:52,176 INFO sys.argv: ['/Users/annette/taberner-studio-apps/taberner_studio_app/backend/app.py']
+2025-06-27 13:09:52,176 INFO Python version: 3.11.5 (main, Sep 11 2023, 08:31:25) [Clang 14.0.6 ]
+2025-06-27 13:09:52,176 INFO __name__: __main__
+2025-06-27 13:09:52,176 INFO Environment variables (filtered):
+2025-06-27 13:09:52,176 INFO   MallocNanoZone=0
+2025-06-27 13:09:52,176 INFO   USER=annette
+2025-06-27 13:09:52,176 INFO   COMMAND_MODE=unix2003
+2025-06-27 13:09:52,176 INFO   __CFBundleIdentifier=com.todesktop.230313mzl4w4u92
+2025-06-27 13:09:52,176 INFO   PATH=/Users/annette/.codeium/windsurf/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin://Applications/Topaz Photo AI.app/Contents/Resources/bin:/Users/annette/.codeium/windsurf/bin:/Users/annette/anaconda3/bin:/Users/annette/anaconda3/condabin:/Users/annette/.cursor/extensions/ms-python.debugpy-2025.6.0-darwin-arm64/bundled/scripts/noConfigScripts
+2025-06-27 13:09:52,176 INFO   LOGNAME=annette
+2025-06-27 13:09:52,176 INFO   SSH_AUTH_SOCK=/private/tmp/com.apple.launchd.uONtK3gSfv/Listeners
+2025-06-27 13:09:52,176 INFO   HOME=/Users/annette
+2025-06-27 13:09:52,176 INFO   SHELL=/bin/zsh
+2025-06-27 13:09:52,176 INFO   TMPDIR=/var/folders/7j/rzhnb4z12kbbq9624j75xsy00000gn/T/
+2025-06-27 13:09:52,176 INFO   __CF_USER_TEXT_ENCODING=0x1F5:0x0:0x0
+2025-06-27 13:09:52,176 INFO   XPC_SERVICE_NAME=0
+2025-06-27 13:09:52,176 INFO   XPC_FLAGS=0x0
+2025-06-27 13:09:52,176 INFO   ORIGINAL_XDG_CURRENT_DESKTOP=undefined
+2025-06-27 13:09:52,177 INFO   CURSOR_TRACE_ID=43efb6ed046a4bd8a670a865db0ebdcc
+2025-06-27 13:09:52,177 INFO   SHLVL=1
+2025-06-27 13:09:52,177 INFO   PWD=/Users/annette/taberner-studio-apps/taberner_studio_app/backend
+2025-06-27 13:09:52,177 INFO   OLDPWD=/Users/annette/taberner-studio-apps/taberner_studio_app
+2025-06-27 13:09:52,177 INFO   HOMEBREW_PREFIX=/opt/homebrew
+2025-06-27 13:09:52,177 INFO   HOMEBREW_CELLAR=/opt/homebrew/Cellar
+2025-06-27 13:09:52,177 INFO   HOMEBREW_REPOSITORY=/opt/homebrew
+2025-06-27 13:09:52,177 INFO   INFOPATH=/opt/homebrew/share/info:/opt/homebrew/share/info:
+2025-06-27 13:09:52,177 INFO   CONDA_EXE=/Users/annette/anaconda3/bin/conda
+2025-06-27 13:09:52,177 INFO   _CE_M=
+2025-06-27 13:09:52,177 INFO   _CE_CONDA=
+2025-06-27 13:09:52,177 INFO   CONDA_PYTHON_EXE=/Users/annette/anaconda3/bin/python
+2025-06-27 13:09:52,177 INFO   CONDA_SHLVL=1
+2025-06-27 13:09:52,177 INFO   CONDA_PREFIX=/Users/annette/anaconda3
+2025-06-27 13:09:52,177 INFO   CONDA_DEFAULT_ENV=base
+2025-06-27 13:09:52,177 INFO   CONDA_PROMPT_MODIFIER=(base) 
+2025-06-27 13:09:52,177 INFO   PAGER=head -n 10000 | cat
+2025-06-27 13:09:52,177 INFO   npm_config_yes=true
+2025-06-27 13:09:52,177 INFO   DISABLE_AUTO_UPDATE=true
+2025-06-27 13:09:52,177 INFO   PIP_NO_INPUT=true
+2025-06-27 13:09:52,177 INFO   COMPOSER_NO_INTERACTION=1
+2025-06-27 13:09:52,177 INFO   TERM_PROGRAM=vscode
+2025-06-27 13:09:52,177 INFO   TERM_PROGRAM_VERSION=1.1.6
+2025-06-27 13:09:52,177 INFO   LANG=en_US.UTF-8
+2025-06-27 13:09:52,177 INFO   COLORTERM=truecolor
+2025-06-27 13:09:52,177 INFO   GIT_ASKPASS=/Applications/Cursor.app/Contents/Resources/app/extensions/git/dist/askpass.sh
+2025-06-27 13:09:52,177 INFO   VSCODE_GIT_ASKPASS_NODE=/Applications/Cursor.app/Contents/Frameworks/Cursor Helper (Plugin).app/Contents/MacOS/Cursor Helper (Plugin)
+2025-06-27 13:09:52,177 INFO   VSCODE_GIT_ASKPASS_EXTRA_ARGS=
+2025-06-27 13:09:52,177 INFO   VSCODE_GIT_ASKPASS_MAIN=/Applications/Cursor.app/Contents/Resources/app/extensions/git/dist/askpass-main.js
+2025-06-27 13:09:52,177 INFO   VSCODE_GIT_IPC_HANDLE=/var/folders/7j/rzhnb4z12kbbq9624j75xsy00000gn/T/vscode-git-e4048c60c4.sock
+2025-06-27 13:09:52,177 INFO   PYDEVD_DISABLE_FILE_VALIDATION=1
+2025-06-27 13:09:52,177 INFO   VSCODE_DEBUGPY_ADAPTER_ENDPOINTS=/Users/annette/.cursor/extensions/ms-python.debugpy-2025.6.0-darwin-arm64/.noConfigDebugAdapterEndpoints/endpoint-0ada6dcc4fe34815.txt
+2025-06-27 13:09:52,177 INFO   BUNDLED_DEBUGPY_PATH=/Users/annette/.cursor/extensions/ms-python.debugpy-2025.6.0-darwin-arm64/bundled/libs/debugpy
+2025-06-27 13:09:52,177 INFO   TERM=xterm-256color
+2025-06-27 13:09:52,177 INFO   _=/Users/annette/anaconda3/bin/python
+2025-06-27 13:09:52,177 INFO   APP_ENV=aws
+2025-06-27 13:09:52,177 INFO   AWS_REGION=us-west-2
+2025-06-27 13:09:52,177 INFO   CATALOG_TABLE_NAME=taberner-studio-catalog
+2025-06-27 13:09:52,177 INFO   CATALOG_BUCKET_NAME=taberner-studio-catalog-images
+2025-06-27 13:09:52,177 INFO   APPROVED_BUCKET=taberner-studio-images
+2025-06-27 13:09:52,177 INFO   QUARANTINE_BUCKET=taberner-studio-quarantine
+2025-06-27 13:09:52,177 INFO   MAX_RECOMMENDATIONS=8
+2025-06-27 13:09:52,177 INFO   MIN_RECOMMENDATIONS=4
+2025-06-27 13:09:52,177 INFO   KMP_DUPLICATE_LIB_OK=True
+2025-06-27 13:09:52,177 INFO   KMP_INIT_AT_FORK=FALSE
+2025-06-27 13:09:52,177 INFO   WERKZEUG_SERVER_FD=7
+2025-06-27 13:09:52,177 INFO   WERKZEUG_RUN_MAIN=true
+2025-06-27 13:09:52,177 INFO === Application Starting ===
+2025-06-27 13:09:52,178 INFO Memory usage at startup: 148.06 MB (0.2%)
+2025-06-27 13:09:52,227 INFO Found credentials in shared credentials file: ~/.aws/credentials
+2025-06-27 13:09:52,568 WARNING  * Debugger is active!
+2025-06-27 13:09:52,580 INFO  * Debugger PIN: 138-937-889
+2025-06-27 13:09:59,656 INFO  * Detected change in '/Users/annette/taberner-studio-apps/taberner_studio_app/backend/catalog_management/__init__.py', reloading
+2025-06-27 13:09:59,656 INFO  * Detected change in '/Users/annette/taberner-studio-apps/taberner_studio_app/backend/catalog_management/__init__.py', reloading
+2025-06-27 13:10:00,873 INFO  * Restarting with watchdog (fsevents)
+2025-06-27 13:10:02,145 INFO Entrypoint: /Users/annette/taberner-studio-apps/taberner_studio_app/backend/app.py
+2025-06-27 13:10:02,147 INFO Working directory: /Users/annette/taberner-studio-apps/taberner_studio_app/backend
+2025-06-27 13:10:02,147 INFO sys.argv: ['/Users/annette/taberner-studio-apps/taberner_studio_app/backend/app.py']
+2025-06-27 13:10:02,147 INFO Python version: 3.11.5 (main, Sep 11 2023, 08:31:25) [Clang 14.0.6 ]
+2025-06-27 13:10:02,147 INFO __name__: __main__
+2025-06-27 13:10:02,147 INFO Environment variables (filtered):
+2025-06-27 13:10:02,147 INFO   MallocNanoZone=0
+2025-06-27 13:10:02,147 INFO   USER=annette
+2025-06-27 13:10:02,147 INFO   COMMAND_MODE=unix2003
+2025-06-27 13:10:02,147 INFO   __CFBundleIdentifier=com.todesktop.230313mzl4w4u92
+2025-06-27 13:10:02,147 INFO   PATH=/Users/annette/.codeium/windsurf/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin://Applications/Topaz Photo AI.app/Contents/Resources/bin:/Users/annette/.codeium/windsurf/bin:/Users/annette/anaconda3/bin:/Users/annette/anaconda3/condabin:/Users/annette/.cursor/extensions/ms-python.debugpy-2025.6.0-darwin-arm64/bundled/scripts/noConfigScripts
+2025-06-27 13:10:02,147 INFO   LOGNAME=annette
+2025-06-27 13:10:02,148 INFO   SSH_AUTH_SOCK=/private/tmp/com.apple.launchd.uONtK3gSfv/Listeners
+2025-06-27 13:10:02,148 INFO   HOME=/Users/annette
+2025-06-27 13:10:02,148 INFO   SHELL=/bin/zsh
+2025-06-27 13:10:02,148 INFO   TMPDIR=/var/folders/7j/rzhnb4z12kbbq9624j75xsy00000gn/T/
+2025-06-27 13:10:02,148 INFO   __CF_USER_TEXT_ENCODING=0x1F5:0x0:0x0
+2025-06-27 13:10:02,148 INFO   XPC_SERVICE_NAME=0
+2025-06-27 13:10:02,148 INFO   XPC_FLAGS=0x0
+2025-06-27 13:10:02,148 INFO   ORIGINAL_XDG_CURRENT_DESKTOP=undefined
+2025-06-27 13:10:02,148 INFO   CURSOR_TRACE_ID=43efb6ed046a4bd8a670a865db0ebdcc
+2025-06-27 13:10:02,148 INFO   SHLVL=1
+2025-06-27 13:10:02,148 INFO   PWD=/Users/annette/taberner-studio-apps/taberner_studio_app/backend
+2025-06-27 13:10:02,148 INFO   OLDPWD=/Users/annette/taberner-studio-apps/taberner_studio_app
+2025-06-27 13:10:02,148 INFO   HOMEBREW_PREFIX=/opt/homebrew
+2025-06-27 13:10:02,148 INFO   HOMEBREW_CELLAR=/opt/homebrew/Cellar
+2025-06-27 13:10:02,148 INFO   HOMEBREW_REPOSITORY=/opt/homebrew
+2025-06-27 13:10:02,148 INFO   INFOPATH=/opt/homebrew/share/info:/opt/homebrew/share/info:
+2025-06-27 13:10:02,148 INFO   CONDA_EXE=/Users/annette/anaconda3/bin/conda
+2025-06-27 13:10:02,148 INFO   _CE_M=
+2025-06-27 13:10:02,148 INFO   _CE_CONDA=
+2025-06-27 13:10:02,148 INFO   CONDA_PYTHON_EXE=/Users/annette/anaconda3/bin/python
+2025-06-27 13:10:02,148 INFO   CONDA_SHLVL=1
+2025-06-27 13:10:02,148 INFO   CONDA_PREFIX=/Users/annette/anaconda3
+2025-06-27 13:10:02,148 INFO   CONDA_DEFAULT_ENV=base
+2025-06-27 13:10:02,148 INFO   CONDA_PROMPT_MODIFIER=(base) 
+2025-06-27 13:10:02,148 INFO   PAGER=head -n 10000 | cat
+2025-06-27 13:10:02,148 INFO   npm_config_yes=true
+2025-06-27 13:10:02,148 INFO   DISABLE_AUTO_UPDATE=true
+2025-06-27 13:10:02,148 INFO   PIP_NO_INPUT=true
+2025-06-27 13:10:02,148 INFO   COMPOSER_NO_INTERACTION=1
+2025-06-27 13:10:02,148 INFO   TERM_PROGRAM=vscode
+2025-06-27 13:10:02,148 INFO   TERM_PROGRAM_VERSION=1.1.6
+2025-06-27 13:10:02,148 INFO   LANG=en_US.UTF-8
+2025-06-27 13:10:02,148 INFO   COLORTERM=truecolor
+2025-06-27 13:10:02,148 INFO   GIT_ASKPASS=/Applications/Cursor.app/Contents/Resources/app/extensions/git/dist/askpass.sh
+2025-06-27 13:10:02,148 INFO   VSCODE_GIT_ASKPASS_NODE=/Applications/Cursor.app/Contents/Frameworks/Cursor Helper (Plugin).app/Contents/MacOS/Cursor Helper (Plugin)
+2025-06-27 13:10:02,148 INFO   VSCODE_GIT_ASKPASS_EXTRA_ARGS=
+2025-06-27 13:10:02,148 INFO   VSCODE_GIT_ASKPASS_MAIN=/Applications/Cursor.app/Contents/Resources/app/extensions/git/dist/askpass-main.js
+2025-06-27 13:10:02,148 INFO   VSCODE_GIT_IPC_HANDLE=/var/folders/7j/rzhnb4z12kbbq9624j75xsy00000gn/T/vscode-git-e4048c60c4.sock
+2025-06-27 13:10:02,148 INFO   PYDEVD_DISABLE_FILE_VALIDATION=1
+2025-06-27 13:10:02,148 INFO   VSCODE_DEBUGPY_ADAPTER_ENDPOINTS=/Users/annette/.cursor/extensions/ms-python.debugpy-2025.6.0-darwin-arm64/.noConfigDebugAdapterEndpoints/endpoint-0ada6dcc4fe34815.txt
+2025-06-27 13:10:02,148 INFO   BUNDLED_DEBUGPY_PATH=/Users/annette/.cursor/extensions/ms-python.debugpy-2025.6.0-darwin-arm64/bundled/libs/debugpy
+2025-06-27 13:10:02,148 INFO   TERM=xterm-256color
+2025-06-27 13:10:02,148 INFO   _=/Users/annette/anaconda3/bin/python
+2025-06-27 13:10:02,148 INFO   APP_ENV=aws
+2025-06-27 13:10:02,148 INFO   AWS_REGION=us-west-2
+2025-06-27 13:10:02,148 INFO   CATALOG_TABLE_NAME=taberner-studio-catalog
+2025-06-27 13:10:02,148 INFO   CATALOG_BUCKET_NAME=taberner-studio-catalog-images
+2025-06-27 13:10:02,148 INFO   APPROVED_BUCKET=taberner-studio-images
+2025-06-27 13:10:02,148 INFO   QUARANTINE_BUCKET=taberner-studio-quarantine
+2025-06-27 13:10:02,148 INFO   MAX_RECOMMENDATIONS=8
+2025-06-27 13:10:02,148 INFO   MIN_RECOMMENDATIONS=4
+2025-06-27 13:10:02,148 INFO   KMP_DUPLICATE_LIB_OK=True
+2025-06-27 13:10:02,148 INFO   KMP_INIT_AT_FORK=FALSE
+2025-06-27 13:10:02,148 INFO   WERKZEUG_SERVER_FD=7
+2025-06-27 13:10:02,148 INFO   WERKZEUG_RUN_MAIN=true
+2025-06-27 13:10:02,149 INFO === Application Starting ===
+2025-06-27 13:10:02,149 INFO Memory usage at startup: 148.59 MB (0.2%)
+2025-06-27 13:10:02,171 INFO Found credentials in shared credentials file: ~/.aws/credentials
+2025-06-27 13:10:02,279 WARNING  * Debugger is active!
+2025-06-27 13:10:02,289 INFO  * Debugger PIN: 138-937-889
