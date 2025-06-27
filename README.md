@@ -113,6 +113,7 @@ The project uses different backend files for different environments:
 - Configurable recommendation limits (default: 8 max, 4 min)
 - Intelligent color matching using RGB distance calculations (for photo uploads)
 - **AI-powered attribute classification with confidence scores** for style and subject
+- **Vector-based similarity matching** using CLIP embeddings for semantic understanding
 - Prevents duplicate recommendations
 
 ### 🚀 **Performance Optimizations**
@@ -182,7 +183,28 @@ The enrichment process now stores both the classification label and confidence s
 - Higher confidence = better recommendation quality
 - The system automatically handles both new (object) and old (string) attribute formats
 
-### 4. Manage Custom Descriptions and URLs
+### 4. Vector-Based Similarity Matching
+The system now uses CLIP embeddings to find semantically similar artworks based on user preferences:
+
+**How it works:**
+- **Text embeddings**: User preferences (style/subject) are converted to CLIP text embeddings
+- **Image embeddings**: Each artwork image is converted to a CLIP image embedding during enrichment
+- **Cosine similarity**: The system calculates similarity between preference embeddings and artwork embeddings
+- **Confidence weighting**: Similarity scores are weighted by the confidence of attribute classifications
+- **Fallback system**: If vector matching fails, the system falls back to traditional string-based filtering
+
+**Benefits:**
+- **Semantic understanding**: Finds artworks that are conceptually similar, not just exact matches
+- **Nuanced recommendations**: Can match "Modern" with "Contemporary" or "Landscape" with "Nature"
+- **Better user experience**: More relevant and diverse recommendations
+- **Robust fallback**: Always provides recommendations even if vector matching fails
+
+**Example:**
+- User selects "Modern" style → System finds artworks with similar visual concepts
+- User selects "Landscape" subject → System finds nature scenes, cityscapes, and outdoor photography
+- Combined preferences create rich, contextually relevant recommendations
+
+### 5. Manage Custom Descriptions and URLs
 - Use the external metadata file `catalog_metadata.json` for custom descriptions and product URLs
 - Update metadata easily with the helper script:
   ```bash
@@ -190,7 +212,7 @@ The enrichment process now stores both the classification label and confidence s
   ```
 - For bulk operations, see `BULK_IMAGE_WORKFLOW.md`
 
-### 5. Deploy/Update Catalog Data to DynamoDB
+### 6. Deploy/Update Catalog Data to DynamoDB
 - To upload or update your catalog data in DynamoDB, run:
   ```bash
   python backend/migrate_to_dynamodb.py

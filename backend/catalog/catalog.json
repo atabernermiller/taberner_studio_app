@@ -31,8 +31,14 @@
                 }
             ],
             "mood": null,
-            "style": null,
-            "subject": null
+            "style": {
+                "label": "Black and White",
+                "confidence": 0.35141515731811523
+            },
+            "subject": {
+                "label": "Animals",
+                "confidence": 0.9098624587059021
+            }
         }
     },
     {
@@ -67,8 +73,14 @@
                 }
             ],
             "mood": null,
-            "style": null,
-            "subject": null
+            "style": {
+                "label": "Nature",
+                "confidence": 0.42788392305374146
+            },
+            "subject": {
+                "label": "Landscape",
+                "confidence": 0.8522997498512268
+            }
         }
     },
     {
@@ -103,8 +115,14 @@
                 }
             ],
             "mood": null,
-            "style": null,
-            "subject": null
+            "style": {
+                "label": "Nature",
+                "confidence": 0.7900828123092651
+            },
+            "subject": {
+                "label": "Landscape",
+                "confidence": 0.9363395571708679
+            }
         }
     },
     {
@@ -139,8 +157,14 @@
                 }
             ],
             "mood": null,
-            "style": null,
-            "subject": null
+            "style": {
+                "label": "Nature",
+                "confidence": 0.5367475152015686
+            },
+            "subject": {
+                "label": "Landscape",
+                "confidence": 0.3953173756599426
+            }
         }
     },
     {
@@ -175,8 +199,14 @@
                 }
             ],
             "mood": null,
-            "style": null,
-            "subject": null
+            "style": {
+                "label": "Nature",
+                "confidence": 0.7383813858032227
+            },
+            "subject": {
+                "label": "Seascape",
+                "confidence": 0.8476685881614685
+            }
         }
     },
     {
@@ -211,8 +241,14 @@
                 }
             ],
             "mood": null,
-            "style": null,
-            "subject": null
+            "style": {
+                "label": "Long Exposure",
+                "confidence": 0.3361140489578247
+            },
+            "subject": {
+                "label": "Landscape",
+                "confidence": 0.9170712232589722
+            }
         }
     },
     {
@@ -247,8 +283,14 @@
                 }
             ],
             "mood": null,
-            "style": null,
-            "subject": null
+            "style": {
+                "label": "Nature",
+                "confidence": 0.48776891827583313
+            },
+            "subject": {
+                "label": "Landscape",
+                "confidence": 0.947299599647522
+            }
         }
     },
     {
@@ -283,8 +325,14 @@
                 }
             ],
             "mood": null,
-            "style": null,
-            "subject": null
+            "style": {
+                "label": "Nature",
+                "confidence": 0.603184163570404
+            },
+            "subject": {
+                "label": "Animals",
+                "confidence": 0.6104158163070679
+            }
         }
     },
     {
@@ -319,8 +367,14 @@
                 }
             ],
             "mood": null,
-            "style": null,
-            "subject": null
+            "style": {
+                "label": "Nature",
+                "confidence": 0.4244876503944397
+            },
+            "subject": {
+                "label": "Landscape",
+                "confidence": 0.8984593152999878
+            }
         }
     },
     {
@@ -355,8 +409,14 @@
                 }
             ],
             "mood": null,
-            "style": null,
-            "subject": null
+            "style": {
+                "label": "Modern",
+                "confidence": 0.3948821425437927
+            },
+            "subject": {
+                "label": "Seascape",
+                "confidence": 0.8028216361999512
+            }
         }
     },
     {
@@ -391,8 +451,14 @@
                 }
             ],
             "mood": null,
-            "style": null,
-            "subject": null
+            "style": {
+                "label": "Nature",
+                "confidence": 0.7918949127197266
+            },
+            "subject": {
+                "label": "Landscape",
+                "confidence": 0.6406627893447876
+            }
         }
     },
     {
@@ -427,8 +493,14 @@
                 }
             ],
             "mood": null,
-            "style": null,
-            "subject": null
+            "style": {
+                "label": "Nature",
+                "confidence": 0.6512840986251831
+            },
+            "subject": {
+                "label": "Animals",
+                "confidence": 0.3066864609718323
+            }
         }
     },
     {
@@ -463,8 +535,14 @@
                 }
             ],
             "mood": null,
-            "style": null,
-            "subject": null
+            "style": {
+                "label": "Nature",
+                "confidence": 0.262673556804657
+            },
+            "subject": {
+                "label": "Landscape",
+                "confidence": 0.3014717996120453
+            }
         }
     },
     {
@@ -499,8 +577,14 @@
                 }
             ],
             "mood": null,
-            "style": null,
-            "subject": null
+            "style": {
+                "label": "Nature",
+                "confidence": 0.4639776349067688
+            },
+            "subject": {
+                "label": "Animals",
+                "confidence": 0.8590959310531616
+            }
         }
     },
     {
@@ -535,8 +619,14 @@
                 }
             ],
             "mood": null,
-            "style": null,
-            "subject": null
+            "style": {
+                "label": "Architectural",
+                "confidence": 0.23769032955169678
+            },
+            "subject": {
+                "label": "Cityscape",
+                "confidence": 0.9094256162643433
+            }
         }
     },
     {
@@ -571,8 +661,14 @@
                 }
             ],
             "mood": null,
-            "style": null,
-            "subject": null
+            "style": {
+                "label": "Nature",
+                "confidence": 0.48431655764579773
+            },
+            "subject": {
+                "label": "Landscape",
+                "confidence": 0.9739514589309692
+            }
         }
     },
     {
@@ -607,8 +703,14 @@
                 }
             ],
             "mood": null,
-            "style": null,
-            "subject": null
+            "style": {
+                "label": "Abstract",
+                "confidence": 0.2088029384613037
+            },
+            "subject": {
+                "label": "Cityscape",
+                "confidence": 0.908679187297821
+            }
         }
     },
     {
@@ -643,8 +745,14 @@
                 }
             ],
             "mood": null,
-            "style": null,
-            "subject": null
+            "style": {
+                "label": "Nature",
+                "confidence": 0.38777393102645874
+            },
+            "subject": {
+                "label": "Landscape",
+                "confidence": 0.4038550555706024
+            }
         }
     }
 ]
