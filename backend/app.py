@@ -12,11 +12,11 @@ import psutil
 import gc
 import signal
 import sys
-from datetime import datetime
+from datetime import datetime, timedelta
 import numpy as np
 import boto3
 from flask import Flask, request, jsonify, send_from_directory, render_template_string
-from PIL import Image
+from PIL import Image, ImageDraw, ImageFont
 import pillow_heif
 from sklearn.cluster import KMeans
 from flask_limiter import Limiter
@@ -27,9 +27,11 @@ import time
 from functools import lru_cache
 from flask_cors import CORS
 import hashlib
-import cv2
 import re
 from io import BytesIO
+from werkzeug.utils import secure_filename
+from botocore.exceptions import ClientError, NoCredentialsError
+import redis
 
 logging.basicConfig(
     level=logging.INFO,
