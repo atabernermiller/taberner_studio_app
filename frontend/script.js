@@ -337,6 +337,7 @@ function showPreferencesForm() {
     // Hide options and show preferences form FIRST
     document.getElementById('options-section').style.display = 'none';
     document.getElementById('upload-form-container').style.display = 'none';
+    document.getElementById('results-area').style.display = 'none';  // Hide results area
     document.getElementById('preferences-form-container').style.display = 'block';
     
     // Show back button
@@ -885,9 +886,40 @@ function showResultsView() {
     }, 100);
 }
 
-// Enhanced resetToOptions function
+// Enhanced resetToOptions function - shows main options section like "Set preferences" button
 function resetToOptions() {
+    console.log('=== RESET TO OPTIONS CALLED ===');
+    console.log('Current URL before reset:', window.location.href);
+    console.log('Current pathname:', window.location.pathname);
+    console.log('Current hash:', window.location.hash);
+    console.log('Call stack:', new Error().stack);
+    
+    // Clear photo cache to prevent showing previous workflow's recommendations
+    console.log('=== CLEARING PHOTO CACHE FOR RESET ===');
+    allArtworks = [];
+    currentArtworkIndex = 0;
+    recommendations = null;
+    currentRecommendations = null;
+    uploadedImage = null;
+    isUploading = false;
+    
+    // Clear any existing UI content
+    const recommendationsContainer = document.getElementById('thumbnails-container');
+    if (recommendationsContainer) {
+        recommendationsContainer.innerHTML = '';
+    }
+    
+    // HACK: First go back to start, then automatically trigger "Set Preferences"
+    console.log('=== EXECUTING HACKY TWO-STEP RESET ===');
     goBackToLanding();
+    
+    // Use setTimeout to ensure the first step completes before the second
+    setTimeout(() => {
+        console.log('=== AUTOMATICALLY TRIGGERING SET PREFERENCES ===');
+        showPreferencesForm();
+    }, 200);
+    
+    console.log('=== RESET TO OPTIONS COMPLETE ===');
 }
 
 // Enhanced Results Experience
@@ -1799,6 +1831,20 @@ function initializeEventListeners() {
     if (resetBtn) {
         resetBtn.addEventListener('click', resetToOptions);
     }
+    
+    // Add navigation event listeners for debugging
+    window.addEventListener('popstate', function(event) {
+        console.log('=== POPSTATE EVENT DETECTED ===');
+        console.log('Event:', event);
+        console.log('Current URL:', window.location.href);
+        console.log('State:', event.state);
+    });
+    
+    window.addEventListener('beforeunload', function(event) {
+        console.log('=== BEFOREUNLOAD EVENT DETECTED ===');
+        console.log('Event:', event);
+        console.log('Current URL:', window.location.href);
+    });
     
     // Add window resize listener for responsive sizing
     let resizeTimeout;

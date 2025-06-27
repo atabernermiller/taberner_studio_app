@@ -31,8 +31,6 @@ import re
 from io import BytesIO
 from werkzeug.utils import secure_filename
 from botocore.exceptions import ClientError, NoCredentialsError
-from sklearn.metrics.pairwise import cosine_similarity
-import torch
 
 logging.basicConfig(
     level=logging.INFO,
@@ -487,42 +485,19 @@ def recommend_unified():
             app.logger.error("No preferences provided for preferences type")
             return jsonify(error="No preferences provided for preferences type"), 400
         
-        # Try vector-based recommendations first, fall back to traditional filtering
-        try:
-            app.logger.info("Attempting vector-based recommendations")
-            recs = get_vector_based_recommendations(preferences)
-            if recs:
-                app.logger.info(f"Generated {len(recs)} vector-based recommendations")
-            else:
-                app.logger.info("No vector-based recommendations found, falling back to traditional filtering")
-                # Handle both array and string formats for preferences
-                style_pref = preferences.get('style')
-                subject_pref = preferences.get('subject')
-                
-                # Convert arrays to strings if needed
-                style_value = style_pref[0] if isinstance(style_pref, list) and style_pref else style_pref
-                subject_value = subject_pref[0] if isinstance(subject_pref, list) and subject_pref else subject_pref
-                
-                filters = {
-                    'styles': [style_value] if style_value and str(style_value).strip() else [],
-                    'subjects': [subject_value] if subject_value and str(subject_value).strip() else [],
-                }
-                recs = get_recommendations_by_filter(filters)
-        except Exception as e:
-            app.logger.warning(f"Vector-based recommendations failed: {e}, falling back to traditional filtering")
-            # Handle both array and string formats for preferences
-            style_pref = preferences.get('style')
-            subject_pref = preferences.get('subject')
-            
-            # Convert arrays to strings if needed
-            style_value = style_pref[0] if isinstance(style_pref, list) and style_pref else style_pref
-            subject_value = subject_pref[0] if isinstance(subject_pref, list) and subject_pref else subject_pref
-            
-            filters = {
-                'styles': [style_value] if style_value and str(style_value).strip() else [],
-                'subjects': [subject_value] if subject_value and str(subject_value).strip() else [],
-            }
-            recs = get_recommendations_by_filter(filters)
+        # Use simple hard filtering with confidence > 0.7
+        style_pref = preferences.get('style')
+        subject_pref = preferences.get('subject')
+        
+        # Convert arrays to strings if needed
+        style_value = style_pref[0] if isinstance(style_pref, list) and style_pref else style_pref
+        subject_value = subject_pref[0] if isinstance(subject_pref, list) and subject_pref else subject_pref
+        
+        filters = {
+            'styles': [style_value] if style_value and str(style_value).strip() else [],
+            'subjects': [subject_value] if subject_value and str(subject_value).strip() else [],
+        }
+        recs = get_recommendations_by_filter(filters)
         
         recommendations = [rec['artwork'] for rec in recs]
         app.logger.info(f"Generated {len(recommendations)} recommendations for preferences")
@@ -831,106 +806,6 @@ def reset_workflow():
     else:
         app.logger.info("Workflow reset: Cache clearing skipped in production mode")
     return jsonify({'message': 'Workflow reset successfully'})
-
-def get_text_embedding(text, model, processor):
-    """Generate CLIP text embedding for a given text."""
-    try:
-        inputs = processor(text=text, return_tensors="pt", padding=True, truncation=True)
-        with torch.no_grad():
-            text_features = model.get_text_features(**inputs)
-            text_embedding = torch.nn.functional.normalize(text_features, p=2, dim=1)
-            return text_embedding.cpu().numpy()[0]
-    except Exception as e:
-        app.logger.error(f"Error generating text embedding for '{text}': {e}")
-        return None
-
-def get_vector_based_recommendations(user_preferences, max_recs=MAX_RECOMMENDATIONS):
-    """Find artworks using vector similarity to user preferences."""
-    art_catalog = load_catalog_from_dynamodb()
-    if not art_catalog:
-        return []
-
-    # Load CLIP model for text embedding
-    try:
-        from transformers import CLIPProcessor, CLIPModel
-        model = CLIPModel.from_pretrained("openai/clip-vit-large-patch14")
-        processor = CLIPProcessor.from_pretrained("openai/clip-vit-large-patch14")
-        model.eval()
-    except Exception as e:
-        app.logger.error(f"Error loading CLIP model for vector similarity: {e}")
-        # Fall back to traditional filtering
-        return get_recommendations_by_filter({
-            'styles': [user_preferences.get('style')] if user_preferences.get('style') else [],
-            'subjects': [user_preferences.get('subject')] if user_preferences.get('subject') else []
-        })
-
-    # Generate text embeddings for user preferences
-    preference_texts = []
-    if user_preferences.get('style'):
-        preference_texts.append(user_preferences['style'])
-    if user_preferences.get('subject'):
-        preference_texts.append(user_preferences['subject'])
-    
-    if not preference_texts:
-        # No preferences specified, return random selection
-        return [{'artwork': art, 'score': 0} for art in art_catalog[:max_recs]]
-
-    # Generate embeddings for preference texts
-    preference_embeddings = []
-    for text in preference_texts:
-        embedding = get_text_embedding(text, model, processor)
-        if embedding is not None:
-            preference_embeddings.append(embedding)
-    
-    if not preference_embeddings:
-        app.logger.warning("Could not generate embeddings for preferences, falling back to traditional filtering")
-        return get_recommendations_by_filter({
-            'styles': [user_preferences.get('style')] if user_preferences.get('style') else [],
-            'subjects': [user_preferences.get('subject')] if user_preferences.get('subject') else []
-        })
-
-    # Calculate similarities with artworks
-    scored_artworks = []
-    for artwork in art_catalog:
-        attrs = artwork.get('attributes', {})
-        artwork_embedding = attrs.get('embedding')
-        
-        if not artwork_embedding:
-            # Skip artworks without embeddings (legacy data)
-            continue
-        
-        # Calculate cosine similarity with each preference
-        max_similarity = 0
-        for pref_embedding in preference_embeddings:
-            similarity = cosine_similarity([pref_embedding], [artwork_embedding])[0][0]
-            max_similarity = max(max_similarity, similarity)
-        
-        # Combine with confidence scores if available
-        style_attr = attrs.get('style', {})
-        subject_attr = attrs.get('subject', {})
-        
-        if isinstance(style_attr, dict) and isinstance(subject_attr, dict):
-            style_conf = style_attr.get('confidence', 0.5)
-            subject_conf = subject_attr.get('confidence', 0.5)
-            # Convert Decimal to float for arithmetic operations
-            style_conf_float = safe_float(style_conf)
-            subject_conf_float = safe_float(subject_conf)
-            avg_confidence = (style_conf_float + subject_conf_float) / 2.0
-            # Weight similarity by confidence - ensure both are float
-            max_similarity_float = float(max_similarity)
-            final_score = max_similarity_float * avg_confidence
-        else:
-            # Legacy format, use similarity directly
-            final_score = float(max_similarity)
-        
-        scored_artworks.append({
-            'artwork': artwork,
-            'score': 1.0 - final_score  # Invert so lower is better (consistent with other scoring)
-        })
-    
-    # Sort by score (ascending, lower is better)
-    scored_artworks.sort(key=lambda x: x['score'])
-    return scored_artworks[:max_recs]
 
 if __name__ == '__main__':
     host = os.environ.get('FLASK_RUN_HOST', '127.0.0.1')
