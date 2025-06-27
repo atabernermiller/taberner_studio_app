@@ -481,12 +481,12 @@ def get_vector_based_recommendations(user_preferences, max_recs=MAX_RECOMMENDATI
         if isinstance(style_attr, dict) and isinstance(subject_attr, dict):
             style_conf = safe_float(style_attr.get('confidence', 0.5))
             subject_conf = safe_float(subject_attr.get('confidence', 0.5))
-            avg_confidence = (style_conf + subject_conf) / 2
+            avg_confidence = float(style_conf + subject_conf) / 2.0
             # Weight similarity by confidence
-            final_score = max_similarity * avg_confidence
+            final_score = float(max_similarity) * float(avg_confidence)
         else:
             # Legacy format, use similarity directly
-            final_score = max_similarity
+            final_score = float(max_similarity)
         
         scored_artworks.append({
             'artwork': artwork,
@@ -625,7 +625,7 @@ def preferences_options():
         style_attr = attrs.get('style')
         if isinstance(style_attr, dict):
             style_label = style_attr.get('label', '')
-            style_confidence = style_attr.get('confidence', 0.0)
+            style_confidence = safe_float(style_attr.get('confidence', 0.0))
             # Only include if confidence meets threshold
             if style_label and style_confidence >= CONFIDENCE_THRESHOLD:
                 styles.add(style_label)
@@ -639,7 +639,7 @@ def preferences_options():
         subject_attr = attrs.get('subject')
         if isinstance(subject_attr, dict):
             subject_label = subject_attr.get('label', '')
-            subject_confidence = subject_attr.get('confidence', 0.0)
+            subject_confidence = safe_float(subject_attr.get('confidence', 0.0))
             # Only include if confidence meets threshold
             if subject_label and subject_confidence >= CONFIDENCE_THRESHOLD:
                 subjects.add(subject_label)

@@ -383,7 +383,7 @@ def get_recommendations_by_filter(filters):
             # Convert Decimal to float for arithmetic operations
             style_conf_float = safe_float(style_confidence)
             subject_conf_float = safe_float(subject_confidence)
-            confidence_score = 1.0 - ((style_conf_float + subject_conf_float) / 2.0)
+            confidence_score = 1.0 - (float(style_conf_float + subject_conf_float) / 2.0)
             filtered_artworks.append({'artwork': artwork, 'score': confidence_score})
     
     # Sort by confidence score (ascending, lower is better)
