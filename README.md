@@ -106,12 +106,12 @@ The project uses different backend files for different environments:
 
 ### 🎨 **Two Recommendation Workflows**
 1. **Upload Photo**: Upload a room photo for AI-powered color analysis
-2. **Set Preferences**: Choose mood, style, subject, and color preferences
+2. **Set Preferences**: Choose style and subject preferences
 
 ### 🧠 **Smart Recommendation Algorithm**
 - Balances quality and diversity in recommendations
 - Configurable recommendation limits (default: 8 max, 4 min)
-- Intelligent color matching using RGB distance calculations
+- Intelligent color matching using RGB distance calculations (for photo uploads)
 - Prevents duplicate recommendations
 
 ### 🚀 **Performance Optimizations**
