@@ -565,42 +565,20 @@ def recommend_unified():
             app.logger.error("No preferences provided for preferences type")
             return jsonify(error="No preferences provided for preferences type"), 400
         
-        # Try vector-based recommendations first, fall back to traditional filtering
-        try:
-            app.logger.info("Attempting vector-based recommendations")
-            recs = get_vector_based_recommendations(preferences)
-            if recs:
-                app.logger.info(f"Generated {len(recs)} vector-based recommendations")
-            else:
-                app.logger.info("No vector-based recommendations found, falling back to traditional filtering")
-                # Handle both array and string formats for preferences
-                style_pref = preferences.get('style')
-                subject_pref = preferences.get('subject')
-                
-                # Convert arrays to strings if needed
-                style_value = style_pref[0] if isinstance(style_pref, list) and style_pref else style_pref
-                subject_value = subject_pref[0] if isinstance(subject_pref, list) and subject_pref else subject_pref
-                
-                filters = {
-                    'styles': [style_value] if style_value and str(style_value).strip() else [],
-                    'subjects': [subject_value] if subject_value and str(subject_value).strip() else [],
-                }
-                recs = get_recommendations_by_filter(filters)
-        except Exception as e:
-            app.logger.warning(f"Vector-based recommendations failed: {e}, falling back to traditional filtering")
-            # Handle both array and string formats for preferences
-            style_pref = preferences.get('style')
-            subject_pref = preferences.get('subject')
-            
-            # Convert arrays to strings if needed
-            style_value = style_pref[0] if isinstance(style_pref, list) and style_pref else style_pref
-            subject_value = subject_pref[0] if isinstance(subject_pref, list) and subject_pref else subject_pref
-            
-            filters = {
-                'styles': [style_value] if style_value and str(style_value).strip() else [],
-                'subjects': [subject_value] if subject_value and str(subject_value).strip() else [],
-            }
-            recs = get_recommendations_by_filter(filters)
+        # Use simple hard filtering directly for preferences (skip vector-based for speed)
+        # Handle both array and string formats for preferences
+        style_pref = preferences.get('style')
+        subject_pref = preferences.get('subject')
+        
+        # Convert arrays to strings if needed
+        style_value = style_pref[0] if isinstance(style_pref, list) and style_pref else style_pref
+        subject_value = subject_pref[0] if isinstance(subject_pref, list) and subject_pref else subject_pref
+        
+        filters = {
+            'styles': [style_value] if style_value and str(style_value).strip() else [],
+            'subjects': [subject_value] if subject_value and str(subject_value).strip() else [],
+        }
+        recs = get_recommendations_by_filter(filters)
         
         recommendations = [rec['artwork'] for rec in recs]
         app.logger.info(f"Generated {len(recommendations)} recommendations for preferences")

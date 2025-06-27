@@ -894,6 +894,10 @@ function resetToOptions() {
     console.log('Current hash:', window.location.hash);
     console.log('Call stack:', new Error().stack);
     
+    // Preserve overlay state for consistent sizing across workflows
+    const preservedOverlayState = { ...overlayState };
+    console.log('Preserving overlay state:', preservedOverlayState);
+    
     // Clear photo cache to prevent showing previous workflow's recommendations
     console.log('=== CLEARING PHOTO CACHE FOR RESET ===');
     allArtworks = [];
@@ -902,6 +906,10 @@ function resetToOptions() {
     currentRecommendations = null;
     uploadedImage = null;
     isUploading = false;
+    
+    // Restore the preserved overlay state
+    overlayState = preservedOverlayState;
+    console.log('Restored overlay state after reset:', overlayState);
     
     // Clear any existing UI content
     const recommendationsContainer = document.getElementById('thumbnails-container');
@@ -1519,7 +1527,14 @@ async function updateArtworkDisplay(index, forceInstant, onLoadedCallback) {
             } else {
                 // Default behavior (existing code for default size/position)
                 const defaultAspectRatio = 4/3;
-                const baseWidth = 270;
+                const roomImage = document.getElementById('room-image');
+                const roomImageWidth = roomImage ? roomImage.offsetWidth : 800; // fallback if room image not loaded
+                const screenWidth = window.innerWidth;
+                
+                // Use smaller size for consistency and better fit
+                let sizePercentage = 0.4; // 40% instead of 60% for better fit
+                
+                const baseWidth = roomImageWidth * sizePercentage;
                 const baseHeight = baseWidth / defaultAspectRatio;
                 overlay.style.width = baseWidth + 'px';
                 overlay.style.height = baseHeight + 'px';
@@ -1530,7 +1545,13 @@ async function updateArtworkDisplay(index, forceInstant, onLoadedCallback) {
                 overlay.setAttribute('data-y', '0');
                 overlay.removeAttribute('data-user-customized');
                 // Also reset overlayState
-                overlayState = { x: 0, y: 0, width: overlay.style.width, height: overlay.style.height, userCustomized: false };
+                overlayState = {
+                    userCustomized: false,
+                    width: baseWidth,
+                    height: baseHeight,
+                    x: 0,
+                    y: 0
+                };
             }
         } else {
             console.error('Artwork overlay element not found!');
@@ -1545,16 +1566,53 @@ async function updateArtworkDisplay(index, forceInstant, onLoadedCallback) {
             if (overlay && this.naturalWidth && this.naturalHeight) {
                 const hasUserCustomized = overlay.hasAttribute('data-user-customized');
                 
-                if (!hasUserCustomized) {
-                    const { width: renderedRoomWidth } = getRenderedImageSize(roomImage);
+                // Check if we have preserved overlay state from previous workflow
+                const hasPreservedState = overlayState && overlayState.userCustomized && overlayState.width && overlayState.height;
+                
+                if (!hasUserCustomized && !hasPreservedState) {
+                    // Only set default size if user hasn't customized AND we don't have preserved state
+                    // Use smaller, more appropriate sizing to show entire image
                     const aspectRatio = this.naturalWidth / this.naturalHeight;
-                    const baseWidth = renderedRoomWidth * 0.50; // 50% of rendered background image width
+                    const roomImageWidth = roomImage.offsetWidth;
+                    const screenWidth = window.innerWidth;
+                    
+                    // Use smaller size to ensure entire image fits and isn't too large
+                    let sizePercentage = 0.4; // 40% instead of 60% for better fit
+                    
+                    const baseWidth = roomImageWidth * sizePercentage;
                     const calculatedHeight = baseWidth / aspectRatio;
                     
                     overlay.style.width = baseWidth + 'px';
                     overlay.style.height = calculatedHeight + 'px';
                     
-                    console.log('=== SETTING DEFAULT SIZE (user has not customized) ===');
+                    console.log('=== SETTING SMALLER RESPONSIVE SIZE ===');
+                    console.log('Screen width:', screenWidth);
+                    console.log('Room image width:', roomImageWidth);
+                    console.log('Size percentage:', sizePercentage);
+                    console.log('Base width:', baseWidth);
+                    console.log('Calculated height:', calculatedHeight);
+                    console.log('Aspect ratio:', aspectRatio);
+                    console.log('Natural width:', this.naturalWidth);
+                    console.log('Natural height:', this.naturalHeight);
+                } else if (hasPreservedState) {
+                    // Restore the preserved overlay state but maintain correct aspect ratio for new image
+                    const aspectRatio = this.naturalWidth / this.naturalHeight;
+                    const preservedWidth = overlayState.width;
+                    const calculatedHeight = preservedWidth / aspectRatio;
+                    
+                    overlay.style.width = preservedWidth + 'px';
+                    overlay.style.height = calculatedHeight + 'px';
+                    overlay.style.left = '50%';
+                    overlay.style.top = '50%';
+                    overlay.style.transform = `translate(-50%, -50%) translate(${overlayState.x}px, ${overlayState.y}px)`;
+                    overlay.setAttribute('data-x', overlayState.x);
+                    overlay.setAttribute('data-y', overlayState.y);
+                    overlay.setAttribute('data-user-customized', 'true');
+                    console.log('=== RESTORING PRESERVED OVERLAY STATE WITH CORRECT ASPECT RATIO ===');
+                    console.log('Preserved width:', preservedWidth);
+                    console.log('New image aspect ratio:', aspectRatio);
+                    console.log('Calculated height:', calculatedHeight);
+                    console.log('Restored overlayState:', overlayState);
                 } else {
                     console.log('=== PRESERVING USER CUSTOMIZED SIZE ===');
                 }
@@ -1571,6 +1629,7 @@ async function updateArtworkDisplay(index, forceInstant, onLoadedCallback) {
                 console.log('Border width (computed):', overlay.offsetWidth - overlay.clientWidth);
                 console.log('Border height (computed):', overlay.offsetHeight - overlay.clientHeight);
                 console.log('User customized:', hasUserCustomized);
+                console.log('Has preserved state:', hasPreservedState);
             }
         };
         

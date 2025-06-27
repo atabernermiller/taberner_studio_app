@@ -362,13 +362,20 @@ header {
     flex-shrink: 0;
 }
 
+.logo-container {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    flex: 1;
+}
+
 .header-title {
     font-size: 1.5rem;
     font-weight: 600;
     color: var(--primary-text);
     margin: 0;
     flex: 1;
-    text-align: center;
+    text-align: left;
 }
 
 .back-button {
@@ -1364,6 +1371,10 @@ header {
         padding: 0 1rem;
     }
     
+    .logo-container {
+        gap: 0.75rem;
+    }
+    
     #logo {
         height: 64px;
     }
@@ -1426,6 +1437,10 @@ header {
 @media (max-width: 480px) {
     .header-content {
         padding: 0 0.75rem;
+    }
+    
+    .logo-container {
+        gap: 0.5rem;
     }
     
     .header-title {
