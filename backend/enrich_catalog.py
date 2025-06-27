@@ -70,16 +70,35 @@ def enrich_catalog():
 
             # Classify style
             style_results = classifier(image, candidate_labels=STYLE_LABELS)
-            top_style = style_results[0]['label'] if style_results else "Unknown"
-            artwork['attributes']['style'] = top_style
+            if style_results:
+                top_style_result = style_results[0]
+                artwork['attributes']['style'] = {
+                    'label': top_style_result['label'],
+                    'confidence': top_style_result['score']
+                }
+            else:
+                artwork['attributes']['style'] = {
+                    'label': "Unknown",
+                    'confidence': 0.0
+                }
 
             # Classify subject
             subject_results = classifier(image, candidate_labels=SUBJECT_LABELS)
-            top_subject = subject_results[0]['label'] if subject_results else "Unknown"
-            artwork['attributes']['subject'] = top_subject
+            if subject_results:
+                top_subject_result = subject_results[0]
+                artwork['attributes']['subject'] = {
+                    'label': top_subject_result['label'],
+                    'confidence': top_subject_result['score']
+                }
+            else:
+                artwork['attributes']['subject'] = {
+                    'label': "Unknown",
+                    'confidence': 0.0
+                }
             
             enriched_count += 1
-            print(f"  -> Style: {top_style}, Subject: {top_subject}")
+            print(f"  -> Style: {artwork['attributes']['style']['label']} ({artwork['attributes']['style']['confidence']:.3f})")
+            print(f"  -> Subject: {artwork['attributes']['subject']['label']} ({artwork['attributes']['subject']['confidence']:.3f})")
 
         except Exception as e:
             print(f"Could not process image {image_filename}: {e}")

@@ -331,7 +331,7 @@ def get_recommendations(user_colors):
     return recommendations[:MAX_RECOMMENDATIONS]
 
 def get_recommendations_by_filter(filters):
-    """Finds artworks matching the selected style and subject filters."""
+    """Finds artworks matching the selected style and subject filters with confidence scoring."""
     art_catalog = load_catalog_from_dynamodb()
     if not art_catalog:
         return []
@@ -343,10 +343,37 @@ def get_recommendations_by_filter(filters):
     filtered_artworks = []
     for artwork in art_catalog:
         attrs = artwork.get('attributes', {})
-        style_match = not filters.get('styles') or (attrs.get('style') and any(f.lower() in attrs.get('style', '').lower() for f in filters['styles']))
-        subject_match = not filters.get('subjects') or (attrs.get('subject') and any(f.lower() in attrs.get('subject', '').lower() for f in filters['subjects']))
+        
+        # Handle both old string format and new object format for style
+        style_attr = attrs.get('style')
+        if isinstance(style_attr, dict):
+            style_label = style_attr.get('label', '')
+            style_confidence = style_attr.get('confidence', 0.0)
+        else:
+            style_label = style_attr or ''
+            style_confidence = 1.0  # Assume high confidence for old format
+        
+        # Handle both old string format and new object format for subject
+        subject_attr = attrs.get('subject')
+        if isinstance(subject_attr, dict):
+            subject_label = subject_attr.get('label', '')
+            subject_confidence = subject_attr.get('confidence', 0.0)
+        else:
+            subject_label = subject_attr or ''
+            subject_confidence = 1.0  # Assume high confidence for old format
+        
+        # Check if artwork matches the filters
+        style_match = not filters.get('styles') or any(f.lower() in style_label.lower() for f in filters['styles'])
+        subject_match = not filters.get('subjects') or any(f.lower() in subject_label.lower() for f in filters['subjects'])
+        
         if style_match and subject_match:
-            filtered_artworks.append({'artwork': artwork, 'score': 0})
+            # Calculate a confidence-based score
+            # Higher confidence = better score (lower number since we sort ascending)
+            confidence_score = 1.0 - ((style_confidence + subject_confidence) / 2.0)
+            filtered_artworks.append({'artwork': artwork, 'score': confidence_score})
+    
+    # Sort by confidence score (ascending, lower is better)
+    filtered_artworks.sort(key=lambda x: x['score'])
     return filtered_artworks[:MAX_RECOMMENDATIONS]
 
 def moderate_image_content(image_bytes):
@@ -489,10 +516,27 @@ def preferences_options():
     subjects = set()
     for art in items:
         attrs = art.get('attributes', {})
-        if attrs.get('style'):
-            styles.add(attrs['style'])
-        if attrs.get('subject'):
-            subjects.add(attrs['subject'])
+        
+        # Handle both old string format and new object format for style
+        style_attr = attrs.get('style')
+        if isinstance(style_attr, dict):
+            style_label = style_attr.get('label', '')
+        else:
+            style_label = style_attr or ''
+        
+        if style_label:
+            styles.add(style_label)
+        
+        # Handle both old string format and new object format for subject
+        subject_attr = attrs.get('subject')
+        if isinstance(subject_attr, dict):
+            subject_label = subject_attr.get('label', '')
+        else:
+            subject_label = subject_attr or ''
+        
+        if subject_label:
+            subjects.add(subject_label)
+    
     return jsonify({
         'styles': sorted(list(styles)),
         'subjects': sorted(list(subjects))

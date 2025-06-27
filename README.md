@@ -112,6 +112,7 @@ The project uses different backend files for different environments:
 - Balances quality and diversity in recommendations
 - Configurable recommendation limits (default: 8 max, 4 min)
 - Intelligent color matching using RGB distance calculations (for photo uploads)
+- **AI-powered attribute classification with confidence scores** for style and subject
 - Prevents duplicate recommendations
 
 ### 🚀 **Performance Optimizations**
@@ -150,9 +151,38 @@ The project uses different backend files for different environments:
   python backend/enrich_catalog.py
   ```
 - This uses a CLIP model to classify each image and updates the `attributes` field in `catalog.json`.
-- Ensure you have the required dependencies (`transformers`, `torch`, `Pillow`).
+- **New**: Attributes now include confidence scores for better recommendation quality
 
-### 3. Manage Custom Descriptions and URLs
+### 3. Confidence-Based Attribute System
+The enrichment process now stores both the classification label and confidence score for each attribute:
+
+```json
+{
+  "attributes": {
+    "style": {
+      "label": "Modern",
+      "confidence": 0.85
+    },
+    "subject": {
+      "label": "Landscape", 
+      "confidence": 0.92
+    }
+  }
+}
+```
+
+**Benefits:**
+- **Higher quality recommendations**: Artworks with high-confidence classifications are prioritized
+- **Transparency**: Users can see how confident the AI is in its classifications
+- **Backward compatibility**: Existing catalogs with simple string attributes continue to work
+- **Improved filtering**: The recommendation algorithm considers confidence when ranking results
+
+**How it works:**
+- Confidence scores range from 0.0 (low confidence) to 1.0 (high confidence)
+- Higher confidence = better recommendation quality
+- The system automatically handles both new (object) and old (string) attribute formats
+
+### 4. Manage Custom Descriptions and URLs
 - Use the external metadata file `catalog_metadata.json` for custom descriptions and product URLs
 - Update metadata easily with the helper script:
   ```bash
@@ -160,7 +190,7 @@ The project uses different backend files for different environments:
   ```
 - For bulk operations, see `BULK_IMAGE_WORKFLOW.md`
 
-### 4. Deploy/Update Catalog Data to DynamoDB
+### 5. Deploy/Update Catalog Data to DynamoDB
 - To upload or update your catalog data in DynamoDB, run:
   ```bash
   python backend/migrate_to_dynamodb.py
