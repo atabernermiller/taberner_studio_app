@@ -343,7 +343,7 @@ header {
     position: sticky;
     top: 0;
     z-index: 1000;
-    padding: 1rem 0;
+    padding: 0.5rem 0;
 }
 
 .header-content {
@@ -357,7 +357,7 @@ header {
 }
 
 #logo {
-    height: 40px;
+    height: 80px;
     width: auto;
     flex-shrink: 0;
 }
@@ -1366,7 +1366,7 @@ header {
     }
     
     #logo {
-        height: 32px;
+        height: 64px;
     }
     
     .header-title {
