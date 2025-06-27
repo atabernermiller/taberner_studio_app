@@ -144,14 +144,30 @@ presigned_url_cache = SimpleCache(ttl_seconds=3600)  # 1 hour cache for S3 URLs
 moderation_cache = SimpleCache(ttl_seconds=600)  # 10 minutes cache for moderation results
 
 # --- Core Logic: Color Analysis, Moderation, Storage ---
-def safe_float(value, default=0.0):
+def safe_float(value):
     """Safely convert a value to float, handling Decimal types from DynamoDB"""
+    if value is None:
+        return 0.0
+    if isinstance(value, (int, float)):
+        return float(value)
     if hasattr(value, '__float__'):
         return float(value)
-    elif isinstance(value, (int, float)):
+    try:
         return float(value)
-    else:
-        return default
+    except (ValueError, TypeError):
+        return 0.0
+
+def convert_decimals_to_floats(obj):
+    """Recursively convert Decimal values to float for arithmetic operations"""
+    if obj is None:
+        return None
+    if isinstance(obj, dict):
+        return {key: convert_decimals_to_floats(value) for key, value in obj.items()}
+    if isinstance(obj, list):
+        return [convert_decimals_to_floats(item) for item in obj]
+    if hasattr(obj, 'as_tuple'):  # Decimal type check
+        return float(obj)
+    return obj
 
 def hex_to_rgb(hex_color):
     hex_color = hex_color.lstrip('#')
@@ -383,7 +399,8 @@ def get_recommendations_by_filter(filters):
             # Convert Decimal to float for arithmetic operations
             style_conf_float = safe_float(style_confidence)
             subject_conf_float = safe_float(subject_confidence)
-            confidence_score = 1.0 - ((style_conf_float + subject_conf_float) / 2.0)
+            # Ensure all values are float before arithmetic
+            confidence_score = 1.0 - (float(style_conf_float + subject_conf_float) / 2.0)
             filtered_artworks.append({'artwork': artwork, 'score': confidence_score})
     
     # Sort by confidence score (ascending, lower is better)

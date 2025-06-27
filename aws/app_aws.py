@@ -110,14 +110,30 @@ logging.info("=== Application Starting ===")
 
 # --- Core Logic: Color Analysis, Moderation, Storage ---
 
-def safe_float(value, default=0.0):
+def safe_float(value):
     """Safely convert a value to float, handling Decimal types from DynamoDB."""
     if value is None:
-        return default
+        return 0.0
+    if isinstance(value, (int, float)):
+        return float(value)
+    if hasattr(value, '__float__'):
+        return float(value)
     try:
         return float(value)
     except (ValueError, TypeError):
-        return default
+        return 0.0
+
+def convert_decimals_to_floats(obj):
+    """Recursively convert Decimal values to float for arithmetic operations"""
+    if obj is None:
+        return None
+    if isinstance(obj, dict):
+        return {key: convert_decimals_to_floats(value) for key, value in obj.items()}
+    if isinstance(obj, list):
+        return [convert_decimals_to_floats(item) for item in obj]
+    if hasattr(obj, 'as_tuple'):  # Decimal type check
+        return float(obj)
+    return obj
 
 def hex_to_rgb(hex_color):
     hex_color = hex_color.lstrip('#')
@@ -479,14 +495,18 @@ def get_vector_based_recommendations(user_preferences, max_recs=MAX_RECOMMENDATI
         subject_attr = attrs.get('subject', {})
         
         if isinstance(style_attr, dict) and isinstance(subject_attr, dict):
+            # Convert any Decimal values to float before arithmetic
+            style_attr = convert_decimals_to_floats(style_attr)
+            subject_attr = convert_decimals_to_floats(subject_attr)
+            
             style_conf = safe_float(style_attr.get('confidence', 0.5))
             subject_conf = safe_float(subject_attr.get('confidence', 0.5))
-            avg_confidence = (style_conf + subject_conf) / 2
+            avg_confidence = float(style_conf + subject_conf) / 2.0
             # Weight similarity by confidence
-            final_score = max_similarity * avg_confidence
+            final_score = float(max_similarity) * float(avg_confidence)
         else:
             # Legacy format, use similarity directly
-            final_score = max_similarity
+            final_score = float(max_similarity)
         
         scored_artworks.append({
             'artwork': artwork,
@@ -625,7 +645,7 @@ def preferences_options():
         style_attr = attrs.get('style')
         if isinstance(style_attr, dict):
             style_label = style_attr.get('label', '')
-            style_confidence = style_attr.get('confidence', 0.0)
+            style_confidence = safe_float(style_attr.get('confidence', 0.0))
             # Only include if confidence meets threshold
             if style_label and style_confidence >= CONFIDENCE_THRESHOLD:
                 styles.add(style_label)
@@ -639,7 +659,7 @@ def preferences_options():
         subject_attr = attrs.get('subject')
         if isinstance(subject_attr, dict):
             subject_label = subject_attr.get('label', '')
-            subject_confidence = subject_attr.get('confidence', 0.0)
+            subject_confidence = safe_float(subject_attr.get('confidence', 0.0))
             # Only include if confidence meets threshold
             if subject_label and subject_confidence >= CONFIDENCE_THRESHOLD:
                 subjects.add(subject_label)
