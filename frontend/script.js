@@ -217,10 +217,8 @@ document.addEventListener('DOMContentLoaded', function() {
     fetch('/api/preferences-options')
         .then(res => res.json())
         .then(options => {
-            populateSelect('mood-select', options.moods, 'Any Mood');
             populateSelect('style-select', options.styles, 'Any Style');
             populateSelect('subject-select', options.subjects, 'Any Subject');
-            populateSelect('color-preference', options.colors, 'Any Colors');
         });
 });
 
