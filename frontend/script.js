@@ -777,44 +777,14 @@ function showResultsView() {
                         const canvas = document.createElement('canvas');
                         const ctx = canvas.getContext('2d');
                         
-                        // Calculate optimal dimensions with better handling for HEIC files
-                        // HEIC files from iPhones are often very large, so we need more aggressive resizing
-                        const maxSize = 600; // Reduced from 800 to 600 for better performance
-                        const maxWidth = 800; // Maximum width for very wide images
-                        const maxHeight = 600; // Maximum height for very tall images
-                        
                         let { width, height } = this;
                         
                         console.log('Original image dimensions:', width, 'x', height);
                         
-                        // Handle very large images (like HEIC from iPhones)
-                        if (width > 2000 || height > 2000) {
-                            // For very large images, be more aggressive with resizing
-                            if (width > height) {
-                                if (width > maxWidth) {
-                                    height = (height * maxWidth) / width;
-                                    width = maxWidth;
-                                }
-                            } else {
-                                if (height > maxHeight) {
-                                    width = (width * maxHeight) / height;
-                                    height = maxHeight;
-                                }
-                            }
-                        } else {
-                            // For smaller images, use the standard maxSize approach
-                            if (width > height) {
-                                if (width > maxSize) {
-                                    height = (height * maxSize) / width;
-                                    width = maxSize;
-                                }
-                            } else {
-                                if (height > maxSize) {
-                                    width = (width * maxSize) / height;
-                                    height = maxSize;
-                                }
-                            }
-                        }
+                        // Use responsive sizing based on screen dimensions
+                        const optimalDimensions = calculateOptimalImageDimensions(width, height);
+                        width = optimalDimensions.width;
+                        height = optimalDimensions.height;
                         
                         // Ensure dimensions are integers
                         width = Math.round(width);
@@ -853,22 +823,39 @@ function showResultsView() {
                     console.log('Optimized room image loaded, dimensions:', this.naturalWidth, 'x', this.naturalHeight);
                     if (this.naturalWidth && this.naturalHeight) {
                         const aspectRatio = this.naturalWidth / this.naturalHeight;
-                        let maxWidth = 720; // Increased from 600 to 720 (20% larger)
-                        let maxHeight = 540; // Increased from 450 to 540 (20% larger)
-                        let width = maxWidth;
+                        
+                        // Calculate responsive dimensions for virtual showroom
+                        const viewportWidth = window.innerWidth;
+                        const viewportHeight = window.innerHeight;
+                        
+                        // Use 80% of viewport width and 60% of viewport height as maximum
+                        const maxShowroomWidth = Math.min(viewportWidth * 0.8, 800);
+                        const maxShowroomHeight = Math.min(viewportHeight * 0.6, 600);
+                        
+                        let width = maxShowroomWidth;
                         let height = width / aspectRatio;
-                        if (height > maxHeight) {
-                            height = maxHeight;
+                        
+                        if (height > maxShowroomHeight) {
+                            height = maxShowroomHeight;
                             width = height * aspectRatio;
                         }
+                        
+                        // Ensure dimensions are integers
+                        width = Math.round(width);
+                        height = Math.round(height);
+                        
                         virtualShowroom.style.width = width + 'px';
                         virtualShowroom.style.height = height + 'px';
                         console.log('Virtual showroom sized to:', width, 'x', height);
+                        
                         const artworkOverlay = document.getElementById('artwork-overlay');
                         if (artworkOverlay) {
-                            artworkOverlay.style.width = width + 'px';
-                            artworkOverlay.style.height = height + 'px';
-                            console.log('Artwork overlay sized to:', width, 'x', height);
+                            // Size artwork overlay proportionally to the showroom
+                            const overlayWidth = Math.round(width * 0.4); // 40% of showroom width
+                            const overlayHeight = Math.round(height * 0.3); // 30% of showroom height
+                            artworkOverlay.style.width = overlayWidth + 'px';
+                            artworkOverlay.style.height = overlayHeight + 'px';
+                            console.log('Artwork overlay sized to:', overlayWidth, 'x', overlayHeight);
                         }
                     }
                 };
@@ -1162,44 +1149,14 @@ function displayCurrentArtwork() {
                             const canvas = document.createElement('canvas');
                             const ctx = canvas.getContext('2d');
                             
-                            // Calculate optimal dimensions with better handling for HEIC files
-                            // HEIC files from iPhones are often very large, so we need more aggressive resizing
-                            const maxSize = 600; // Reduced from 800 to 600 for better performance
-                            const maxWidth = 800; // Maximum width for very wide images
-                            const maxHeight = 600; // Maximum height for very tall images
-                            
                             let { width, height } = this;
                             
                             console.log('Original image dimensions:', width, 'x', height);
                             
-                            // Handle very large images (like HEIC from iPhones)
-                            if (width > 2000 || height > 2000) {
-                                // For very large images, be more aggressive with resizing
-                                if (width > height) {
-                                    if (width > maxWidth) {
-                                        height = (height * maxWidth) / width;
-                                        width = maxWidth;
-                                    }
-                                } else {
-                                    if (height > maxHeight) {
-                                        width = (width * maxHeight) / height;
-                                        height = maxHeight;
-                                    }
-                                }
-                            } else {
-                                // For smaller images, use the standard maxSize approach
-                                if (width > height) {
-                                    if (width > maxSize) {
-                                        height = (height * maxSize) / width;
-                                        width = maxSize;
-                                    }
-                                } else {
-                                    if (height > maxSize) {
-                                        width = (width * maxSize) / height;
-                                        height = maxSize;
-                                    }
-                                }
-                            }
+                            // Use responsive sizing based on screen dimensions
+                            const optimalDimensions = calculateOptimalImageDimensions(width, height);
+                            width = optimalDimensions.width;
+                            height = optimalDimensions.height;
                             
                             // Ensure dimensions are integers
                             width = Math.round(width);
@@ -1238,22 +1195,39 @@ function displayCurrentArtwork() {
                         console.log('Optimized room image loaded, dimensions:', this.naturalWidth, 'x', this.naturalHeight);
                         if (this.naturalWidth && this.naturalHeight) {
                             const aspectRatio = this.naturalWidth / this.naturalHeight;
-                            let maxWidth = 720; // Increased from 600 to 720 (20% larger)
-                            let maxHeight = 540; // Increased from 450 to 540 (20% larger)
-                            let width = maxWidth;
+                            
+                            // Calculate responsive dimensions for virtual showroom
+                            const viewportWidth = window.innerWidth;
+                            const viewportHeight = window.innerHeight;
+                            
+                            // Use 80% of viewport width and 60% of viewport height as maximum
+                            const maxShowroomWidth = Math.min(viewportWidth * 0.8, 800);
+                            const maxShowroomHeight = Math.min(viewportHeight * 0.6, 600);
+                            
+                            let width = maxShowroomWidth;
                             let height = width / aspectRatio;
-                            if (height > maxHeight) {
-                                height = maxHeight;
+                            
+                            if (height > maxShowroomHeight) {
+                                height = maxShowroomHeight;
                                 width = height * aspectRatio;
                             }
+                            
+                            // Ensure dimensions are integers
+                            width = Math.round(width);
+                            height = Math.round(height);
+                            
                             virtualShowroom.style.width = width + 'px';
                             virtualShowroom.style.height = height + 'px';
                             console.log('Virtual showroom sized to:', width, 'x', height);
+                            
                             const artworkOverlay = document.getElementById('artwork-overlay');
                             if (artworkOverlay) {
-                                artworkOverlay.style.width = width + 'px';
-                                artworkOverlay.style.height = height + 'px';
-                                console.log('Artwork overlay sized to:', width, 'x', height);
+                                // Size artwork overlay proportionally to the showroom
+                                const overlayWidth = Math.round(width * 0.4); // 40% of showroom width
+                                const overlayHeight = Math.round(height * 0.3); // 30% of showroom height
+                                artworkOverlay.style.width = overlayWidth + 'px';
+                                artworkOverlay.style.height = overlayHeight + 'px';
+                                console.log('Artwork overlay sized to:', overlayWidth, 'x', overlayHeight);
                             }
                         }
                     };
@@ -1269,18 +1243,44 @@ function displayCurrentArtwork() {
                 roomImage.src = 'assets/mock/mock-room.jpg';
                 roomImage.style.display = 'block';
                 console.log('Room image src set to default mock room');
-                // Set default dimensions for preferences workflow
-                virtualShowroom.style.width = '600px';
-                virtualShowroom.style.height = '450px';
-                console.log('Virtual showroom sized to default: 600x450');
+                
+                // Set responsive default dimensions for preferences workflow
+                const viewportWidth = window.innerWidth;
+                const viewportHeight = window.innerHeight;
+                
+                // Use 70% of viewport width and 50% of viewport height as maximum for default room
+                const maxShowroomWidth = Math.min(viewportWidth * 0.7, 600);
+                const maxShowroomHeight = Math.min(viewportHeight * 0.5, 450);
+                
+                // Default room aspect ratio is 4:3
+                const aspectRatio = 4/3;
+                let width = maxShowroomWidth;
+                let height = width / aspectRatio;
+                
+                if (height > maxShowroomHeight) {
+                    height = maxShowroomHeight;
+                    width = height * aspectRatio;
+                }
+                
+                // Ensure dimensions are integers
+                width = Math.round(width);
+                height = Math.round(height);
+                
+                virtualShowroom.style.width = width + 'px';
+                virtualShowroom.style.height = height + 'px';
+                console.log('Virtual showroom sized to default:', width, 'x', height);
+                
                 const artworkOverlay = document.getElementById('artwork-overlay');
                 if (artworkOverlay) {
-                    artworkOverlay.style.width = '250px';
-                    artworkOverlay.style.height = '187.5px'; // 4:3 aspect ratio
+                    // Size artwork overlay proportionally to the showroom
+                    const overlayWidth = Math.round(width * 0.4); // 40% of showroom width
+                    const overlayHeight = Math.round(height * 0.3); // 30% of showroom height
+                    artworkOverlay.style.width = overlayWidth + 'px';
+                    artworkOverlay.style.height = overlayHeight + 'px';
                     artworkOverlay.style.left = '50%';
                     artworkOverlay.style.top = '50%';
                     artworkOverlay.style.transform = 'translate(-50%, -50%)';
-                    console.log('Artwork overlay positioned and sized to: 250x187.5');
+                    console.log('Artwork overlay positioned and sized to:', overlayWidth, 'x', overlayHeight);
                 } else {
                     console.error('Artwork overlay element not found!');
                 }
@@ -1779,6 +1779,84 @@ function initializeEventListeners() {
     if (resetBtn) {
         resetBtn.addEventListener('click', resetToOptions);
     }
+    
+    // Add window resize listener for responsive sizing
+    let resizeTimeout;
+    window.addEventListener('resize', function() {
+        // Debounce resize events to avoid excessive calculations
+        clearTimeout(resizeTimeout);
+        resizeTimeout = setTimeout(function() {
+            console.log('Window resized, recalculating dimensions...');
+            
+            const virtualShowroom = document.getElementById('virtual-showroom');
+            const roomImage = document.getElementById('room-image');
+            const artworkOverlay = document.getElementById('artwork-overlay');
+            
+            if (virtualShowroom && roomImage && artworkOverlay) {
+                // Recalculate dimensions based on new viewport size
+                const viewportWidth = window.innerWidth;
+                const viewportHeight = window.innerHeight;
+                
+                if (roomImage.src && roomImage.src !== 'assets/mock/mock-room.jpg') {
+                    // For uploaded images, recalculate based on image aspect ratio
+                    const aspectRatio = roomImage.naturalWidth / roomImage.naturalHeight;
+                    const maxShowroomWidth = Math.min(viewportWidth * 0.8, 800);
+                    const maxShowroomHeight = Math.min(viewportHeight * 0.6, 600);
+                    
+                    let width = maxShowroomWidth;
+                    let height = width / aspectRatio;
+                    
+                    if (height > maxShowroomHeight) {
+                        height = maxShowroomHeight;
+                        width = height * aspectRatio;
+                    }
+                    
+                    width = Math.round(width);
+                    height = Math.round(height);
+                    
+                    virtualShowroom.style.width = width + 'px';
+                    virtualShowroom.style.height = height + 'px';
+                    
+                    // Resize artwork overlay proportionally
+                    const overlayWidth = Math.round(width * 0.4);
+                    const overlayHeight = Math.round(height * 0.3);
+                    artworkOverlay.style.width = overlayWidth + 'px';
+                    artworkOverlay.style.height = overlayHeight + 'px';
+                    
+                    console.log('Resized showroom to:', width, 'x', height);
+                    console.log('Resized overlay to:', overlayWidth, 'x', overlayHeight);
+                } else {
+                    // For default room, use 4:3 aspect ratio
+                    const aspectRatio = 4/3;
+                    const maxShowroomWidth = Math.min(viewportWidth * 0.7, 600);
+                    const maxShowroomHeight = Math.min(viewportHeight * 0.5, 450);
+                    
+                    let width = maxShowroomWidth;
+                    let height = width / aspectRatio;
+                    
+                    if (height > maxShowroomHeight) {
+                        height = maxShowroomHeight;
+                        width = height * aspectRatio;
+                    }
+                    
+                    width = Math.round(width);
+                    height = Math.round(height);
+                    
+                    virtualShowroom.style.width = width + 'px';
+                    virtualShowroom.style.height = height + 'px';
+                    
+                    // Resize artwork overlay proportionally
+                    const overlayWidth = Math.round(width * 0.4);
+                    const overlayHeight = Math.round(height * 0.3);
+                    artworkOverlay.style.width = overlayWidth + 'px';
+                    artworkOverlay.style.height = overlayHeight + 'px';
+                    
+                    console.log('Resized default showroom to:', width, 'x', height);
+                    console.log('Resized overlay to:', overlayWidth, 'x', overlayHeight);
+                }
+            }
+        }, 250); // Wait 250ms after resize stops before recalculating
+    });
 }
 
 function showOptionsView() {
@@ -1843,4 +1921,58 @@ async function batchLoadImageUrls(filenames) {
     
     console.log(`[BatchLoad] Successfully pre-loaded ${successful.length}/${filenames.length} image URLs`);
     return successful.map(r => r.value);
+}
+
+// Add this function at the top of the file, after the existing functions
+function calculateOptimalImageDimensions(originalWidth, originalHeight) {
+    // Get viewport dimensions
+    const viewportWidth = window.innerWidth;
+    const viewportHeight = window.innerHeight;
+    
+    // Calculate available space (accounting for padding, margins, and UI elements)
+    const availableWidth = Math.min(viewportWidth * 0.9, 800); // Max 90% of viewport width, but no more than 800px
+    const availableHeight = Math.min(viewportHeight * 0.7, 600); // Max 70% of viewport height, but no more than 600px
+    
+    console.log('Viewport dimensions:', viewportWidth, 'x', viewportHeight);
+    console.log('Available space:', availableWidth, 'x', availableHeight);
+    
+    let { width, height } = { width: originalWidth, height: originalHeight };
+    
+    // Calculate aspect ratio
+    const aspectRatio = width / height;
+    
+    // Determine if image is landscape or portrait
+    const isLandscape = width > height;
+    
+    if (isLandscape) {
+        // For landscape images, fit to width first
+        if (width > availableWidth) {
+            width = availableWidth;
+            height = width / aspectRatio;
+        }
+        // Then check if height exceeds available height
+        if (height > availableHeight) {
+            height = availableHeight;
+            width = height * aspectRatio;
+        }
+    } else {
+        // For portrait images, fit to height first
+        if (height > availableHeight) {
+            height = availableHeight;
+            width = height * aspectRatio;
+        }
+        // Then check if width exceeds available width
+        if (width > availableWidth) {
+            width = availableWidth;
+            height = width / aspectRatio;
+        }
+    }
+    
+    // Ensure dimensions are integers
+    width = Math.round(width);
+    height = Math.round(height);
+    
+    console.log('Optimal dimensions calculated:', width, 'x', height);
+    
+    return { width, height };
 } 
