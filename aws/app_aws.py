@@ -110,6 +110,15 @@ logging.info("=== Application Starting ===")
 
 # --- Core Logic: Color Analysis, Moderation, Storage ---
 
+def safe_float(value, default=0.0):
+    """Safely convert a value to float, handling Decimal types from DynamoDB."""
+    if value is None:
+        return default
+    try:
+        return float(value)
+    except (ValueError, TypeError):
+        return default
+
 def hex_to_rgb(hex_color):
     hex_color = hex_color.lstrip('#')
     return tuple(int(hex_color[i:i+2], 16) for i in (0, 2, 4))
@@ -333,7 +342,10 @@ def get_recommendations_by_filter(filters):
         if style_match and subject_match:
             # Calculate a confidence-based score
             # Higher confidence = better score (lower number since we sort ascending)
-            confidence_score = 1.0 - ((style_confidence + subject_confidence) / 2.0)
+            # Convert Decimal to float for arithmetic operations
+            style_conf_float = safe_float(style_confidence)
+            subject_conf_float = safe_float(subject_confidence)
+            confidence_score = 1.0 - ((style_conf_float + subject_conf_float) / 2.0)
             filtered_artworks.append({'artwork': artwork, 'score': confidence_score})
     
     # Sort by confidence score (ascending, lower is better)
@@ -467,8 +479,8 @@ def get_vector_based_recommendations(user_preferences, max_recs=MAX_RECOMMENDATI
         subject_attr = attrs.get('subject', {})
         
         if isinstance(style_attr, dict) and isinstance(subject_attr, dict):
-            style_conf = style_attr.get('confidence', 0.5)
-            subject_conf = subject_attr.get('confidence', 0.5)
+            style_conf = safe_float(style_attr.get('confidence', 0.5))
+            subject_conf = safe_float(subject_attr.get('confidence', 0.5))
             avg_confidence = (style_conf + subject_conf) / 2
             # Weight similarity by confidence
             final_score = max_similarity * avg_confidence
@@ -561,16 +573,32 @@ def recommend_unified():
                 app.logger.info(f"Generated {len(recs)} vector-based recommendations")
             else:
                 app.logger.info("No vector-based recommendations found, falling back to traditional filtering")
+                # Handle both array and string formats for preferences
+                style_pref = preferences.get('style')
+                subject_pref = preferences.get('subject')
+                
+                # Convert arrays to strings if needed
+                style_value = style_pref[0] if isinstance(style_pref, list) and style_pref else style_pref
+                subject_value = subject_pref[0] if isinstance(subject_pref, list) and subject_pref else subject_pref
+                
                 filters = {
-                    'styles': [preferences['style']] if preferences.get('style') and preferences['style'].strip() else [],
-                    'subjects': [preferences['subject']] if preferences.get('subject') and preferences['subject'].strip() else [],
+                    'styles': [style_value] if style_value and str(style_value).strip() else [],
+                    'subjects': [subject_value] if subject_value and str(subject_value).strip() else [],
                 }
                 recs = get_recommendations_by_filter(filters)
         except Exception as e:
             app.logger.warning(f"Vector-based recommendations failed: {e}, falling back to traditional filtering")
+            # Handle both array and string formats for preferences
+            style_pref = preferences.get('style')
+            subject_pref = preferences.get('subject')
+            
+            # Convert arrays to strings if needed
+            style_value = style_pref[0] if isinstance(style_pref, list) and style_pref else style_pref
+            subject_value = subject_pref[0] if isinstance(subject_pref, list) and subject_pref else subject_pref
+            
             filters = {
-                'styles': [preferences['style']] if preferences.get('style') and preferences['style'].strip() else [],
-                'subjects': [preferences['subject']] if preferences.get('subject') and preferences['subject'].strip() else [],
+                'styles': [style_value] if style_value and str(style_value).strip() else [],
+                'subjects': [subject_value] if subject_value and str(subject_value).strip() else [],
             }
             recs = get_recommendations_by_filter(filters)
         
@@ -610,6 +638,8 @@ def preferences_options():
     items = load_catalog_from_dynamodb()
     styles = set()
     subjects = set()
+    CONFIDENCE_THRESHOLD = 0.7  # Only show attributes with confidence >= 0.7
+    
     for art in items:
         attrs = art.get('attributes', {})
         
@@ -617,21 +647,29 @@ def preferences_options():
         style_attr = attrs.get('style')
         if isinstance(style_attr, dict):
             style_label = style_attr.get('label', '')
+            style_confidence = style_attr.get('confidence', 0.0)
+            # Only include if confidence meets threshold
+            if style_label and style_confidence >= CONFIDENCE_THRESHOLD:
+                styles.add(style_label)
         else:
+            # Old format - assume high confidence (1.0) for backward compatibility
             style_label = style_attr or ''
-        
-        if style_label:
-            styles.add(style_label)
+            if style_label:
+                styles.add(style_label)
         
         # Handle both old string format and new object format for subject
         subject_attr = attrs.get('subject')
         if isinstance(subject_attr, dict):
             subject_label = subject_attr.get('label', '')
+            subject_confidence = subject_attr.get('confidence', 0.0)
+            # Only include if confidence meets threshold
+            if subject_label and subject_confidence >= CONFIDENCE_THRESHOLD:
+                subjects.add(subject_label)
         else:
+            # Old format - assume high confidence (1.0) for backward compatibility
             subject_label = subject_attr or ''
-        
-        if subject_label:
-            subjects.add(subject_label)
+            if subject_label:
+                subjects.add(subject_label)
     
     return jsonify({
         'styles': sorted(list(styles)),

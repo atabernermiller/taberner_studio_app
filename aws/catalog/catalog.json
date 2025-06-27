@@ -37,7 +37,7 @@
             },
             "subject": {
                 "label": "Horse",
-                "confidence": 0.9872121214866638
+                "confidence": 0.9641004204750061
             },
             "embedding": [
                 -0.010969472117722034,
@@ -849,7 +849,7 @@
             },
             "subject": {
                 "label": "Abstract",
-                "confidence": 0.40040087699890137
+                "confidence": 0.3960713744163513
             },
             "embedding": [
                 0.002393420785665512,
@@ -1661,7 +1661,7 @@
             },
             "subject": {
                 "label": "Wildlife",
-                "confidence": 0.7811414003372192
+                "confidence": 0.7785850763320923
             },
             "embedding": [
                 -0.026094568893313408,
@@ -2473,7 +2473,7 @@
             },
             "subject": {
                 "label": "Seascape",
-                "confidence": 0.794201135635376
+                "confidence": 0.7935414910316467
             },
             "embedding": [
                 -0.012368393130600452,
@@ -3285,7 +3285,7 @@
             },
             "subject": {
                 "label": "Landscape",
-                "confidence": 0.8681348562240601
+                "confidence": 0.8574079871177673
             },
             "embedding": [
                 -0.0022479344625025988,
@@ -4097,7 +4097,7 @@
             },
             "subject": {
                 "label": "Landscape",
-                "confidence": 0.7262493968009949
+                "confidence": 0.6645856499671936
             },
             "embedding": [
                 0.042251333594322205,
@@ -4909,7 +4909,7 @@
             },
             "subject": {
                 "label": "Landscape",
-                "confidence": 0.9321730732917786
+                "confidence": 0.9240182042121887
             },
             "embedding": [
                 0.00325665227137506,
@@ -5721,7 +5721,7 @@
             },
             "subject": {
                 "label": "Cityscape",
-                "confidence": 0.39088478684425354
+                "confidence": 0.38737115263938904
             },
             "embedding": [
                 -0.014988291077315807,
@@ -6533,7 +6533,7 @@
             },
             "subject": {
                 "label": "Bird",
-                "confidence": 0.8672537207603455
+                "confidence": 0.8644229769706726
             },
             "embedding": [
                 -0.05044306442141533,
@@ -7345,7 +7345,7 @@
             },
             "subject": {
                 "label": "Horse",
-                "confidence": 0.962584912776947
+                "confidence": 0.9526552557945251
             },
             "embedding": [
                 0.0061124288477003574,
@@ -8157,7 +8157,7 @@
             },
             "subject": {
                 "label": "Seascape",
-                "confidence": 0.8483946919441223
+                "confidence": 0.8478658199310303
             },
             "embedding": [
                 -0.00964834913611412,
@@ -8969,7 +8969,7 @@
             },
             "subject": {
                 "label": "Landscape",
-                "confidence": 0.9763920903205872
+                "confidence": 0.9555155038833618
             },
             "embedding": [
                 0.05147318169474602,
@@ -9781,7 +9781,7 @@
             },
             "subject": {
                 "label": "Landscape",
-                "confidence": 0.8970488905906677
+                "confidence": 0.888044536113739
             },
             "embedding": [
                 0.038546718657016754,
@@ -10593,7 +10593,7 @@
             },
             "subject": {
                 "label": "Landscape",
-                "confidence": 0.4240672290325165
+                "confidence": 0.4174647629261017
             },
             "embedding": [
                 -0.0025343133602291346,
@@ -11405,7 +11405,7 @@
             },
             "subject": {
                 "label": "Landscape",
-                "confidence": 0.9188328981399536
+                "confidence": 0.7213916778564453
             },
             "embedding": [
                 0.03730228543281555,
@@ -12217,7 +12217,7 @@
             },
             "subject": {
                 "label": "Landscape",
-                "confidence": 0.9169362783432007
+                "confidence": 0.9132973551750183
             },
             "embedding": [
                 0.02887682616710663,
@@ -13029,7 +13029,7 @@
             },
             "subject": {
                 "label": "Landscape",
-                "confidence": 0.945800244808197
+                "confidence": 0.9280362725257874
             },
             "embedding": [
                 0.029019689187407494,
@@ -13841,7 +13841,7 @@
             },
             "subject": {
                 "label": "Horse",
-                "confidence": 0.9610542058944702
+                "confidence": 0.9169821739196777
             },
             "embedding": [
                 0.0163321141153574,
@@ -14653,7 +14653,7 @@
             },
             "subject": {
                 "label": "Landscape",
-                "confidence": 0.8958969116210938
+                "confidence": 0.8811461925506592
             },
             "embedding": [
                 0.029684046283364296,
@@ -15465,7 +15465,7 @@
             },
             "subject": {
                 "label": "Seascape",
-                "confidence": 0.8059067726135254
+                "confidence": 0.8044887781143188
             },
             "embedding": [
                 -0.009998795576393604,
@@ -16277,7 +16277,7 @@
             },
             "subject": {
                 "label": "Landscape",
-                "confidence": 0.655332624912262
+                "confidence": 0.6540369987487793
             },
             "embedding": [
                 -0.0015716861234977841,
@@ -17089,7 +17089,7 @@
             },
             "subject": {
                 "label": "Horse",
-                "confidence": 0.9676515460014343
+                "confidence": 0.9621375799179077
             },
             "embedding": [
                 0.011117284186184406,
@@ -17900,8 +17900,8 @@
                 "confidence": 0.35211503505706787
             },
             "subject": {
-                "label": "Bird",
-                "confidence": 0.7404458522796631
+                "label": "Farm Animals",
+                "confidence": 0.7182502150535583
             },
             "embedding": [
                 -0.01205332763493061,
@@ -18713,7 +18713,7 @@
             },
             "subject": {
                 "label": "Horse",
-                "confidence": 0.8854318857192993
+                "confidence": 0.8611320853233337
             },
             "embedding": [
                 -0.008655181154608727,
@@ -19525,7 +19525,7 @@
             },
             "subject": {
                 "label": "Horse",
-                "confidence": 0.9507021903991699
+                "confidence": 0.933627724647522
             },
             "embedding": [
                 -0.03135734051465988,
@@ -20337,7 +20337,7 @@
             },
             "subject": {
                 "label": "Cityscape",
-                "confidence": 0.9105314612388611
+                "confidence": 0.9103265404701233
             },
             "embedding": [
                 0.012799396179616451,
@@ -21149,7 +21149,7 @@
             },
             "subject": {
                 "label": "Still Life",
-                "confidence": 0.43284061551094055
+                "confidence": 0.4261699318885803
             },
             "embedding": [
                 -0.02285393513739109,
@@ -21961,7 +21961,7 @@
             },
             "subject": {
                 "label": "Seascape",
-                "confidence": 0.7630006074905396
+                "confidence": 0.758248507976532
             },
             "embedding": [
                 0.011154617182910442,
@@ -22773,7 +22773,7 @@
             },
             "subject": {
                 "label": "Bird",
-                "confidence": 0.9846312403678894
+                "confidence": 0.9820383787155151
             },
             "embedding": [
                 -0.0015551811084151268,
@@ -23585,7 +23585,7 @@
             },
             "subject": {
                 "label": "Landscape",
-                "confidence": 0.9384141564369202
+                "confidence": 0.9132328629493713
             },
             "embedding": [
                 0.029706310480833054,
@@ -24397,7 +24397,7 @@
             },
             "subject": {
                 "label": "Landscape",
-                "confidence": 0.9721059203147888
+                "confidence": 0.9525429010391235
             },
             "embedding": [
                 0.015629494562745094,
@@ -25209,7 +25209,7 @@
             },
             "subject": {
                 "label": "Cityscape",
-                "confidence": 0.9083727598190308
+                "confidence": 0.9082440137863159
             },
             "embedding": [
                 -0.003311917884275317,
@@ -26021,7 +26021,7 @@
             },
             "subject": {
                 "label": "Horse",
-                "confidence": 0.9539157152175903
+                "confidence": 0.944275438785553
             },
             "embedding": [
                 0.020310617983341217,

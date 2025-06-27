@@ -109,6 +109,18 @@ let overlayState = {
     userCustomized: false
 };
 
+// Function to update drag hint text based on workflow type
+function updateDragHintText(workflowType) {
+    const dragHint = document.querySelector('.drag-hint');
+    if (dragHint) {
+        if (workflowType === 'preferences') {
+            dragHint.textContent = 'Drag and resize the artwork to see how it looks in the room below';
+        } else {
+            dragHint.textContent = 'Drag and resize the artwork to see how it looks in your room';
+        }
+    }
+}
+
 // Initialize the application when DOM is loaded
 document.addEventListener('DOMContentLoaded', function() {
     console.log('=== LANDING PAGE LOAD DEBUG ===');
@@ -217,7 +229,6 @@ document.addEventListener('DOMContentLoaded', function() {
     fetch('/api/preferences-options')
         .then(res => res.json())
         .then(options => {
-            populateSelect('style-select', options.styles, 'Any Style');
             populateSelect('subject-select', options.subjects, 'Any Subject');
         });
 });
@@ -236,6 +247,10 @@ function populateSelect(selectId, values, anyLabel) {
 // Form navigation functions
 function showUploadForm() {
     console.log('=== SWITCHING TO UPLOAD WORKFLOW ===');
+    // Set current view to upload
+    currentView = 'upload';
+    updateDragHintText('upload');
+    
     console.log('[showUploadForm] Cache state BEFORE clearing:', {
         allArtworks,
         currentArtworkIndex,
@@ -294,6 +309,10 @@ function showUploadForm() {
 
 function showPreferencesForm() {
     console.log('=== SWITCHING TO PREFERENCES WORKFLOW ===');
+    // Set current view to preferences
+    currentView = 'preferences';
+    updateDragHintText('preferences');
+    
     // Clear photo cache to prevent showing previous workflow's recommendations
     console.log('=== CLEARING PHOTO CACHE FOR PREFERENCES WORKFLOW ===');
     allArtworks = [];
@@ -335,13 +354,6 @@ function showPreferencesForm() {
             
             <form id="preferences-form">
                 <div class="filter-group">
-                    <label for="style-select">Art Style:</label>
-                    <select id="style-select">
-                        <option value="">Any Style</option>
-                    </select>
-                </div>
-                
-                <div class="filter-group">
                     <label for="subject-select">Subject:</label>
                     <select id="subject-select">
                         <option value="">Any Subject</option>
@@ -359,7 +371,6 @@ function showPreferencesForm() {
         fetch('/api/preferences-options')
             .then(res => res.json())
             .then(options => {
-                populateSelect('style-select', options.styles, 'Any Style');
                 populateSelect('subject-select', options.subjects, 'Any Subject');
             });
         
@@ -644,12 +655,10 @@ function handlePreferencesSubmit(event) {
     event.preventDefault();
     
     // Get form data
-    const styleSelect = document.getElementById('style-select');
     const subjectSelect = document.getElementById('subject-select');
     
     // Send as arrays with plural keys to match backend
     const preferences = {
-        style: styleSelect && styleSelect.value ? [styleSelect.value] : [],
         subject: subjectSelect && subjectSelect.value ? [subjectSelect.value] : []
     };
     
@@ -1573,8 +1582,14 @@ async function updateArtworkDisplay(index, forceInstant, onLoadedCallback) {
     const artworkInfo = document.getElementById('artwork-info');
     if (artworkInfo) {
         let priceHTML = artwork.price ? `<div class="price-tag">$${artwork.price}</div>` : '';
+        let styleLabel = getAttributeLabel(artwork.attributes && artwork.attributes.style);
+        let subjectLabel = getAttributeLabel(artwork.attributes && artwork.attributes.subject);
+        let styleHTML = styleLabel ? `<div class="product-meta"><span class="score-label">Style:</span> <span class="score-value">${styleLabel}</span></div>` : '';
+        let subjectHTML = subjectLabel ? `<div class="product-meta"><span class="score-label">Subject:</span> <span class="score-value">${subjectLabel}</span></div>` : '';
         artworkInfo.innerHTML = `
             ${priceHTML}
+            ${styleHTML}
+            ${subjectHTML}
             <div class="product-actions">
                 <button id="buy-now-btn" class="button">
                     <i class="fas fa-shopping-cart"></i> Buy Now
@@ -1672,6 +1687,10 @@ async function createThumbnailGallery() {
         thumbnail.className = 'thumbnail-item';
         thumbnail.onclick = () => selectThumbnail(artwork.originalIndex);
         
+        let styleLabel = getAttributeLabel(artwork.attributes && artwork.attributes.style);
+        let subjectLabel = getAttributeLabel(artwork.attributes && artwork.attributes.subject);
+        let styleHTML = styleLabel ? `<div class="thumbnail-score">${styleLabel}</div>` : '';
+        let subjectHTML = subjectLabel ? `<div class="thumbnail-score">${subjectLabel}</div>` : '';
         thumbnail.innerHTML = `
             <img src="${imageUrl}" alt="${artwork.title}" loading="lazy" 
                  onerror="console.error('Failed to load thumbnail:', '${imageUrl}')"
@@ -1679,6 +1698,8 @@ async function createThumbnailGallery() {
             <div class="thumbnail-overlay">
                 <div class="thumbnail-title">${artwork.title}</div>
                 <div class="thumbnail-price">$${artwork.price.toString().replace('$', '')}</div>
+                ${styleHTML}
+                ${subjectHTML}
             </div>
         `;
         
@@ -1990,4 +2011,12 @@ function calculateOptimalImageDimensions(originalWidth, originalHeight) {
     console.log('Optimal dimensions calculated:', width, 'x', height);
     
     return { width, height };
+}
+
+// Helper to get attribute label (handles string, object, or null)
+function getAttributeLabel(attr) {
+    if (!attr) return '';
+    if (typeof attr === 'string') return attr;
+    if (typeof attr === 'object' && attr.label) return attr.label;
+    return '';
 } 

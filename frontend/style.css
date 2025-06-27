@@ -976,8 +976,7 @@ header {
     height: 100%;
     object-fit: contain;
     object-position: center;
-    image-rendering: -webkit-optimize-contrast;
-    image-rendering: crisp-edges;
+    image-rendering: auto;
     display: block;
     transition: none !important;
     -webkit-transition: none !important;
@@ -1630,8 +1629,7 @@ header {
     height: 100%;
     object-fit: contain;
     object-position: center;
-    image-rendering: -webkit-optimize-contrast;
-    image-rendering: crisp-edges;
+    image-rendering: auto;
     display: block;
     transition: none !important;
     -webkit-transition: none !important;
@@ -1975,7 +1973,8 @@ header {
 
 .drag-hint {
     color: var(--accent-color) !important;
-    font-size: 0.9rem;
+    font-size: 1.2rem;
+    font-weight: 600;
     display: flex;
     align-items: center;
     gap: 0.5rem;

@@ -3,26 +3,23 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="AI-powered art recommendations for your space">
+    <meta name="description" content="AI art recommendations for your space">
     <meta name="theme-color" content="#FFD700">
     <!-- Prevent browser scroll restoration -->
     <meta name="scroll-restoration" content="manual">
-    <title>Taberner Studio - AI Art Recommendations</title>
-    <meta name="keywords" content="AI art, interior design, artwork recommendations, room decoration, Taberner Studio">
-    <meta name="author" content="Taberner Studio">
+    <title>AI Art Recommendations</title>
+    <meta name="keywords" content="AI art, interior design, artwork recommendations, room decoration">
+    <meta name="author" content="AI Art Recommendations">
     
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     
-    <!-- Font Awesome for Icons -->
+    <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
-    <!-- Interact.js for Drag & Resize -->
-    <script src="https://cdn.jsdelivr.net/npm/interactjs/dist/interact.min.js"></script>
-    
-    <!-- Custom Styles -->
+    <!-- Custom CSS -->
     <link rel="stylesheet" href="style.css?v=20250623w">
     
     <!-- Favicon -->
@@ -32,11 +29,13 @@
     <!-- Header -->
     <header>
         <div class="header-content">
-            <img src="assets/Taberner-Studio-logo.png" alt="Taberner Studio Logo" id="logo">
-            <h1 class="header-title">AI Art Recommendations</h1>
-            <button class="back-button" id="back-button" onclick="goBackToLanding()" style="display: none;">
+            <div class="logo-container">
+                <img id="logo" src="assets/Taberner-Studio-logo.png" alt="Logo">
+                <h1 class="header-title">AI Art Recommendations</h1>
+            </div>
+            <button id="back-button" class="back-button" style="display: none;" onclick="backToOptions()">
                 <i class="fas fa-arrow-left"></i>
-                <span>Back to Start</span>
+                <span>Back</span>
             </button>
         </div>
     </header>
@@ -54,7 +53,7 @@
                             AI-Powered Matching
                         </div>
                         <h2 class="hero-title">Transform Your Space with Perfect Art</h2>
-                        <p class="hero-subtitle">Discover existing Taberner Studio artwork that matches your style, complements your space, and speaks to your soul. Our AI analyzes your room or preferences to find the perfect pieces from our curated collection.</p>
+                        <p class="hero-subtitle">Discover existing artwork that matches your style, complements your space, and speaks to your soul. Our AI system analyzes your room or preferences to find the perfect pieces from our curated collection.</p>
                         
                         <div class="hero-features">
                             <div class="feature-item">
@@ -96,7 +95,7 @@
 
                 <div class="upload-header" id="options-section">
                     <h2 class="main-title" id="main-title-text">Choose Your Journey</h2>
-                    <p class="main-subtitle" id="main-subtitle-text">Two powerful ways to discover your perfect Taberner Studio artwork</p>
+                    <p class="main-subtitle" id="main-subtitle-text">Two powerful ways to discover your perfect artwork</p>
                     <div class="divider"></div>
                 </div>
                 
@@ -108,7 +107,7 @@
                             <i class="fas fa-camera"></i>
                         </div>
                         <h3>Upload Room Photo</h3>
-                        <p>Get recommendations for existing Taberner Studio artwork based on your actual room's style, colors, and layout.</p>
+                        <p>Get recommendations for existing artwork based on your actual room's style, colors, and layout.</p>
                         <div class="option-features">
                             <span class="feature-tag">Most Accurate</span>
                             <span class="feature-tag">Visual Preview</span>
@@ -125,7 +124,7 @@
                             <i class="fas fa-palette"></i>
                         </div>
                         <h3>Art Preferences</h3>
-                        <p>Tell us your style preferences and get curated recommendations from our existing Taberner Studio collection.</p>
+                        <p>Tell us your style preferences and get curated recommendations from our existing collection.</p>
                         <div class="option-features">
                             <span class="feature-tag">No Photo Required</span>
                             <span class="feature-tag">Style-Based</span>
@@ -141,7 +140,7 @@
                 <div id="upload-form-container" class="form-container" style="display: none;">
                     <div class="form-header">
                         <h3 class="form-title">Upload Your Room Photo</h3>
-                        <p class="form-subtitle">We'll analyze your space to find the perfect Taberner Studio artwork match</p>
+                        <p class="form-subtitle">We'll analyze your space to find the perfect artwork match</p>
                     </div>
                     
                     <form id="upload-form">
@@ -152,18 +151,6 @@
                             <input type="file" id="room-photo" accept="image/*" style="display: none;">
                         </div>
                         
-                        <div class="filter-group">
-                            <label for="style-filter">Art Style Preference:</label>
-                            <select id="style-filter">
-                                <option value="">Any Style</option>
-                                <option value="modern">Modern</option>
-                                <option value="classical">Classical</option>
-                                <option value="abstract">Abstract</option>
-                                <option value="landscape">Landscape</option>
-                                <option value="portrait">Portrait</option>
-                            </select>
-                        </div>
-                        
                         <!-- Recommendations will be generated automatically after upload -->
                     </form>
                 </div>
@@ -172,21 +159,10 @@
                 <div id="preferences-form-container" class="form-container" style="display: none;">
                     <div class="form-header">
                         <h3 class="form-title">Tell Us Your Preferences</h3>
-                        <p class="form-subtitle">We'll match you with the perfect Taberner Studio artwork from our collection</p>
+                        <p class="form-subtitle">We'll match you with the perfect artwork from our collection</p>
                     </div>
                     
                     <form id="preferences-form">
-                        <div class="filter-group">
-                            <label for="style-select">Art Style:</label>
-                            <select id="style-select">
-                                <option value="">Any Style</option>
-                                <option value="modern">Modern</option>
-                                <option value="classical">Classical</option>
-                                <option value="abstract">Abstract</option>
-                                <option value="impressionist">Impressionist</option>
-                                <option value="contemporary">Contemporary</option>
-                            </select>
-                        </div>
                         <div class="filter-group">
                             <label for="subject-select">Subject:</label>
                             <select id="subject-select">
@@ -269,10 +245,8 @@
         </section>
     </main>
 
-    <!-- External Libraries -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-    
-    <!-- Custom Scripts -->
+    <!-- JavaScript -->
+    <script src="https://cdn.jsdelivr.net/npm/interactjs@1.10.17/dist/interact.min.js"></script>
     <script src="config.js"></script>
     <script src="script.js?v=20250623x"></script>
 </body>

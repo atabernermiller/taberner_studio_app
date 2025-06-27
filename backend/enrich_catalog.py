@@ -22,11 +22,11 @@ MODEL_NAME = "openai/clip-vit-large-patch14"
 CATALOG_PATH = "catalog/catalog.json"
 IMAGE_DIR = "catalog/images"
 # Use GPU if available, otherwise CPU. Set to -1 for CPU, 0 for first GPU.
-DEVICE = 0 if torch.cuda.is_available() else -1
+DEVICE = -1  # Force CPU usage to avoid device index errors
 
 # Define candidate labels for zero-shot classification
 STYLE_LABELS = ["Fine Art", "Documentary", "Street Photography", "Black and White", "Architectural", "Nature", "Long Exposure", "Abstract", "Minimalism", "Modern", "Contemporary", "Realism"]
-SUBJECT_LABELS = ["Portrait", "Landscape", "Seascape", "Still Life", "Abstract", "Animals", "Cityscape", "Figurative", "Nude", "Mythology"]
+SUBJECT_LABELS = ["Portrait", "Landscape", "Seascape", "Still Life", "Abstract", "Horse", "Bird", "Feline", "Cityscape", "Figurative", "Wildlife"]
 
 def enrich_catalog():
     """
@@ -35,10 +35,12 @@ def enrich_catalog():
     """
     # 2. Load the CLIP model and processor
     try:
-        classifier = pipeline("zero-shot-image-classification", model=MODEL_NAME, device=DEVICE)
+        # Use None for CPU, 0 for GPU
+        device = None if DEVICE == -1 else DEVICE
+        classifier = pipeline("zero-shot-image-classification", model=MODEL_NAME, device=device)
         model = CLIPModel.from_pretrained(MODEL_NAME)
         processor = CLIPProcessor.from_pretrained(MODEL_NAME)
-        model.to(DEVICE)
+        print(f"Using device: {device if device is not None else 'CPU'}")
         print(f"Successfully loaded CLIP model: {MODEL_NAME}")
     except Exception as e:
         print(f"Error loading model: {e}")
@@ -71,7 +73,7 @@ def enrich_catalog():
             continue
 
         try:
-            print(f"Processing {i+1}/{total_artworks}: {artwork['title']}")
+            print(f"Processing {i+1}/{total_artworks}: {artwork['title']} ({image_filename})")
             image = Image.open(image_path).convert("RGB")
 
             # Classify style
@@ -104,7 +106,9 @@ def enrich_catalog():
             
             # Generate CLIP embedding for vector similarity
             inputs = processor(images=image, return_tensors="pt")
-            inputs = {k: v.to(DEVICE) for k, v in inputs.items()}
+            # Only move to device if it's not None (i.e., not CPU)
+            if device is not None:
+                inputs = {k: v.to(device) for k, v in inputs.items()}
             
             with torch.no_grad():
                 image_features = model.get_image_features(**inputs)
@@ -120,6 +124,7 @@ def enrich_catalog():
 
         except Exception as e:
             print(f"Could not process image {image_filename}: {e}")
+            continue
 
     # 5. Save the updated catalog
     try:
