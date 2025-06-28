@@ -116,8 +116,9 @@ def validate_startup():
     else:
         logger.info("All required environment variables are set")
     
-    # Validate AWS configuration
+    # Validate AWS configuration using the config object
     try:
+        aws_config = config.get_aws_config()
         logger.info(f"AWS Region: {aws_config['region']}")
         logger.info(f"Catalog Table: {aws_config['catalog_table_name']}")
         logger.info(f"Catalog Bucket: {aws_config['catalog_bucket_name']}")
@@ -129,7 +130,12 @@ def validate_startup():
     
     logger.info("=== STARTUP VALIDATION COMPLETE ===")
 
-# Run startup validation
+# Get configuration values
+aws_config = config.get_aws_config()
+recommendation_config = config.get_recommendation_config()
+cache_config = config.get_cache_config()
+
+# Run startup validation after config is loaded
 try:
     validate_startup()
 except Exception as e:
@@ -141,11 +147,6 @@ except Exception as e:
 # Configure app to serve frontend files
 app = Flask(__name__, static_folder='static', static_url_path='')
 CORS(app)
-
-# Get configuration values
-aws_config = config.get_aws_config()
-recommendation_config = config.get_recommendation_config()
-cache_config = config.get_cache_config()
 
 # Initialize AWS clients after environment variables are loaded
 def get_aws_clients():
