@@ -19,8 +19,8 @@ import numpy as np
 
 # 1. Configuration
 MODEL_NAME = "openai/clip-vit-large-patch14"
-CATALOG_PATH = "catalog/catalog.json"
-IMAGE_DIR = "catalog/images"
+CATALOG_PATH = "../catalog/catalog.json"
+IMAGE_DIR = "../catalog/images"
 # Use GPU if available, otherwise CPU. Set to -1 for CPU, 0 for first GPU.
 DEVICE = -1  # Force CPU usage to avoid device index errors
 

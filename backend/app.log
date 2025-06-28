@@ -18295,3 +18295,75 @@
 2025-06-27 13:53:00,530 INFO Found credentials in shared credentials file: ~/.aws/credentials
 2025-06-27 13:53:00,831 WARNING  * Debugger is active!
 2025-06-27 13:53:00,841 INFO  * Debugger PIN: 138-937-889
+2025-06-27 18:24:25,511 INFO Entrypoint: /Users/annette/taberner-studio-apps/taberner_studio_app/backend/app.py
+2025-06-27 18:24:25,511 INFO Working directory: /Users/annette/taberner-studio-apps/taberner_studio_app/backend
+2025-06-27 18:24:25,511 INFO sys.argv: ['-c']
+2025-06-27 18:24:25,511 INFO Python version: 3.9.6 (default, Apr 30 2025, 02:07:17) 
+[Clang 17.0.0 (clang-1700.0.13.5)]
+2025-06-27 18:24:25,511 INFO __name__: app
+2025-06-27 18:24:25,511 INFO Environment variables (filtered):
+2025-06-27 18:24:25,511 INFO   MallocNanoZone=0
+2025-06-27 18:24:25,511 INFO   USER=annette
+2025-06-27 18:24:25,511 INFO   COMMAND_MODE=unix2003
+2025-06-27 18:24:25,511 INFO   __CFBundleIdentifier=com.todesktop.230313mzl4w4u92
+2025-06-27 18:24:25,511 INFO   PATH=/Users/annette/taberner-studio-apps/taberner_studio_app/backend/test_env/bin:/Users/annette/.codeium/windsurf/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin://Applications/Topaz Photo AI.app/Contents/Resources/bin:/Users/annette/.codeium/windsurf/bin:/Users/annette/anaconda3/bin:/Users/annette/anaconda3/condabin:/Users/annette/.cursor/extensions/ms-python.debugpy-2025.6.0-darwin-arm64/bundled/scripts/noConfigScripts
+2025-06-27 18:24:25,511 INFO   LOGNAME=annette
+2025-06-27 18:24:25,512 INFO   SSH_AUTH_SOCK=/private/tmp/com.apple.launchd.uONtK3gSfv/Listeners
+2025-06-27 18:24:25,512 INFO   HOME=/Users/annette
+2025-06-27 18:24:25,512 INFO   SHELL=/bin/zsh
+2025-06-27 18:24:25,512 INFO   TMPDIR=/var/folders/7j/rzhnb4z12kbbq9624j75xsy00000gn/T/
+2025-06-27 18:24:25,512 INFO   __CF_USER_TEXT_ENCODING=0x1F5:0x0:0x0
+2025-06-27 18:24:25,512 INFO   XPC_SERVICE_NAME=0
+2025-06-27 18:24:25,512 INFO   XPC_FLAGS=0x0
+2025-06-27 18:24:25,512 INFO   ORIGINAL_XDG_CURRENT_DESKTOP=undefined
+2025-06-27 18:24:25,512 INFO   CURSOR_TRACE_ID=43efb6ed046a4bd8a670a865db0ebdcc
+2025-06-27 18:24:25,512 INFO   SHLVL=1
+2025-06-27 18:24:25,512 INFO   PWD=/Users/annette/taberner-studio-apps/taberner_studio_app/backend
+2025-06-27 18:24:25,512 INFO   OLDPWD=/Users/annette/taberner-studio-apps/taberner_studio_app
+2025-06-27 18:24:25,512 INFO   HOMEBREW_PREFIX=/opt/homebrew
+2025-06-27 18:24:25,512 INFO   HOMEBREW_CELLAR=/opt/homebrew/Cellar
+2025-06-27 18:24:25,512 INFO   HOMEBREW_REPOSITORY=/opt/homebrew
+2025-06-27 18:24:25,512 INFO   INFOPATH=/opt/homebrew/share/info:/opt/homebrew/share/info:
+2025-06-27 18:24:25,512 INFO   CONDA_EXE=/Users/annette/anaconda3/bin/conda
+2025-06-27 18:24:25,512 INFO   _CE_M=
+2025-06-27 18:24:25,512 INFO   _CE_CONDA=
+2025-06-27 18:24:25,512 INFO   CONDA_PYTHON_EXE=/Users/annette/anaconda3/bin/python
+2025-06-27 18:24:25,512 INFO   CONDA_SHLVL=1
+2025-06-27 18:24:25,512 INFO   CONDA_PREFIX=/Users/annette/anaconda3
+2025-06-27 18:24:25,512 INFO   CONDA_DEFAULT_ENV=base
+2025-06-27 18:24:25,512 INFO   CONDA_PROMPT_MODIFIER=(base) 
+2025-06-27 18:24:25,512 INFO   PAGER=head -n 10000 | cat
+2025-06-27 18:24:25,512 INFO   npm_config_yes=true
+2025-06-27 18:24:25,512 INFO   DISABLE_AUTO_UPDATE=true
+2025-06-27 18:24:25,512 INFO   PIP_NO_INPUT=true
+2025-06-27 18:24:25,512 INFO   COMPOSER_NO_INTERACTION=1
+2025-06-27 18:24:25,512 INFO   TERM_PROGRAM=vscode
+2025-06-27 18:24:25,513 INFO   TERM_PROGRAM_VERSION=1.1.6
+2025-06-27 18:24:25,513 INFO   LANG=en_US.UTF-8
+2025-06-27 18:24:25,513 INFO   COLORTERM=truecolor
+2025-06-27 18:24:25,513 INFO   GIT_ASKPASS=/Applications/Cursor.app/Contents/Resources/app/extensions/git/dist/askpass.sh
+2025-06-27 18:24:25,513 INFO   VSCODE_GIT_ASKPASS_NODE=/Applications/Cursor.app/Contents/Frameworks/Cursor Helper (Plugin).app/Contents/MacOS/Cursor Helper (Plugin)
+2025-06-27 18:24:25,513 INFO   VSCODE_GIT_ASKPASS_EXTRA_ARGS=
+2025-06-27 18:24:25,513 INFO   VSCODE_GIT_ASKPASS_MAIN=/Applications/Cursor.app/Contents/Resources/app/extensions/git/dist/askpass-main.js
+2025-06-27 18:24:25,513 INFO   VSCODE_GIT_IPC_HANDLE=/var/folders/7j/rzhnb4z12kbbq9624j75xsy00000gn/T/vscode-git-e4048c60c4.sock
+2025-06-27 18:24:25,513 INFO   PYDEVD_DISABLE_FILE_VALIDATION=1
+2025-06-27 18:24:25,513 INFO   VSCODE_DEBUGPY_ADAPTER_ENDPOINTS=/Users/annette/.cursor/extensions/ms-python.debugpy-2025.6.0-darwin-arm64/.noConfigDebugAdapterEndpoints/endpoint-0ada6dcc4fe34815.txt
+2025-06-27 18:24:25,513 INFO   BUNDLED_DEBUGPY_PATH=/Users/annette/.cursor/extensions/ms-python.debugpy-2025.6.0-darwin-arm64/bundled/libs/debugpy
+2025-06-27 18:24:25,513 INFO   TERM=xterm-256color
+2025-06-27 18:24:25,513 INFO   PS1=(test_env) (base) %n@%m %1~ %# 
+2025-06-27 18:24:25,513 INFO   VIRTUAL_ENV_PROMPT=(venv) 
+2025-06-27 18:24:25,513 INFO   VIRTUAL_ENV=/Users/annette/taberner-studio-apps/taberner_studio_app/backend/test_env
+2025-06-27 18:24:25,513 INFO   _=/Users/annette/taberner-studio-apps/taberner_studio_app/backend/test_env/bin/python
+2025-06-27 18:24:25,513 INFO   APP_ENV=aws
+2025-06-27 18:24:25,513 INFO   AWS_REGION=us-west-2
+2025-06-27 18:24:25,513 INFO   CATALOG_TABLE_NAME=taberner-studio-catalog
+2025-06-27 18:24:25,513 INFO   CATALOG_BUCKET_NAME=taberner-studio-catalog-images
+2025-06-27 18:24:25,513 INFO   APPROVED_BUCKET=taberner-studio-images
+2025-06-27 18:24:25,513 INFO   QUARANTINE_BUCKET=taberner-studio-quarantine
+2025-06-27 18:24:25,513 INFO   MAX_RECOMMENDATIONS=8
+2025-06-27 18:24:25,513 INFO   MIN_RECOMMENDATIONS=4
+2025-06-27 18:24:25,513 INFO   KMP_DUPLICATE_LIB_OK=True
+2025-06-27 18:24:25,513 INFO   KMP_INIT_AT_FORK=FALSE
+2025-06-27 18:24:25,513 INFO === Application Starting ===
+2025-06-27 18:24:25,514 INFO Memory usage at startup: 123.91 MB (0.2%)
+2025-06-27 18:24:25,559 INFO Found credentials in shared credentials file: ~/.aws/credentials

@@ -18,12 +18,17 @@ Usage:
 import json
 import boto3
 import os
+import sys
 from botocore.exceptions import ClientError
 from decimal import Decimal
 
+# Add backend directory to path to import config
+sys.path.append(os.path.join(os.path.dirname(__file__), '..', 'backend'))
+from config import config
+
 # Configuration
-DYNAMODB_TABLE_NAME = os.environ.get('CATALOG_TABLE_NAME', 'taberner-studio-catalog')
-CATALOG_JSON_PATH = os.path.join(os.path.dirname(__file__), 'catalog', 'catalog.json')
+DYNAMODB_TABLE_NAME = config.catalog_table_name
+CATALOG_JSON_PATH = os.path.join(os.path.dirname(__file__), '..', 'backend', 'catalog', 'catalog.json')
 
 def convert_floats_to_decimals(obj):
     """Recursively convert float values to Decimal for DynamoDB compatibility"""
@@ -38,7 +43,7 @@ def convert_floats_to_decimals(obj):
 
 def create_dynamodb_table():
     """Create the DynamoDB table if it doesn't exist"""
-    dynamodb = boto3.resource('dynamodb')
+    dynamodb = boto3.resource('dynamodb', region_name=config.aws_region)
     
     try:
         # Check if table exists
@@ -138,7 +143,7 @@ def migrate_catalog_data():
 
 def verify_migration():
     """Verify that all data was migrated correctly"""
-    dynamodb = boto3.resource('dynamodb')
+    dynamodb = boto3.resource('dynamodb', region_name=config.aws_region)
     table = dynamodb.Table(DYNAMODB_TABLE_NAME)
     
     # Load original data

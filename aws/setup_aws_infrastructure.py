@@ -9,7 +9,7 @@ import os
 from botocore.exceptions import ClientError
 
 # Configuration
-REGION = os.environ.get('AWS_REGION', 'us-west-2')
+REGION = os.environ.get('AWS_REGION', 'us-east-1')
 CATALOG_TABLE_NAME = os.environ.get('CATALOG_TABLE_NAME', 'taberner-studio-catalog')
 CATALOG_BUCKET_NAME = os.environ.get('CATALOG_BUCKET_NAME', 'taberner-studio-catalog-images')
 APPROVED_BUCKET = os.environ.get('APPROVED_BUCKET', 'taberner-studio-images')

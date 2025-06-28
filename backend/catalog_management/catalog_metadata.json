@@ -127,9 +127,9 @@
             "product_url": "https://www.tabernerstudio.com/warehouse-open-edition-prints/art_print_products/onaqui-wild-horses?product_gallery=396495&product_id=7398648"
         },
         "Fall_Maple_Leaf.jpg": {
-            "title": "Autumn’s Signature",
+            "title": "Autumn\u2019s Signature",
             "artist": "Annette Taberner",
-            "description": "A single red maple leaf rests in quiet dignity—a timeless symbol of change, beauty, and the fleeting grace of autumn.",
+            "description": "A single red maple leaf rests in quiet dignity\u2014a timeless symbol of change, beauty, and the fleeting grace of autumn.",
             "price": "12.95",
             "product_url": "https://tabernerstudio.artstorefronts.com/warehouse-open-edition-prints/art_print_products/red-maple-leaf"
         },
@@ -143,7 +143,7 @@
         "LongBeach3.jpg": {
             "title": "Artwork Between Sky and Sea",
             "artist": "Annette Taberner",
-            "description": "Soft light and still waters meet at the horizon—an invitation to slow down and breathe deeply.",
+            "description": "Soft light and still waters meet at the horizon\u2014an invitation to slow down and breathe deeply.",
             "price": "12.95",
             "product_url": "https://tabernerstudio.artstorefronts.com/warehouse-open-edition-prints/art_print_products/long-beach-wa-sunset"
         },
@@ -230,6 +230,195 @@
             "description": "Tucked among alpine slopes, this Swiss cabin invites dreams of quiet mornings, crisp air, and rustic peace.",
             "price": "12.95",
             "product_url": "https://tabernerstudio.artstorefronts.com/warehouse-open-edition-prints/art_print_products/swiss-cabin"
+        },
+        "Maui_sunset.jpg": {
+            "title": "Artwork Maui_sunset",
+            "artist": "Annette Taberner",
+            "description": "A beautiful piece of art from Taberner Studio. This piece explores themes of color and form, creating a vibrant and engaging visual experience.",
+            "price": "12.95",
+            "product_url": "https://www.tabernerstudio.com/shop"
+        },
+        "ChipmonkCloseup.jpg": {
+            "title": "Artwork ChipmonkCloseup",
+            "artist": "Annette Taberner",
+            "description": "A beautiful piece of art from Taberner Studio. This piece explores themes of color and form, creating a vibrant and engaging visual experience.",
+            "price": "12.95",
+            "product_url": "https://www.tabernerstudio.com/shop"
+        },
+        "Seattle_Port_City_Lights.jpg": {
+            "title": "Artwork Seattle_Port_City_Lights",
+            "artist": "Annette Taberner",
+            "description": "A beautiful piece of art from Taberner Studio. This piece explores themes of color and form, creating a vibrant and engaging visual experience.",
+            "price": "12.95",
+            "product_url": "https://www.tabernerstudio.com/shop"
+        },
+        "Palouse_Farmland.jpg": {
+            "title": "Artwork Palouse_Farmland",
+            "artist": "Annette Taberner",
+            "description": "A beautiful piece of art from Taberner Studio. This piece explores themes of color and form, creating a vibrant and engaging visual experience.",
+            "price": "12.95",
+            "product_url": "https://www.tabernerstudio.com/shop"
+        },
+        "MontanaRoad.jpg": {
+            "title": "Artwork MontanaRoad",
+            "artist": "Annette Taberner",
+            "description": "A beautiful piece of art from Taberner Studio. This piece explores themes of color and form, creating a vibrant and engaging visual experience.",
+            "price": "12.95",
+            "product_url": "https://www.tabernerstudio.com/shop"
+        },
+        "Seattle_Ferry.jpg": {
+            "title": "Artwork Seattle_Ferry",
+            "artist": "Annette Taberner",
+            "description": "A beautiful piece of art from Taberner Studio. This piece explores themes of color and form, creating a vibrant and engaging visual experience.",
+            "price": "12.95",
+            "product_url": "https://www.tabernerstudio.com/shop"
+        },
+        "Strasbourg_iconic.jpg": {
+            "title": "Artwork Strasbourg_iconic",
+            "artist": "Annette Taberner",
+            "description": "A beautiful piece of art from Taberner Studio. This piece explores themes of color and form, creating a vibrant and engaging visual experience.",
+            "price": "12.95",
+            "product_url": "https://www.tabernerstudio.com/shop"
+        },
+        "Pipers.jpg": {
+            "title": "Artwork Pipers",
+            "artist": "Annette Taberner",
+            "description": "A beautiful piece of art from Taberner Studio. This piece explores themes of color and form, creating a vibrant and engaging visual experience.",
+            "price": "12.95",
+            "product_url": "https://www.tabernerstudio.com/shop"
+        },
+        "Palouse_WallPaper.jpg": {
+            "title": "Artwork Palouse_WallPaper",
+            "artist": "Annette Taberner",
+            "description": "A beautiful piece of art from Taberner Studio. This piece explores themes of color and form, creating a vibrant and engaging visual experience.",
+            "price": "12.95",
+            "product_url": "https://www.tabernerstudio.com/shop"
+        },
+        "Crater_Lake_frame.jpg": {
+            "title": "Artwork Crater_Lake_frame",
+            "artist": "Annette Taberner",
+            "description": "A beautiful piece of art from Taberner Studio. This piece explores themes of color and form, creating a vibrant and engaging visual experience.",
+            "price": "12.95",
+            "product_url": "https://www.tabernerstudio.com/shop"
+        },
+        "Eagle_Landing.jpg": {
+            "title": "Artwork Eagle_Landing",
+            "artist": "Annette Taberner",
+            "description": "A beautiful piece of art from Taberner Studio. This piece explores themes of color and form, creating a vibrant and engaging visual experience.",
+            "price": "12.95",
+            "product_url": "https://www.tabernerstudio.com/shop"
+        },
+        "SnowRoad_Idaho.jpg": {
+            "title": "Artwork SnowRoad_Idaho",
+            "artist": "Annette Taberner",
+            "description": "A beautiful piece of art from Taberner Studio. This piece explores themes of color and form, creating a vibrant and engaging visual experience.",
+            "price": "12.95",
+            "product_url": "https://www.tabernerstudio.com/shop"
+        },
+        "PalouseRollingHills.jpg": {
+            "title": "Artwork PalouseRollingHills",
+            "artist": "Annette Taberner",
+            "description": "A beautiful piece of art from Taberner Studio. This piece explores themes of color and form, creating a vibrant and engaging visual experience.",
+            "price": "12.95",
+            "product_url": "https://www.tabernerstudio.com/shop"
+        },
+        "MiddleRhine.jpg": {
+            "title": "Artwork MiddleRhine",
+            "artist": "Annette Taberner",
+            "description": "A beautiful piece of art from Taberner Studio. This piece explores themes of color and form, creating a vibrant and engaging visual experience.",
+            "price": "12.95",
+            "product_url": "https://www.tabernerstudio.com/shop"
+        },
+        "Eagle_Lookingup.jpg": {
+            "title": "Artwork Eagle_Lookingup",
+            "artist": "Annette Taberner",
+            "description": "A beautiful piece of art from Taberner Studio. This piece explores themes of color and form, creating a vibrant and engaging visual experience.",
+            "price": "12.95",
+            "product_url": "https://www.tabernerstudio.com/shop"
+        },
+        "SunFlare_WA.jpeg": {
+            "title": "Artwork SunFlare_WA",
+            "artist": "Annette Taberner",
+            "description": "A beautiful piece of art from Taberner Studio. This piece explores themes of color and form, creating a vibrant and engaging visual experience.",
+            "price": "12.95",
+            "product_url": "https://www.tabernerstudio.com/shop"
+        },
+        "TractorPalouse.jpeg": {
+            "title": "Artwork TractorPalouse",
+            "artist": "Annette Taberner",
+            "description": "A beautiful piece of art from Taberner Studio. This piece explores themes of color and form, creating a vibrant and engaging visual experience.",
+            "price": "12.95",
+            "product_url": "https://www.tabernerstudio.com/shop"
+        },
+        "FallWelcome.jpeg": {
+            "title": "Artwork FallWelcome",
+            "artist": "Annette Taberner",
+            "description": "A beautiful piece of art from Taberner Studio. This piece explores themes of color and form, creating a vibrant and engaging visual experience.",
+            "price": "12.95",
+            "product_url": "https://www.tabernerstudio.com/shop"
+        },
+        "Seattle_Library.jpeg": {
+            "title": "Artwork Seattle_Library",
+            "artist": "Annette Taberner",
+            "description": "A beautiful piece of art from Taberner Studio. This piece explores themes of color and form, creating a vibrant and engaging visual experience.",
+            "price": "12.95",
+            "product_url": "https://www.tabernerstudio.com/shop"
+        },
+        "Tulips_WA_1.jpeg": {
+            "title": "Artwork Tulips_WA_1",
+            "artist": "Annette Taberner",
+            "description": "A beautiful piece of art from Taberner Studio. This piece explores themes of color and form, creating a vibrant and engaging visual experience.",
+            "price": "12.95",
+            "product_url": "https://www.tabernerstudio.com/shop"
+        },
+        "MountainsYS_walking.jpeg": {
+            "title": "Artwork MountainsYS_walking",
+            "artist": "Annette Taberner",
+            "description": "A beautiful piece of art from Taberner Studio. This piece explores themes of color and form, creating a vibrant and engaging visual experience.",
+            "price": "12.95",
+            "product_url": "https://www.tabernerstudio.com/shop"
+        },
+        "BenchOcean_Bench.jpeg": {
+            "title": "Artwork BenchOcean_Bench",
+            "artist": "Annette Taberner",
+            "description": "A beautiful piece of art from Taberner Studio. This piece explores themes of color and form, creating a vibrant and engaging visual experience.",
+            "price": "12.95",
+            "product_url": "https://www.tabernerstudio.com/shop"
+        },
+        "MapleLeaf_Sun.jpeg": {
+            "title": "Artwork MapleLeaf_Sun",
+            "artist": "Annette Taberner",
+            "description": "A beautiful piece of art from Taberner Studio. This piece explores themes of color and form, creating a vibrant and engaging visual experience.",
+            "price": "12.95",
+            "product_url": "https://www.tabernerstudio.com/shop"
+        },
+        "Palouse_Landscape_4_colors.jpeg": {
+            "title": "Artwork Palouse_Landscape_4_colors",
+            "artist": "Annette Taberner",
+            "description": "A beautiful piece of art from Taberner Studio. This piece explores themes of color and form, creating a vibrant and engaging visual experience.",
+            "price": "12.95",
+            "product_url": "https://www.tabernerstudio.com/shop"
+        },
+        "lighthouse_WA.jpeg": {
+            "title": "Artwork lighthouse_WA",
+            "artist": "Annette Taberner",
+            "description": "A beautiful piece of art from Taberner Studio. This piece explores themes of color and form, creating a vibrant and engaging visual experience.",
+            "price": "12.95",
+            "product_url": "https://www.tabernerstudio.com/shop"
+        },
+        "Waking_life_abstract.jpeg": {
+            "title": "Artwork Waking_life_abstract",
+            "artist": "Annette Taberner",
+            "description": "A beautiful piece of art from Taberner Studio. This piece explores themes of color and form, creating a vibrant and engaging visual experience.",
+            "price": "12.95",
+            "product_url": "https://www.tabernerstudio.com/shop"
+        },
+        "PalouseGreen_RollingHills.jpeg": {
+            "title": "Artwork PalouseGreen_RollingHills",
+            "artist": "Annette Taberner",
+            "description": "A beautiful piece of art from Taberner Studio. This piece explores themes of color and form, creating a vibrant and engaging visual experience.",
+            "price": "12.95",
+            "product_url": "https://www.tabernerstudio.com/shop"
         }
     },
     "defaults": {

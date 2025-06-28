@@ -4,37 +4,47 @@ Script to migrate catalog images from local directory to S3
 """
 
 import os
+import sys
 import boto3
 import json
 from botocore.exceptions import ClientError
 
-# Configuration
-S3_BUCKET_NAME = os.environ.get('CATALOG_BUCKET_NAME', 'taberner-studio-catalog-images')
-CATALOG_JSON_PATH = os.path.join(os.path.dirname(__file__), 'catalog', 'catalog.json')
-IMAGES_DIR = os.path.join(os.path.dirname(__file__), 'catalog', 'images')
+# Add backend directory to path to import config
+sys.path.append(os.path.join(os.path.dirname(__file__), '..', 'backend'))
+from config import config
+
+# Get configuration
+S3_BUCKET_NAME = config.catalog_bucket_name
+AWS_REGION = config.aws_region
+CATALOG_JSON_PATH = os.path.join(os.path.dirname(__file__), '..', 'backend', 'catalog', 'catalog.json')
+IMAGES_DIR = os.path.join(os.path.dirname(__file__), '..', 'backend', 'catalog', 'images')
 
 def create_s3_bucket():
     """Create the S3 bucket if it doesn't exist"""
-    s3 = boto3.client('s3')
+    s3 = boto3.client('s3', region_name=AWS_REGION)
     
     try:
         # Check if bucket exists
         s3.head_bucket(Bucket=S3_BUCKET_NAME)
-        print(f"Bucket {S3_BUCKET_NAME} already exists")
+        print(f"Bucket {S3_BUCKET_NAME} already exists in {AWS_REGION}")
         return True
     except ClientError as e:
         error_code = e.response['Error']['Code']
         if error_code == '404':
             # Bucket doesn't exist, create it
-            print(f"Creating bucket {S3_BUCKET_NAME}...")
+            print(f"Creating bucket {S3_BUCKET_NAME} in {AWS_REGION}...")
             try:
-                s3.create_bucket(
-                    Bucket=S3_BUCKET_NAME,
-                    CreateBucketConfiguration={
-                        'LocationConstraint': 'us-west-2'  # Adjust region as needed
-                    }
-                )
-                print(f"Bucket {S3_BUCKET_NAME} created successfully")
+                # For us-east-1, we don't need LocationConstraint
+                if AWS_REGION == 'us-east-1':
+                    s3.create_bucket(Bucket=S3_BUCKET_NAME)
+                else:
+                    s3.create_bucket(
+                        Bucket=S3_BUCKET_NAME,
+                        CreateBucketConfiguration={
+                            'LocationConstraint': AWS_REGION
+                        }
+                    )
+                print(f"Bucket {S3_BUCKET_NAME} created successfully in {AWS_REGION}")
                 return True
             except Exception as create_error:
                 print(f"Error creating bucket: {create_error}")
@@ -45,7 +55,7 @@ def create_s3_bucket():
 
 def upload_image_to_s3(image_path, s3_key):
     """Upload a single image to S3"""
-    s3 = boto3.client('s3')
+    s3 = boto3.client('s3', region_name=AWS_REGION)
     
     try:
         # Check if file already exists in S3
@@ -76,6 +86,11 @@ def upload_image_to_s3(image_path, s3_key):
 
 def migrate_images_to_s3():
     """Migrate all catalog images to S3"""
+    print(f"Using AWS Region: {AWS_REGION}")
+    print(f"Using S3 Bucket: {S3_BUCKET_NAME}")
+    print(f"Catalog JSON path: {CATALOG_JSON_PATH}")
+    print(f"Images directory: {IMAGES_DIR}")
+    
     # Load catalog data to get filenames
     try:
         with open(CATALOG_JSON_PATH, 'r') as f:
@@ -119,7 +134,7 @@ def migrate_images_to_s3():
 
 def verify_s3_migration():
     """Verify that all images were uploaded to S3"""
-    s3 = boto3.client('s3')
+    s3 = boto3.client('s3', region_name=AWS_REGION)
     
     # Load catalog data
     with open(CATALOG_JSON_PATH, 'r') as f:

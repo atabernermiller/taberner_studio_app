@@ -14,7 +14,7 @@ import os
 import glob
 from update_metadata import load_metadata, save_metadata
 
-CATALOG_DIR = os.path.join(os.path.dirname(__file__), 'catalog')
+CATALOG_DIR = os.path.join(os.path.dirname(__file__), '..', 'catalog')
 IMAGE_DIR = os.path.join(CATALOG_DIR, 'images')
 METADATA_PATH = os.path.join(os.path.dirname(__file__), 'catalog_metadata.json')
 

@@ -23,7 +23,7 @@
           "value": "aws"
         },
         {
-          "name": "AWS_us-east-1",
+          "name": "AWS_REGION",
           "value": "us-east-1"
         },
         {

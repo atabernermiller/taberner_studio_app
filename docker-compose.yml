@@ -1,0 +1,28 @@
+version: '3.8'
+
+services:
+  taberner-studio:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    ports:
+      - "8000:8000"
+    environment:
+      - AWS_REGION=us-east-1
+      - CATALOG_BUCKET_NAME=taberner-studio-catalog-us-east-1
+      - CATALOG_TABLE_NAME=taberner-studio-catalog
+      - APPROVED_BUCKET=taberner-studio-images-us-east-1
+      - QUARANTINE_BUCKET=taberner-studio-quarantine-us-east-1
+      - APP_ENV=aws
+    volumes:
+      # Mount AWS credentials from host
+      - ~/.aws:/home/appuser/.aws:ro
+      # Mount the app.log for debugging
+      - ./app.log:/app/app.log
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    restart: unless-stopped 

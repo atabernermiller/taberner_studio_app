@@ -60,7 +60,7 @@ Set these environment variables for your AWS deployment:
 ```bash
 # AWS Configuration
 APP_ENV=aws
-AWS_REGION=us-west-2
+AWS_REGION=us-east-1
 
 # DynamoDB
 CATALOG_TABLE_NAME=taberner-studio-catalog
@@ -94,9 +94,9 @@ docker build -t taberner-studio-app .
 #### 4.2 Deploy to ECS/EKS
 ```bash
 # Tag and push to ECR
-aws ecr get-login-password --region us-west-2 | docker login --username AWS --password-stdin YOUR_ACCOUNT.dkr.ecr.us-west-2.amazonaws.com
-docker tag taberner-studio-app:latest YOUR_ACCOUNT.dkr.ecr.us-west-2.amazonaws.com/taberner-studio-app:latest
-docker push YOUR_ACCOUNT.dkr.ecr.us-west-2.amazonaws.com/taberner-studio-app:latest
+aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin YOUR_ACCOUNT.dkr.ecr.us-east-1.amazonaws.com
+docker tag taberner-studio-app:latest YOUR_ACCOUNT.dkr.ecr.us-east-1.amazonaws.com/taberner-studio-app:latest
+docker push YOUR_ACCOUNT.dkr.ecr.us-east-1.amazonaws.com/taberner-studio-app:latest
 ```
 
 #### 4.3 ECS Task Definition
@@ -112,7 +112,7 @@ docker push YOUR_ACCOUNT.dkr.ecr.us-west-2.amazonaws.com/taberner-studio-app:lat
   "containerDefinitions": [
     {
       "name": "taberner-studio-app",
-      "image": "YOUR_ACCOUNT.dkr.ecr.us-west-2.amazonaws.com/taberner-studio-app:latest",
+      "image": "YOUR_ACCOUNT.dkr.ecr.us-east-1.amazonaws.com/taberner-studio-app:latest",
       "portMappings": [
         {
           "containerPort": 8000,
@@ -145,7 +145,7 @@ docker push YOUR_ACCOUNT.dkr.ecr.us-west-2.amazonaws.com/taberner-studio-app:lat
         "logDriver": "awslogs",
         "options": {
           "awslogs-group": "/ecs/taberner-studio-app",
-          "awslogs-region": "us-west-2",
+          "awslogs-region": "us-east-1",
           "awslogs-stream-prefix": "ecs"
         }
       }
@@ -158,7 +158,7 @@ docker push YOUR_ACCOUNT.dkr.ecr.us-west-2.amazonaws.com/taberner-studio-app:lat
 
 #### 4.1 Create Application
 ```bash
-eb init taberner-studio-app --platform python-3.9 --region us-west-2
+eb init taberner-studio-app --platform python-3.9 --region us-east-1
 ```
 
 #### 4.2 Create Environment

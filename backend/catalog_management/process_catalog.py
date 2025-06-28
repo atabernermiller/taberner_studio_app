@@ -19,7 +19,7 @@ from PIL import Image
 import numpy as np
 from sklearn.cluster import KMeans
 
-CATALOG_DIR = os.path.join(os.path.dirname(__file__), 'catalog')
+CATALOG_DIR = os.path.join(os.path.dirname(__file__), '..', 'catalog')
 IMAGE_DIR = os.path.join(CATALOG_DIR, 'images')
 CATALOG_JSON_PATH = os.path.join(CATALOG_DIR, 'catalog.json')
 METADATA_PATH = os.path.join(os.path.dirname(__file__), 'catalog_metadata.json')
