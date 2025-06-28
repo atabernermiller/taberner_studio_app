@@ -1067,6 +1067,7 @@ function restoreUploadForm() {
 function displayResults(recommendations, type = 'upload') {
     console.log('=== DISPLAY RESULTS DEBUG ===');
     console.log('[displayResults] Recommendations received:', recommendations);
+    console.log('[displayResults] Workflow type:', type);
     console.log('[displayResults] State before updating:', {
         allArtworks,
         currentArtworkIndex,
@@ -1077,6 +1078,20 @@ function displayResults(recommendations, type = 'upload') {
     
     // Show the results view first
     showResultsView();
+    
+    // Conditionally show/hide the "Try Another Search" button based on workflow type
+    const resultsActions = document.getElementById('results-actions');
+    if (resultsActions) {
+        if (type === 'upload') {
+            // Hide the button for upload workflow
+            resultsActions.style.display = 'none';
+            console.log('Hidden "Try Another Search" button for upload workflow');
+        } else {
+            // Show the button for preferences workflow
+            resultsActions.style.display = 'block';
+            console.log('Shown "Try Another Search" button for preferences workflow');
+        }
+    }
     
     // Show progress bar instead of old content
     const resultsArea = document.getElementById('results-area');
