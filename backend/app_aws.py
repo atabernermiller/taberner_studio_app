@@ -1,4 +1,12 @@
+# IMMEDIATE STARTUP LOGGING - This should appear first
+import sys
 import os
+print("=== APP_AWS.PY STARTING ===", file=sys.stderr)
+print(f"Python executable: {sys.executable}", file=sys.stderr)
+print(f"Python version: {sys.version}", file=sys.stderr)
+print(f"Working directory: {os.getcwd()}", file=sys.stderr)
+print(f"Script path: {__file__}", file=sys.stderr)
+
 try:
     from dotenv import load_dotenv
     load_dotenv()  # Loads variables from .env if present
@@ -86,6 +94,48 @@ log_memory_usage("at startup")
 # Log configuration
 logger.info(f"Configuration:\n{config}")
 
+# Startup validation function
+def validate_startup():
+    """Validate critical components during startup."""
+    logger.info("=== STARTUP VALIDATION ===")
+    
+    # Validate environment variables
+    required_env_vars = [
+        'AWS_REGION', 'CATALOG_TABLE_NAME', 'CATALOG_BUCKET_NAME',
+        'APPROVED_BUCKET', 'QUARANTINE_BUCKET'
+    ]
+    
+    missing_vars = []
+    for var in required_env_vars:
+        if not os.getenv(var):
+            missing_vars.append(var)
+    
+    if missing_vars:
+        logger.error(f"Missing required environment variables: {missing_vars}")
+        raise ValueError(f"Missing environment variables: {missing_vars}")
+    else:
+        logger.info("All required environment variables are set")
+    
+    # Validate AWS configuration
+    try:
+        logger.info(f"AWS Region: {aws_config['region']}")
+        logger.info(f"Catalog Table: {aws_config['catalog_table_name']}")
+        logger.info(f"Catalog Bucket: {aws_config['catalog_bucket_name']}")
+        logger.info(f"Approved Bucket: {aws_config['approved_bucket']}")
+        logger.info(f"Quarantine Bucket: {aws_config['quarantine_bucket']}")
+    except Exception as e:
+        logger.error(f"Failed to validate AWS configuration: {e}")
+        raise
+    
+    logger.info("=== STARTUP VALIDATION COMPLETE ===")
+
+# Run startup validation
+try:
+    validate_startup()
+except Exception as e:
+    logger.error(f"Startup validation failed: {e}")
+    raise
+
 # The static_folder argument points to the 'static' directory, which now contains the frontend.
 # The static_url_path='' makes the static files available from the root URL.
 # Configure app to serve frontend files
@@ -101,20 +151,58 @@ cache_config = config.get_cache_config()
 def get_aws_clients():
     """Initialize AWS clients with proper region configuration."""
     region = aws_config['region']
-    return {
-        'dynamodb': boto3.resource('dynamodb', region_name=region),
-        's3': boto3.client('s3', region_name=region),
-        'rekognition': boto3.client('rekognition', region_name=region)
-    }
+    logger.info(f"Initializing AWS clients for region: {region}")
+    
+    try:
+        # Test AWS credentials
+        sts_client = boto3.client('sts', region_name=region)
+        identity = sts_client.get_caller_identity()
+        logger.info(f"AWS credentials validated for account: {identity['Account']}")
+        
+        # Initialize clients
+        dynamodb_client = boto3.resource('dynamodb', region_name=region)
+        s3_client = boto3.client('s3', region_name=region)
+        rekognition_client = boto3.client('rekognition', region_name=region)
+        
+        logger.info("AWS clients initialized successfully")
+        return {
+            'dynamodb': dynamodb_client,
+            's3': s3_client,
+            'rekognition': rekognition_client
+        }
+    except NoCredentialsError:
+        logger.error("AWS credentials not found. Check IAM role configuration.")
+        raise
+    except ClientError as e:
+        logger.error(f"AWS client initialization failed: {e}")
+        raise
+    except Exception as e:
+        logger.error(f"Unexpected error initializing AWS clients: {e}")
+        raise
 
 # Initialize AWS clients
-aws_clients = get_aws_clients()
-dynamodb = aws_clients['dynamodb']
-s3 = aws_clients['s3']
-rekognition = aws_clients['rekognition']
+logger.info("=== INITIALIZING AWS CLIENTS ===")
+try:
+    aws_clients = get_aws_clients()
+    dynamodb = aws_clients['dynamodb']
+    s3 = aws_clients['s3']
+    rekognition = aws_clients['rekognition']
+    logger.info("AWS clients initialized successfully")
+except Exception as e:
+    logger.error(f"Failed to initialize AWS clients: {e}")
+    raise
 
 # DynamoDB Table (linter may warn, but this is correct for boto3)
-catalog_table = dynamodb.Table(aws_config['catalog_table_name'])  # type: ignore
+try:
+    catalog_table = dynamodb.Table(aws_config['catalog_table_name'])  # type: ignore
+    logger.info(f"DynamoDB table reference created: {aws_config['catalog_table_name']}")
+    
+    # Test table access
+    response = catalog_table.scan(Limit=1)
+    logger.info(f"DynamoDB table access test successful. Item count: {response.get('Count', 0)}")
+except Exception as e:
+    logger.error(f"Failed to access DynamoDB table {aws_config['catalog_table_name']}: {e}")
+    raise
 
 # Rate limiting
 limiter = Limiter(
@@ -910,14 +998,53 @@ def ratelimit_handler(e):
 
 @app.route('/health')
 def health_check():
-    """Health check endpoint."""
+    """Health check endpoint with detailed diagnostics."""
     try:
-        return jsonify({
+        # Basic health check
+        health_status = {
             'status': 'healthy',
             'timestamp': datetime.utcnow().isoformat(),
-            'environment': aws_config['env']
-        }), 200
+            'environment': aws_config['env'],
+            'version': '1.0.0'
+        }
+        
+        # Test AWS connectivity
+        try:
+            # Test DynamoDB
+            response = catalog_table.scan(Limit=1)
+            health_status['dynamodb'] = 'connected'
+            health_status['dynamodb_items'] = response.get('Count', 0)
+        except Exception as e:
+            health_status['dynamodb'] = f'error: {str(e)}'
+        
+        # Test S3 connectivity
+        try:
+            s3.head_bucket(Bucket=aws_config['catalog_bucket_name'])
+            health_status['s3'] = 'connected'
+        except Exception as e:
+            health_status['s3'] = f'error: {str(e)}'
+        
+        # Memory usage
+        try:
+            process = psutil.Process()
+            memory_mb = process.memory_info().rss / 1024 / 1024
+            health_status['memory_mb'] = round(memory_mb, 2)
+        except Exception as e:
+            health_status['memory'] = f'error: {str(e)}'
+        
+        # Configuration summary
+        health_status['config'] = {
+            'region': aws_config['region'],
+            'catalog_table': aws_config['catalog_table_name'],
+            'catalog_bucket': aws_config['catalog_bucket_name'],
+            'max_recommendations': recommendation_config['max_recommendations']
+        }
+        
+        logger.info(f"Health check completed: {health_status['status']}")
+        return jsonify(health_status), 200
+        
     except Exception as e:
+        logger.error(f"Health check failed: {e}")
         return jsonify({
             'status': 'unhealthy',
             'error': str(e),
@@ -1041,5 +1168,14 @@ def upload_image():
         app.logger.error(f"Error processing uploaded image: {e}")
         return jsonify({'error': 'Failed to process image'}), 500
 
+# FINAL STARTUP LOGGING - This will execute when gunicorn imports the module
+print("=== APP_AWS.PY MODULE LOADED SUCCESSFULLY ===", file=sys.stderr)
+logger.info("=== APPLICATION MODULE LOADED ===")
+logger.info("Gunicorn should now be able to start the Flask application")
+
 if __name__ == '__main__':
+    print("=== ABOUT TO START FLASK APP ===", file=sys.stderr)
+    logger.info("=== STARTING FLASK APPLICATION ===")
+    logger.info(f"Flask app will run on host: 0.0.0.0, port: 8000")
+    logger.info(f"Debug mode: True")
     app.run(host='0.0.0.0', port=8000, debug=True) 
