@@ -31,6 +31,7 @@ import re
 from io import BytesIO
 from werkzeug.utils import secure_filename
 from botocore.exceptions import ClientError, NoCredentialsError
+from config import config
 from sklearn.metrics.pairwise import cosine_similarity
 import torch
 
@@ -82,31 +83,38 @@ signal.signal(signal.SIGTERM, signal_handler)
 logger.info("=== Application Starting ===")
 log_memory_usage("at startup")
 
-# Configure Flask app
-FRONTEND_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'frontend'))
-app = Flask(__name__, static_folder=FRONTEND_DIR, static_url_path='')
+# Log configuration
+logger.info(f"Configuration:\n{config}")
+
+# The static_folder argument points to the 'static' directory, which now contains the frontend.
+# The static_url_path='' makes the static files available from the root URL.
+# Configure app to serve frontend files
+app = Flask(__name__, static_folder='static', static_url_path='')
 CORS(app)
 
-# --- AWS Configuration ---
-APP_ENV = os.environ.get('APP_ENV', 'aws')  # Default to AWS mode
+# Get configuration values
+aws_config = config.get_aws_config()
+recommendation_config = config.get_recommendation_config()
+cache_config = config.get_cache_config()
 
-# Recommendation Configuration
-MAX_RECOMMENDATIONS = int(os.environ.get('MAX_RECOMMENDATIONS', '8'))  # Default to 8 for better UX
-MIN_RECOMMENDATIONS = int(os.environ.get('MIN_RECOMMENDATIONS', '4'))  # Minimum to show
+# Initialize AWS clients after environment variables are loaded
+def get_aws_clients():
+    """Initialize AWS clients with proper region configuration."""
+    region = aws_config['region']
+    return {
+        'dynamodb': boto3.resource('dynamodb', region_name=region),
+        's3': boto3.client('s3', region_name=region),
+        'rekognition': boto3.client('rekognition', region_name=region)
+    }
 
-# AWS Resource Names
-CATALOG_TABLE_NAME = os.environ.get('CATALOG_TABLE_NAME', 'taberner-studio-catalog')
-CATALOG_BUCKET_NAME = os.environ.get('CATALOG_BUCKET_NAME', 'taberner-studio-catalog-images')
-APPROVED_BUCKET = os.environ.get('APPROVED_BUCKET', 'taberner-studio-images')
-QUARANTINE_BUCKET = os.environ.get('QUARANTINE_BUCKET', 'taberner-studio-quarantine')
-
-# AWS Clients
-dynamodb = boto3.resource('dynamodb')
-s3 = boto3.client('s3')
-rekognition = boto3.client('rekognition')
+# Initialize AWS clients
+aws_clients = get_aws_clients()
+dynamodb = aws_clients['dynamodb']
+s3 = aws_clients['s3']
+rekognition = aws_clients['rekognition']
 
 # DynamoDB Table (linter may warn, but this is correct for boto3)
-catalog_table = dynamodb.Table(CATALOG_TABLE_NAME)  # type: ignore
+catalog_table = dynamodb.Table(aws_config['catalog_table_name'])  # type: ignore
 
 # Rate limiting
 limiter = Limiter(
@@ -171,8 +179,94 @@ def convert_decimals_to_floats(obj):
     return obj
 
 def hex_to_rgb(hex_color):
+    """Convert hex color to RGB tuple."""
     hex_color = hex_color.lstrip('#')
     return tuple(int(hex_color[i:i+2], 16) for i in (0, 2, 4))
+
+def calculate_color_similarity(user_colors, item_colors):
+    """Calculate color similarity between user colors and item colors."""
+    if not user_colors or not item_colors:
+        return 0.0
+    
+    max_similarity = 0.0
+    for user_color in user_colors:
+        user_rgb = hex_to_rgb(user_color)
+        for item_color in item_colors:
+            if isinstance(item_color, dict):
+                color_hex = item_color.get('color', '')
+                confidence = item_color.get('confidence', 0.5)
+            else:
+                color_hex = item_color
+                confidence = 1.0
+            
+            if not color_hex:
+                continue
+            
+            try:
+                item_rgb = hex_to_rgb(color_hex)
+                # Calculate color distance (lower is better)
+                distance = sum((a - b) ** 2 for a, b in zip(user_rgb, item_rgb)) ** 0.5
+                max_distance = (255 ** 2 * 3) ** 0.5  # Maximum possible distance
+                similarity = 1 - (distance / max_distance)
+                
+                # Weight by confidence
+                weighted_similarity = similarity * confidence
+                max_similarity = max(max_similarity, weighted_similarity)
+            except Exception:
+                continue
+    
+    return max_similarity
+
+def calculate_quality_score(item):
+    """Calculate quality score for an item based on various factors."""
+    score = 0.5  # Base score
+    
+    # Boost for items with good attributes
+    if 'attributes' in item and item['attributes']:
+        attributes = item['attributes']
+        if isinstance(attributes, dict):
+            # Count high-confidence attributes
+            high_confidence_count = 0
+            for attr_key, attr_value in attributes.items():
+                if isinstance(attr_value, list):
+                    for attr in attr_value:
+                        if isinstance(attr, dict) and attr.get('confidence', 0) >= 0.7:
+                            high_confidence_count += 1
+                elif isinstance(attr_value, str):
+                    high_confidence_count += 1
+            
+            # Boost score based on attribute quality
+            score += min(high_confidence_count * 0.1, 0.3)
+    
+    # Boost for items with embeddings (vector-based features)
+    if 'embeddings' in item:
+        score += 0.1
+    
+    return min(score, 1.0)  # Cap at 1.0
+
+def create_user_preference_embedding(user_preferences):
+    """Create embedding for user preferences using CLIP."""
+    try:
+        from transformers import CLIPProcessor, CLIPModel
+        
+        # Load CLIP model
+        model_name = "openai/clip-vit-base-patch32"
+        model = CLIPModel.from_pretrained(model_name)
+        processor = CLIPProcessor.from_pretrained(model_name)
+        
+        # Create text description from preferences
+        user_text = " ".join([f"{k}: {v}" for k, v in user_preferences.items()])
+        
+        # Get text embedding
+        inputs = processor(text=user_text, return_tensors="pt", padding=True, truncation=True)
+        with torch.no_grad():
+            text_features = model.get_text_features(**inputs)
+        
+        return text_features.numpy().flatten()
+        
+    except Exception as e:
+        logger.error(f"Error creating user preference embedding: {e}")
+        return None
 
 def extract_dominant_colors(image_stream, n_colors=5):
     """Extracts dominant colors from an image stream with their percentages."""
@@ -250,60 +344,72 @@ def load_catalog_from_dynamodb():
         app.logger.error(f"Error loading catalog from DynamoDB: {e}")
         return []
 
-def get_smart_recommendations(user_colors, max_recs=MAX_RECOMMENDATIONS):
-    """Get smart recommendations based on user color preferences."""
-    try:
-        catalog = load_catalog_from_dynamodb()
-        if not catalog:
-            return []
+def get_smart_recommendations(user_colors, max_recs=recommendation_config['max_recommendations']):
+    """Smart recommendation system that considers quality, diversity, and user experience."""
+    recommendations = []
+    
+    # Load catalog from DynamoDB
+    art_catalog = load_catalog_from_dynamodb()
+    if not art_catalog:
+        return recommendations
+
+    # Calculate scores for all artworks
+    scored_artworks = []
+    for artwork in art_catalog:
+        catalog_colors = artwork['attributes']['dominant_colors']
+        if not catalog_colors:
+            continue
+
+        # Convert hex to RGB for comparison
+        user_rgb = {item['color']: (tuple(int(item['color'][i:i+2], 16) for i in (1, 3, 5)), float(item['percentage'])) for item in user_colors}
+        catalog_rgb = {item['color']: (tuple(int(item['color'][i:i+2], 16) for i in (1, 3, 5)), float(item['percentage'])) for item in catalog_colors}
+
+        # Weighted color distance score
+        total_score = 0
+        for uc_hex, (uc_rgb, uc_perc) in user_rgb.items():
+            for cc_hex, (cc_rgb, cc_perc) in catalog_rgb.items():
+                dist = np.linalg.norm(np.array(uc_rgb) - np.array(cc_rgb))
+                total_score += dist * uc_perc * cc_perc
         
-        recommendations = []
-        for item in catalog:
-            if 'attributes' not in item or not item['attributes']:
-                continue
-                
-            attributes = item['attributes']
-            if isinstance(attributes, str):
-                # Handle old string format
-                continue
-            
-            # Get color attributes with confidence scores
-            color_attrs = attributes.get('colors', [])
-            if not color_attrs:
-                continue
-            
-            # Calculate color similarity score
-            color_score = 0
-            for user_color in user_colors:
-                user_rgb = hex_to_rgb(user_color)
-                for color_attr in color_attrs:
-                    if isinstance(color_attr, dict) and 'color' in color_attr:
-                        attr_color = color_attr['color']
-                        attr_confidence = color_attr.get('confidence', 0.5)
-                        attr_rgb = hex_to_rgb(attr_color)
-                        
-                        # Calculate color distance (lower is better)
-                        distance = sum((a - b) ** 2 for a, b in zip(user_rgb, attr_rgb)) ** 0.5
-                        max_distance = (255 ** 2 * 3) ** 0.5  # Maximum possible distance
-                        similarity = 1 - (distance / max_distance)
-                        
-                        # Weight by confidence
-                        weighted_similarity = similarity * attr_confidence
-                        color_score = max(color_score, weighted_similarity)
-            
-            if color_score > 0.1:  # Minimum threshold
-                recommendations.append({
-                    'item': item,
-                    'score': color_score
-                })
+        if total_score > 0:
+            scored_artworks.append({
+                'artwork': artwork,
+                'score': total_score
+            })
+
+    # Sort by score (ascending, lower is better)
+    scored_artworks.sort(key=lambda x: x['score'])
+    
+    # Smart selection strategy
+    if len(scored_artworks) <= max_recs:
+        # If we have fewer than max, return all
+        return scored_artworks
+    
+    # Quality-based selection: take top 60% by score
+    quality_count = min(max_recs, int(max_recs * 0.6))
+    quality_recs = scored_artworks[:quality_count]
+    
+    # Diversity-based selection: add some variety from middle range
+    remaining_count = max_recs - quality_count
+    if remaining_count > 0 and len(scored_artworks) > quality_count:
+        # Take some from middle range for diversity
+        middle_start = quality_count
+        middle_end = min(len(scored_artworks), quality_count + remaining_count * 2)
+        diversity_candidates = scored_artworks[middle_start:middle_end]
         
-        # Sort by score and return top recommendations
-        recommendations.sort(key=lambda x: x['score'], reverse=True)
-        return [rec['item'] for rec in recommendations[:max_recs]]
+        # Randomly select from diversity candidates
+        import random
+        if len(diversity_candidates) > remaining_count:
+            diversity_recs = random.sample(diversity_candidates, remaining_count)
+        else:
+            diversity_recs = diversity_candidates
         
-    except Exception as e:
-        app.logger.error(f"Error in smart recommendations: {e}")
-        return []
+        # Combine quality and diversity recommendations
+        final_recs = quality_recs + diversity_recs
+        final_recs.sort(key=lambda x: x['score'])  # Re-sort by score
+        return final_recs
+    
+    return quality_recs
 
 def get_recommendations(user_colors):
     """Get recommendations based on user color preferences."""
@@ -314,71 +420,72 @@ def get_recommendations_by_filter(filters):
     try:
         catalog = load_catalog_from_dynamodb()
         if not catalog:
+            app.logger.warning("No catalog data available for filtering")
             return []
+        
+        app.logger.info(f"Filtering catalog with {len(catalog)} items using filters: {filters}")
+        
+        # Extract filters (handle both list and single value formats)
+        style_filters = filters.get('styles', [])
+        subject_filters = filters.get('subjects', [])
+        
+        # Convert single values to lists for consistency
+        if not isinstance(style_filters, list):
+            style_filters = [style_filters] if style_filters else []
+        if not isinstance(subject_filters, list):
+            subject_filters = [subject_filters] if subject_filters else []
         
         recommendations = []
         for item in catalog:
             if 'attributes' not in item or not item['attributes']:
+                app.logger.debug(f"Item {item.get('filename', 'unknown')} has no attributes")
                 continue
                 
             attributes = item['attributes']
             if isinstance(attributes, str):
                 # Handle old string format
+                app.logger.debug(f"Item {item.get('filename', 'unknown')} has string attributes")
                 continue
             
-            # Check if item matches all filters
-            matches = True
-            for filter_key, filter_value in filters.items():
-                if filter_key not in attributes:
-                    matches = False
-                    break
-                
-                attr_value = attributes[filter_key]
-                if isinstance(attr_value, list):
-                    # Handle list of objects with confidence scores
-                    if not any(isinstance(obj, dict) and obj.get('name') == filter_value and obj.get('confidence', 0) >= 0.7 for obj in attr_value):
-                        matches = False
-                        break
-                elif isinstance(attr_value, str):
-                    # Handle old string format
-                    if attr_value != filter_value:
-                        matches = False
-                        break
-                else:
-                    matches = False
-                    break
+            # Handle both old string format and new object format for style
+            style_attr = attributes.get('style')
+            if isinstance(style_attr, dict):
+                style_label = style_attr.get('label', '')
+                style_confidence = safe_float(style_attr.get('confidence', 0.0))
+            else:
+                # Old format - assume high confidence (1.0) for backward compatibility
+                style_label = style_attr or ''
+                style_confidence = 1.0
             
-            if matches:
-                # Calculate confidence score
-                style_confidence = 0.5
-                subject_confidence = 0.5
-                
-                if 'style' in attributes:
-                    style_attrs = attributes['style']
-                    if isinstance(style_attrs, list):
-                        for attr in style_attrs:
-                            if isinstance(attr, dict) and attr.get('name') == filters.get('style'):
-                                style_confidence = attr.get('confidence', 0.5)
-                                break
-                
-                if 'subject' in attributes:
-                    subject_attrs = attributes['subject']
-                    if isinstance(subject_attrs, list):
-                        for attr in subject_attrs:
-                            if isinstance(attr, dict) and attr.get('name') == filters.get('subject'):
-                                subject_confidence = attr.get('confidence', 0.5)
-                                break
-                
-                confidence_score = 1.0 - ((style_confidence + subject_confidence) / 2.0)
+            # Handle both old string format and new object format for subject
+            subject_attr = attributes.get('subject')
+            if isinstance(subject_attr, dict):
+                subject_label = subject_attr.get('label', '')
+                subject_confidence = safe_float(subject_attr.get('confidence', 0.0))
+            else:
+                # Old format - assume high confidence (1.0) for backward compatibility
+                subject_label = subject_attr or ''
+                subject_confidence = 1.0
+            
+            # Check if item matches filters (same logic as app.py)
+            style_match = not style_filters or style_label in style_filters
+            subject_match = not subject_filters or subject_label in subject_filters
+            
+            if style_match and subject_match:
+                app.logger.info(f"Item {item.get('filename', 'unknown')} matches filters")
+                # Calculate confidence score (same logic as app.py)
+                confidence_score = 1.0 - (float(style_confidence + subject_confidence) / 2.0)
                 
                 recommendations.append({
                     'item': item,
                     'score': confidence_score
                 })
         
+        app.logger.info(f"Found {len(recommendations)} matching items")
+        
         # Sort by score and return top recommendations
-        recommendations.sort(key=lambda x: x['score'], reverse=True)
-        return [rec['item'] for rec in recommendations[:MAX_RECOMMENDATIONS]]
+        recommendations.sort(key=lambda x: x['score'])
+        return [rec['item'] for rec in recommendations[:recommendation_config['max_recommendations']]]
         
     except Exception as e:
         app.logger.error(f"Error in filter recommendations: {e}")
@@ -400,27 +507,38 @@ def moderate_image_content(image_bytes):
         
         moderation_labels = response.get('ModerationLabels', [])
         
-        # Cache the result
-        moderation_cache.set(cache_key, moderation_labels)
+        # Determine if image is approved based on moderation labels
+        is_approved = len(moderation_labels) == 0
+        reason = "Content moderation failed" if not is_approved else None
         
-        return moderation_labels
+        result = (is_approved, reason)
+        
+        # Cache the result
+        moderation_cache.set(cache_key, result)
+        
+        return result
         
     except Exception as e:
         app.logger.error(f"Error in content moderation: {e}")
-        return []
+        return (False, f"Moderation error: {str(e)}")
 
 def store_quarantined_image(image_bytes, filename, reason):
-    """Store quarantined image in S3."""
+    """Store image in quarantine bucket with metadata."""
     try:
         s3.put_object(
-            Bucket=QUARANTINE_BUCKET,
+            Bucket=aws_config['quarantine_bucket'],
             Key=filename,
             Body=image_bytes,
-            Metadata={'quarantine_reason': reason}
+            Metadata={
+                'quarantine_reason': reason,
+                'timestamp': datetime.utcnow().isoformat()
+            }
         )
-        app.logger.info(f"Stored quarantined image: {filename}")
+        logger.info(f"Image {filename} quarantined: {reason}")
+        return True
     except Exception as e:
-        app.logger.error(f"Error storing quarantined image: {e}")
+        logger.error(f"Error storing quarantined image: {e}")
+        return None
 
 def get_text_embedding(text, model, processor):
     """Get text embedding using CLIP model."""
@@ -433,74 +551,71 @@ def get_text_embedding(text, model, processor):
         app.logger.error(f"Error getting text embedding: {e}")
         return None
 
-def get_vector_based_recommendations(user_preferences, max_recs=MAX_RECOMMENDATIONS):
+def get_vector_based_recommendations(user_preferences, max_recs=recommendation_config['max_recommendations']):
     """Get vector-based recommendations using CLIP embeddings."""
     try:
-        from transformers import CLIPProcessor, CLIPModel
+        # Get catalog data
+        catalog_data = load_catalog_from_dynamodb()
+        if not catalog_data:
+            return []
         
-        # Load CLIP model
-        model_name = "openai/clip-vit-base-patch32"
-        model = CLIPModel.from_pretrained(model_name)
-        processor = CLIPProcessor.from_pretrained(model_name)
+        # Filter items that have embeddings (fix: look inside attributes)
+        items_with_embeddings = [item for item in catalog_data if 'attributes' in item and 'embedding' in item['attributes']]
+        if not items_with_embeddings:
+            logger.warning("No items with embeddings found in catalog")
+            return []
         
-        # Get user preference embedding
-        user_text = " ".join([f"{k}: {v}" for k, v in user_preferences.items()])
-        user_embedding = get_text_embedding(user_text, model, processor)
-        
+        # Create user preference embedding
+        user_embedding = create_user_preference_embedding(user_preferences)
         if user_embedding is None:
+            logger.warning("Could not create user preference embedding")
             return []
         
-        catalog = load_catalog_from_dynamodb()
-        if not catalog:
-            return []
-        
+        # Calculate similarities
         recommendations = []
-        for item in catalog:
-            if 'attributes' not in item or not item['attributes']:
-                continue
+        for item in items_with_embeddings:
+            try:
+                item_embedding = np.array(item['attributes']['embedding'])
+                similarity = cosine_similarity([user_embedding], [item_embedding])[0][0]
                 
-            attributes = item['attributes']
-            if isinstance(attributes, str):
-                continue
-            
-            # Create item description from attributes
-            item_description = []
-            for attr_key, attr_value in attributes.items():
-                if isinstance(attr_value, list):
-                    for attr in attr_value:
-                        if isinstance(attr, dict) and attr.get('confidence', 0) >= 0.7:
-                            item_description.append(f"{attr_key}: {attr.get('name', '')}")
-                elif isinstance(attr_value, str):
-                    item_description.append(f"{attr_key}: {attr_value}")
-            
-            if not item_description:
-                continue
-            
-            item_text = " ".join(item_description)
-            item_embedding = get_text_embedding(item_text, model, processor)
-            
-            if item_embedding is not None:
-                # Calculate cosine similarity
-                similarity = cosine_similarity(user_embedding, item_embedding)[0][0]
                 recommendations.append({
                     'item': item,
-                    'score': float(similarity)
+                    'similarity': similarity
                 })
+            except Exception as e:
+                logger.warning(f"Error calculating similarity for item {item.get('filename', 'unknown')}: {e}")
+                continue
         
-        # Sort by similarity score
-        recommendations.sort(key=lambda x: x['score'], reverse=True)
+        # Sort by similarity and return top recommendations
+        recommendations.sort(key=lambda x: x['similarity'], reverse=True)
         return [rec['item'] for rec in recommendations[:max_recs]]
         
     except Exception as e:
-        app.logger.error(f"Error in vector-based recommendations: {e}")
+        logger.error(f"Error in get_vector_based_recommendations: {e}")
         return []
+
+def generate_presigned_url(filename):
+    """Generate a presigned URL for an S3 object."""
+    try:
+        url = s3.generate_presigned_url(
+            'get_object',
+            Params={
+                'Bucket': aws_config['catalog_bucket_name'],
+                'Key': filename
+            },
+            ExpiresIn=3600  # 1 hour
+        )
+        return url
+    except Exception as e:
+        logger.error(f"Error generating presigned URL for {filename}: {e}")
+        return None
 
 # --- Routes ---
 
 @app.route('/')
 def serve_index():
     """Serve the main index.html file."""
-    return send_from_directory(app.static_folder, 'index.html')
+    return send_from_directory('static', 'index.html')
 
 @app.route('/recommend', methods=['POST'])
 @limiter.limit("30 per minute")
@@ -511,7 +626,15 @@ def recommend_unified():
         if not data:
             return jsonify({'error': 'No data provided'}), 400
         
-        workflow_type = data.get('workflow_type', 'COLORS')
+        # Handle both old 'type' field and new 'workflow_type' field
+        workflow_type = data.get('workflow_type', data.get('type', 'COLORS'))
+        
+        # Map old type values to new workflow_type values
+        if workflow_type == 'preferences':
+            workflow_type = 'PREFERENCES'
+        elif workflow_type == 'upload':
+            workflow_type = 'COLORS'
+        
         app.logger.info(f"Processing {workflow_type}-based recommendation")
         
         if workflow_type == 'PREFERENCES':
@@ -538,8 +661,20 @@ def recommend_unified():
             except Exception as e:
                 app.logger.warning(f"Vector-based recommendations failed: {e}, falling back to traditional filtering")
             
+            # Format preferences into the expected filter format
+            filters = {}
+            if 'subjects' in preferences:
+                filters['subjects'] = preferences['subjects']
+            elif 'subject' in preferences:
+                # Handle single subject case
+                subject_value = preferences['subject']
+                if isinstance(subject_value, list):
+                    filters['subjects'] = subject_value
+                else:
+                    filters['subjects'] = [subject_value] if subject_value else []
+            
             # Fallback to traditional filtering
-            recommendations = get_recommendations_by_filter(preferences)
+            recommendations = get_recommendations_by_filter(filters)
             app.logger.info(f"Generated {len(recommendations)} recommendations for preferences")
             app.logger.info("=== RECOMMENDATION REQUEST COMPLETE ===")
             app.logger.info(f"Returning {len(recommendations)} recommendations")
@@ -564,44 +699,28 @@ def recommend_unified():
 def preferences_options():
     """Get available preference options from the catalog."""
     try:
-        catalog = load_catalog_from_dynamodb()
-        if not catalog:
-            return jsonify({'error': 'No catalog data available'}), 500
-        
-        # Extract unique options from catalog
-        styles = set()
+        items = load_catalog_from_dynamodb()
         subjects = set()
+        CONFIDENCE_THRESHOLD = 0.7  # Only show attributes with confidence >= 0.7
         
-        for item in catalog:
-            if 'attributes' not in item or not item['attributes']:
-                continue
-                
-            attributes = item['attributes']
-            if isinstance(attributes, str):
-                continue
+        for art in items:
+            attrs = art.get('attributes', {})
             
-            # Extract styles
-            if 'style' in attributes:
-                style_attrs = attributes['style']
-                if isinstance(style_attrs, list):
-                    for attr in style_attrs:
-                        if isinstance(attr, dict) and attr.get('confidence', 0) >= 0.7:
-                            styles.add(attr.get('name', ''))
-                elif isinstance(style_attrs, str):
-                    styles.add(style_attrs)
-            
-            # Extract subjects
-            if 'subject' in attributes:
-                subject_attrs = attributes['subject']
-                if isinstance(subject_attrs, list):
-                    for attr in subject_attrs:
-                        if isinstance(attr, dict) and attr.get('confidence', 0) >= 0.7:
-                            subjects.add(attr.get('name', ''))
-                elif isinstance(subject_attrs, str):
-                    subjects.add(subject_attrs)
+            # Handle both old string format and new object format for subject
+            subject_attr = attrs.get('subject')
+            if isinstance(subject_attr, dict):
+                subject_label = subject_attr.get('label', '')
+                subject_confidence = safe_float(subject_attr.get('confidence', 0.0))
+                # Only include if confidence meets threshold
+                if subject_label and subject_confidence >= CONFIDENCE_THRESHOLD:
+                    subjects.add(subject_label)
+            else:
+                # Old format - assume high confidence (1.0) for backward compatibility
+                subject_label = subject_attr or ''
+                if subject_label:
+                    subjects.add(subject_label)
         
         return jsonify({
-            'styles': sorted(list(styles)),
             'subjects': sorted(list(subjects))
         })
         
@@ -771,7 +890,7 @@ def serve_catalog_image(filename):
         url = s3.generate_presigned_url(
             'get_object',
             Params={
-                'Bucket': CATALOG_BUCKET_NAME,
+                'Bucket': aws_config['catalog_bucket_name'],
                 'Key': filename
             },
             ExpiresIn=3600  # URL expires in 1 hour
@@ -791,16 +910,14 @@ def ratelimit_handler(e):
 
 @app.route('/health')
 def health_check():
-    """Health check endpoint for Docker and load balancers"""
+    """Health check endpoint."""
     try:
-        # Simple health check - don't check DynamoDB for now
         return jsonify({
             'status': 'healthy',
             'timestamp': datetime.utcnow().isoformat(),
-            'environment': APP_ENV
+            'environment': aws_config['env']
         }), 200
     except Exception as e:
-        app.logger.error(f"Health check failed: {e}")
         return jsonify({
             'status': 'unhealthy',
             'error': str(e),
@@ -846,6 +963,83 @@ def reset_workflow():
     except Exception as e:
         app.logger.error(f"Error resetting workflow: {e}")
         return jsonify({'error': 'Failed to reset workflow'}), 500
+
+@app.route('/upload-image', methods=['POST'])
+@limiter.limit("10 per minute")
+def upload_image():
+    """Handle image upload and extract colors for recommendations."""
+    try:
+        data = request.get_json()
+        if not data:
+            return jsonify({'error': 'No data provided'}), 400
+        
+        # Get the image data (base64 encoded)
+        image_data = data.get('roomImage')
+        if not image_data:
+            return jsonify({'error': 'No image data provided'}), 400
+        
+        # Remove the data URL prefix if present
+        if image_data.startswith('data:image/'):
+            # Extract the base64 data after the comma
+            image_data = image_data.split(',', 1)[1]
+        
+        # Decode base64 to bytes
+        try:
+            image_bytes = base64.b64decode(image_data)
+        except Exception as e:
+            app.logger.error(f"Failed to decode base64 image: {e}")
+            return jsonify({'error': 'Invalid image format'}), 400
+        
+        # Use a generic filename for processing
+        filename = "uploaded_image.jpg"
+        
+        # Moderate the image content
+        is_approved, reason = moderate_image_content(image_bytes)
+        if not is_approved:
+            store_quarantined_image(image_bytes, filename, reason)
+            app.logger.error(f"Moderation failed: {reason}")
+            return jsonify({'error': f"Moderation failed: {reason}"}), 400
+        
+        # Extract dominant colors from the image
+        user_colors = extract_dominant_colors(io.BytesIO(image_bytes))
+        if not user_colors:
+            app.logger.error("Could not analyze image colors")
+            return jsonify({'error': 'Could not analyze image colors.'}), 500
+        
+        app.logger.info(f"Successfully analyzed image colors: {len(user_colors)} colors found")
+        
+        # Get recommendations based on the extracted colors
+        scored_recommendations = get_smart_recommendations(user_colors)
+        
+        # Extract the artwork items from the scored recommendations
+        recommendations = [rec['artwork'] for rec in scored_recommendations]
+        
+        # Format the recommendations like app.py does
+        formatted_recommendations = []
+        for rec in recommendations:
+            formatted_rec = {
+                'id': rec.get('id', ''),
+                'title': rec.get('title', ''),
+                'artist': rec.get('artist', ''),
+                'description': rec.get('description', ''),
+                'price': rec.get('price', ''),
+                'product_url': rec.get('product_url', ''),
+                'filename': rec.get('filename', ''),
+                'attributes': rec.get('attributes', {})
+            }
+            formatted_recommendations.append(formatted_rec)
+        
+        app.logger.info(f"Generated {len(formatted_recommendations)} recommendations for uploaded image")
+        app.logger.info("=== RECOMMENDATION REQUEST COMPLETE ===")
+        app.logger.info(f"Returning {len(formatted_recommendations)} recommendations")
+        if formatted_recommendations:
+            app.logger.info(f"First recommendation: {formatted_recommendations[0].get('title', 'Unknown')}")
+        
+        return jsonify({'recommendations': formatted_recommendations})
+        
+    except Exception as e:
+        app.logger.error(f"Error processing uploaded image: {e}")
+        return jsonify({'error': 'Failed to process image'}), 500
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=8000, debug=True) 

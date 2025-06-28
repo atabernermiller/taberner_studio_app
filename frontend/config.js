@@ -24,7 +24,7 @@ const config = {
   
   // AWS specific settings
   aws: {
-    region: 'us-west-2', // Default region, can be overridden
+    region: 'us-east-1', // Default region, can be overridden
     s3Bucket: 'taberner-studio-assets' // S3 bucket for assets
   }
 };

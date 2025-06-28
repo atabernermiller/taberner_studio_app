@@ -978,13 +978,12 @@ function getRecommendations(progressInterval = null) {
         return;
     }
 
-    fetch('/recommend', {
+    fetch('/upload-image', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-            type: 'upload',
             roomImage: uploadedImage
         }),
     })
@@ -2001,19 +2000,30 @@ function initializeEventListeners() {
 }
 
 function showOptionsView() {
+    // Get the main view elements
+    const uploadView = document.getElementById('upload-view');
+    const resultsArea = document.getElementById('results-area');
+    
+    // Properly toggle the views - show upload view, hide results
+    if (uploadView) uploadView.style.display = 'block';
+    if (resultsArea) resultsArea.style.display = 'none';
+
+    // Show the options section
     const optionsSection = document.getElementById('options-section');
     if (optionsSection) optionsSection.style.display = 'block';
 
+    // Hide the back button
+    const backButton = document.getElementById('back-button');
+    if (backButton) backButton.style.display = 'none';
+
+    // Hide forms
     const uploadForm = document.getElementById('upload-form-container');
     if (uploadForm) uploadForm.style.display = 'none';
 
     const preferencesForm = document.getElementById('preferences-form-container');
     if (preferencesForm) preferencesForm.style.display = 'none';
 
-    const resultsArea = document.getElementById('results-area');
-    if (resultsArea) resultsArea.style.display = 'none';
-
-    // ... (rest of function remains unchanged)
+    console.log('=== OPTIONS VIEW SHOWN ===');
 }
 
 // Handle purchase button click

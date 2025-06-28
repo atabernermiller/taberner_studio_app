@@ -31,6 +31,7 @@ import re
 from io import BytesIO
 from werkzeug.utils import secure_filename
 from botocore.exceptions import ClientError, NoCredentialsError
+from config import config
 
 logging.basicConfig(
     level=logging.INFO,
@@ -80,6 +81,9 @@ signal.signal(signal.SIGTERM, signal_handler)
 logger.info("=== Application Starting ===")
 log_memory_usage("at startup")
 
+# Log configuration
+logger.info(f"Configuration:\n{config}")
+
 # The static_folder argument points to the 'static' directory, which now contains the frontend.
 # The static_url_path='' makes the static files available from the root URL.
 # Configure app to serve frontend files
@@ -87,26 +91,18 @@ FRONTEND_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'fr
 app = Flask(__name__, static_folder=FRONTEND_DIR, static_url_path='')
 CORS(app)
 
-# --- AWS Configuration ---
-APP_ENV = os.environ.get('APP_ENV', 'aws')  # Default to AWS mode
-
-# Recommendation Configuration
-MAX_RECOMMENDATIONS = int(os.environ.get('MAX_RECOMMENDATIONS', '8'))  # Default to 8 for better UX
-MIN_RECOMMENDATIONS = int(os.environ.get('MIN_RECOMMENDATIONS', '4'))  # Minimum to show
-
-# AWS Resource Names
-CATALOG_TABLE_NAME = os.environ.get('CATALOG_TABLE_NAME', 'taberner-studio-catalog')
-CATALOG_BUCKET_NAME = os.environ.get('CATALOG_BUCKET_NAME', 'taberner-studio-catalog-images')
-APPROVED_BUCKET = os.environ.get('APPROVED_BUCKET', 'taberner-studio-images')
-QUARANTINE_BUCKET = os.environ.get('QUARANTINE_BUCKET', 'taberner-studio-quarantine')
+# Get configuration values
+aws_config = config.get_aws_config()
+recommendation_config = config.get_recommendation_config()
+cache_config = config.get_cache_config()
 
 # AWS Clients
-dynamodb = boto3.resource('dynamodb')
-s3 = boto3.client('s3')
-rekognition = boto3.client('rekognition')
+dynamodb = boto3.resource('dynamodb', region_name=aws_config['region'])
+s3 = boto3.client('s3', region_name=aws_config['region'])
+rekognition = boto3.client('rekognition', region_name=aws_config['region'])
 
 # DynamoDB Table (linter may warn, but this is correct for boto3)
-catalog_table = dynamodb.Table(CATALOG_TABLE_NAME)  # type: ignore
+catalog_table = dynamodb.Table(aws_config['catalog_table_name'])  # type: ignore
 
 # Rate limiting
 limiter = Limiter(
@@ -138,10 +134,10 @@ class SimpleCache:
     def clear(self):
         self.cache.clear()
 
-# Initialize caches
-catalog_cache = SimpleCache(ttl_seconds=300)  # 5 minutes cache
-presigned_url_cache = SimpleCache(ttl_seconds=3600)  # 1 hour cache for S3 URLs
-moderation_cache = SimpleCache(ttl_seconds=600)  # 10 minutes cache for moderation results
+# Initialize caches with configuration values
+catalog_cache = SimpleCache(ttl_seconds=cache_config['catalog_cache_ttl'])
+presigned_url_cache = SimpleCache(ttl_seconds=cache_config['presigned_url_cache_ttl'])
+moderation_cache = SimpleCache(ttl_seconds=cache_config['moderation_cache_ttl'])
 
 # --- Core Logic: Color Analysis, Moderation, Storage ---
 def safe_float(value):
@@ -242,7 +238,7 @@ def load_catalog_from_dynamodb():
             scan_count += 1
         
         # Store in cache with longer TTL in production
-        cache_ttl = 600 if APP_ENV == 'aws' else 300  # 10 minutes in production, 5 in dev
+        cache_ttl = 600 if aws_config['env'] == 'aws' else 300  # 10 minutes in production, 5 in dev
         catalog_cache.ttl = cache_ttl
         catalog_cache.set('art_catalog', items)
         app.logger.info(f"Fetched {len(items)} items from DynamoDB and cached for {cache_ttl}s")
@@ -252,7 +248,7 @@ def load_catalog_from_dynamodb():
         app.logger.error(f"Error loading catalog from DynamoDB: {str(e)}")
         return []
 
-def get_smart_recommendations(user_colors, max_recs=MAX_RECOMMENDATIONS):
+def get_smart_recommendations(user_colors, max_recs=recommendation_config['max_recommendations']):
     """Smart recommendation system that considers quality, diversity, and user experience."""
     recommendations = []
     
@@ -353,7 +349,7 @@ def get_recommendations(user_colors):
 
     # Sort by score (ascending, lower is better)
     recommendations.sort(key=lambda x: x['score'])
-    return recommendations[:MAX_RECOMMENDATIONS]
+    return recommendations[:recommendation_config['max_recommendations']]
 
 def get_recommendations_by_filter(filters):
     """Get recommendations based on style and subject filters"""
@@ -405,7 +401,7 @@ def get_recommendations_by_filter(filters):
     
     # Sort by confidence score (ascending, lower is better)
     filtered_artworks.sort(key=lambda x: x['score'])
-    return filtered_artworks[:MAX_RECOMMENDATIONS]
+    return filtered_artworks[:recommendation_config['max_recommendations']]
 
 def moderate_image_content(image_bytes):
     """Moderate image content using AWS Rekognition with caching"""
@@ -420,7 +416,7 @@ def moderate_image_content(image_bytes):
     
     try:
         # Only moderate in production, skip in development for speed
-        if APP_ENV == 'development':
+        if aws_config['env'] == 'development':
             app.logger.info("Skipping moderation in development mode")
             result = (True, "Skipped in development")
         else:
@@ -752,7 +748,7 @@ def serve_catalog_image(filename):
         url = s3.generate_presigned_url(
             'get_object',
             Params={
-                'Bucket': CATALOG_BUCKET_NAME,
+                'Bucket': aws_config['catalog_bucket_name'],
                 'Key': filename
             },
             ExpiresIn=3600  # URL expires in 1 hour
@@ -778,7 +774,7 @@ def health_check():
         return jsonify({
             'status': 'healthy',
             'timestamp': datetime.utcnow().isoformat(),
-            'environment': APP_ENV
+            'environment': aws_config['env']
         }), 200
     except Exception as e:
         app.logger.error(f"Health check failed: {e}")
@@ -792,7 +788,7 @@ def health_check():
 def clear_cache():
     """Clear the catalog cache (admin endpoint)."""
     # Only clear cache in development mode to avoid performance issues in production
-    if APP_ENV == 'development':
+    if aws_config['env'] == 'development':
         catalog_cache.clear()
         app.logger.info("Catalog cache cleared (development mode)")
         return jsonify({'message': 'Cache cleared successfully'})
@@ -817,7 +813,7 @@ def cache_stats():
 def reset_workflow():
     """Clear cache when user resets workflow (Back to Start)."""
     # Only clear cache in development mode to avoid performance issues in production
-    if APP_ENV == 'development':
+    if aws_config['env'] == 'development':
         catalog_cache.clear()
         app.logger.info("Workflow reset: Catalog cache cleared (development mode)")
     else:
