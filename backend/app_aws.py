@@ -732,23 +732,7 @@ def recommend_unified():
             if not preferences:
                 return jsonify({'error': 'No preferences provided'}), 400
             
-            app.logger.info("Attempting vector-based recommendations")
-            
-            # Try vector-based recommendations first
-            try:
-                recommendations = get_vector_based_recommendations(preferences)
-                if recommendations:
-                    app.logger.info(f"Generated {len(recommendations)} vector-based recommendations")
-                    app.logger.info(f"Generated {len(recommendations)} recommendations for preferences")
-                    app.logger.info("=== RECOMMENDATION REQUEST COMPLETE ===")
-                    app.logger.info(f"Returning {len(recommendations)} recommendations")
-                    if recommendations:
-                        app.logger.info(f"First recommendation: Artwork {recommendations[0].get('title', 'Unknown')}")
-                    return jsonify({'recommendations': recommendations})
-                else:
-                    app.logger.info("No vector-based recommendations found, falling back to traditional filtering")
-            except Exception as e:
-                app.logger.warning(f"Vector-based recommendations failed: {e}, falling back to traditional filtering")
+            app.logger.info("Using simple filtering for preference-based recommendations")
             
             # Format preferences into the expected filter format
             filters = {}
@@ -762,7 +746,7 @@ def recommend_unified():
                 else:
                     filters['subjects'] = [subject_value] if subject_value else []
             
-            # Fallback to traditional filtering
+            # Use simple filtering for fast performance
             recommendations = get_recommendations_by_filter(filters)
             app.logger.info(f"Generated {len(recommendations)} recommendations for preferences")
             app.logger.info("=== RECOMMENDATION REQUEST COMPLETE ===")
