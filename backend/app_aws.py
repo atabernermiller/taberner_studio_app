@@ -94,6 +94,23 @@ log_memory_usage("at startup")
 # Log configuration
 logger.info(f"Configuration:\n{config}")
 
+# Log which values are coming from environment variables vs constants
+logger.info("=== CONFIGURATION SOURCE LOG ===")
+env_vars = [
+    'AWS_REGION', 'CATALOG_TABLE_NAME', 'CATALOG_BUCKET_NAME',
+    'APPROVED_BUCKET', 'QUARANTINE_BUCKET', 'APP_ENV',
+    'MAX_RECOMMENDATIONS', 'MIN_RECOMMENDATIONS', 'CONFIDENCE_THRESHOLD',
+    'CATALOG_CACHE_TTL', 'PRESIGNED_URL_CACHE_TTL', 'MODERATION_CACHE_TTL'
+]
+
+for var in env_vars:
+    value = os.getenv(var)
+    if value:
+        logger.info(f"✓ {var}: {value} (from environment)")
+    else:
+        logger.info(f"⚠ {var}: using fallback value (from constants)")
+logger.info("=== END CONFIGURATION SOURCE LOG ===")
+
 # Startup validation function
 def validate_startup():
     """Validate critical components during startup."""
@@ -983,9 +1000,9 @@ def ratelimit_handler(e):
 
 @app.route('/health')
 def health_check():
-    """Health check endpoint with detailed diagnostics."""
+    """Health check endpoint with basic diagnostics."""
     try:
-        # Basic health check
+        # Basic health check - fast and reliable
         health_status = {
             'status': 'healthy',
             'timestamp': datetime.utcnow().isoformat(),
@@ -993,23 +1010,7 @@ def health_check():
             'version': '1.0.0'
         }
         
-        # Test AWS connectivity
-        try:
-            # Test DynamoDB
-            response = catalog_table.scan(Limit=1)
-            health_status['dynamodb'] = 'connected'
-            health_status['dynamodb_items'] = response.get('Count', 0)
-        except Exception as e:
-            health_status['dynamodb'] = f'error: {str(e)}'
-        
-        # Test S3 connectivity
-        try:
-            s3.head_bucket(Bucket=aws_config['catalog_bucket_name'])
-            health_status['s3'] = 'connected'
-        except Exception as e:
-            health_status['s3'] = f'error: {str(e)}'
-        
-        # Memory usage
+        # Memory usage (fast check)
         try:
             process = psutil.Process()
             memory_mb = process.memory_info().rss / 1024 / 1024
@@ -1017,7 +1018,7 @@ def health_check():
         except Exception as e:
             health_status['memory'] = f'error: {str(e)}'
         
-        # Configuration summary
+        # Configuration summary (fast check)
         health_status['config'] = {
             'region': aws_config['region'],
             'catalog_table': aws_config['catalog_table_name'],
