@@ -25,7 +25,7 @@ RUN pip install --no-cache-dir -r requirements_aws.txt
 
 # Copy frontend files to static directory (simulating buildspec.yml)
 RUN mkdir -p static
-COPY frontend/ static/
+COPY static/ static/
 
 # Copy application code
 COPY backend/ .
