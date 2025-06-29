@@ -1093,29 +1093,14 @@ function displayResults(recommendations, type = 'upload') {
         }
     }
     
-    // Show progress bar instead of old content
-    const resultsArea = document.getElementById('results-area');
-    const virtualShowroom = document.getElementById('virtual-showroom');
-    const thumbnailGallery = document.getElementById('thumbnail-gallery');
+    // Store recommendations globally
+    allArtworks = recommendations;
+    currentArtworkIndex = 0;
     
-    if (virtualShowroom) {
-        virtualShowroom.innerHTML = `
-            <div class="processing-container">
-                <div class="processing-content">
-                    <div class="processing-spinner"></div>
-                    <h3>Processing your image...</h3>
-                    <p>Analyzing colors and finding perfect artwork matches</p>
-                    <div class="progress-bar">
-                        <div class="progress-fill"></div>
-                    </div>
-                </div>
-            </div>
-        `;
-    }
-    
-    if (thumbnailGallery) {
-        thumbnailGallery.innerHTML = '';
-    }
+    console.log('Stored recommendations globally:', {
+        allArtworksCount: allArtworks.length,
+        currentArtworkIndex: currentArtworkIndex
+    });
     
     // Update the header text based on recommendation type
     const headerText = document.querySelector('.results-title');
@@ -1126,30 +1111,8 @@ function displayResults(recommendations, type = 'upload') {
         console.warn('Header element not found');
     }
     
-    // Store recommendations globally
-    allArtworks = recommendations;
-    currentArtworkIndex = 0;
-    
-    console.log('Stored recommendations globally:', {
-        allArtworksCount: allArtworks.length,
-        currentArtworkIndex: currentArtworkIndex
-    });
-    
-    // Batch load all image URLs to prevent rate limiting
-    const filenames = allArtworks.map(artwork => artwork.filename);
-    batchLoadImageUrls(filenames).then(() => {
-        console.log('[displayResults] Batch loading complete, displaying first artwork');
-        // Display the first recommendation after batch loading
-        if (allArtworks.length > 0) {
-            displayCurrentArtwork();
-        }
-    }).catch(error => {
-        console.error('[displayResults] Batch loading failed:', error);
-        // Fallback: display anyway
-        if (allArtworks.length > 0) {
-            displayCurrentArtwork();
-        }
-    });
+    // Use virtual showroom with card-style thumbnails
+    displayVirtualShowroomWithCards(recommendations, type);
     
     setTimeout(() => {
         console.log('[displayResults] State after updating:', {
@@ -1162,6 +1125,400 @@ function displayResults(recommendations, type = 'upload') {
     }, 0);
     
     console.log('=== END DISPLAY RESULTS DEBUG ===');
+}
+
+// New function to display virtual showroom with card-style thumbnails
+function displayVirtualShowroomWithCards(recommendations, type = 'upload') {
+    console.log('=== DISPLAY VIRTUAL SHOWROOM WITH CARDS ===');
+    console.log('Recommendations to display:', recommendations);
+    console.log('Workflow type:', type);
+    
+    const virtualShowroom = document.getElementById('virtual-showroom');
+    const thumbnailGallery = document.getElementById('thumbnail-gallery');
+    
+    // Show the virtual showroom
+    if (virtualShowroom) {
+        virtualShowroom.style.display = 'block';
+        // Initialize the virtual showroom first
+        displayCurrentArtwork();
+    }
+    
+    // Customize loading text based on workflow type
+    const loadingTitle = type === 'upload' 
+        ? 'Loading your room preview and artwork options...' 
+        : 'Loading your personalized recommendations...';
+    const loadingSubtitle = type === 'upload'
+        ? 'Click any artwork below to see how it looks in your space'
+        : 'Click any artwork below to see how it looks in a room setting';
+    
+    // Show loading state in thumbnail gallery
+    if (thumbnailGallery) {
+        thumbnailGallery.innerHTML = `
+            <div class="loading-container">
+                <div class="loading-spinner">
+                    <div class="spinner-ring"></div>
+                    <div class="spinner-ring"></div>
+                    <div class="spinner-ring"></div>
+                </div>
+                <h3 class="loading-title">${loadingTitle}</h3>
+                <p class="loading-subtitle">${loadingSubtitle}</p>
+            </div>
+        `;
+        
+        // Create the cards grid for thumbnails
+        setTimeout(() => {
+            createVirtualShowroomCardsGrid(recommendations, type);
+        }, 1000); // Small delay for loading effect
+    }
+}
+
+// New function to display preference-only cards (for preferences workflow without virtual showroom)
+function displayPreferenceCards(recommendations, type = 'preferences') {
+    console.log('=== DISPLAY PREFERENCE CARDS ===');
+    console.log('Recommendations to display as cards:', recommendations);
+    console.log('Workflow type:', type);
+    
+    const virtualShowroom = document.getElementById('virtual-showroom');
+    const thumbnailGallery = document.getElementById('thumbnail-gallery');
+    
+    // Hide the virtual showroom for card layout
+    if (virtualShowroom) {
+        virtualShowroom.style.display = 'none';
+    }
+    
+    // Customize loading text based on workflow type
+    const loadingTitle = type === 'upload' 
+        ? 'Analyzing your room and finding perfect matches...' 
+        : 'Loading your personalized recommendations...';
+    const loadingSubtitle = type === 'upload'
+        ? 'Based on your room\'s colors and style'
+        : 'Finding the perfect artworks based on your preferences';
+    
+    // Show loading state in thumbnail gallery
+    if (thumbnailGallery) {
+        thumbnailGallery.innerHTML = `
+            <div class="loading-container">
+                <div class="loading-spinner">
+                    <div class="spinner-ring"></div>
+                    <div class="spinner-ring"></div>
+                    <div class="spinner-ring"></div>
+                </div>
+                <h3 class="loading-title">${loadingTitle}</h3>
+                <p class="loading-subtitle">${loadingSubtitle}</p>
+            </div>
+        `;
+        
+        // Create the cards grid
+        setTimeout(() => {
+            createPreferenceCardsGrid(recommendations, type);
+        }, 1000); // Small delay for loading effect
+    }
+}
+
+// Function to create the virtual showroom cards grid (replaces thumbnails)
+async function createVirtualShowroomCardsGrid(recommendations, type = 'upload') {
+    console.log('Creating virtual showroom cards grid for', recommendations.length, 'recommendations');
+    
+    const thumbnailGallery = document.getElementById('thumbnail-gallery');
+    if (!thumbnailGallery) {
+        console.error('Thumbnail gallery not found');
+        return;
+    }
+    
+    // Create the cards container
+    const cardsContainer = document.createElement('div');
+    cardsContainer.className = 'virtual-showroom-cards-grid';
+    
+    // Customize header based on workflow type
+    const headerTitle = type === 'upload' 
+        ? 'Your Artwork Options' 
+        : 'Your Personalized Art Collection';
+    const headerSubtitle = type === 'upload'
+        ? 'Click any artwork to see how it looks in your space'
+        : 'Click any artwork to see how it looks in a room setting';
+    
+    cardsContainer.innerHTML = `
+        <div class="showroom-cards-header">
+            <h3>${headerTitle}</h3>
+            <p>${headerSubtitle}</p>
+        </div>
+        <div class="cards-grid" id="showroom-cards-grid"></div>
+    `;
+    
+    thumbnailGallery.innerHTML = '';
+    thumbnailGallery.appendChild(cardsContainer);
+    
+    const cardsGrid = document.getElementById('showroom-cards-grid');
+    
+    // Add debugging for container dimensions
+    setTimeout(() => {
+        console.log('=== CONTAINER DIMENSIONS DEBUG ===');
+        console.log('Window width:', window.innerWidth);
+        console.log('Document body width:', document.body.offsetWidth);
+        console.log('Thumbnail gallery width:', thumbnailGallery.offsetWidth);
+        console.log('Cards container width:', cardsContainer.offsetWidth);
+        console.log('Cards grid width:', cardsGrid.offsetWidth);
+        console.log('Cards grid computed styles:');
+        const computedStyles = window.getComputedStyle(cardsGrid);
+        console.log('  - width:', computedStyles.width);
+        console.log('  - max-width:', computedStyles.maxWidth);
+        console.log('  - padding:', computedStyles.padding);
+        console.log('  - margin:', computedStyles.margin);
+        console.log('  - grid-template-columns:', computedStyles.gridTemplateColumns);
+        console.log('  - gap:', computedStyles.gap);
+        console.log('Cards grid bounding rect:', cardsGrid.getBoundingClientRect());
+        console.log('=== END CONTAINER DIMENSIONS DEBUG ===');
+    }, 100);
+    
+    // Batch load image URLs first
+    const filenames = recommendations.map(artwork => artwork.filename);
+    await batchLoadImageUrls(filenames);
+    
+    // Create cards with a staggered animation
+    recommendations.forEach((artwork, index) => {
+        setTimeout(() => {
+            createVirtualShowroomCard(artwork, index, cardsGrid);
+        }, index * 150); // Stagger by 150ms
+    });
+}
+
+// Function to create the preference cards grid
+async function createPreferenceCardsGrid(recommendations) {
+    console.log('Creating preference cards grid for', recommendations.length, 'recommendations');
+    
+    const thumbnailGallery = document.getElementById('thumbnail-gallery');
+    if (!thumbnailGallery) {
+        console.error('Thumbnail gallery not found');
+        return;
+    }
+    
+    // Create the cards container
+    const cardsContainer = document.createElement('div');
+    cardsContainer.className = 'preference-cards-grid';
+    cardsContainer.innerHTML = `
+        <div class="preference-cards-header">
+            <h3>Your Personalized Art Collection</h3>
+            <p>Based on your preferences, here are artworks we think you'll love</p>
+        </div>
+        <div class="cards-grid" id="cards-grid"></div>
+    `;
+    
+    thumbnailGallery.innerHTML = '';
+    thumbnailGallery.appendChild(cardsContainer);
+    
+    const cardsGrid = document.getElementById('cards-grid');
+    
+    // Add debugging for container dimensions
+    setTimeout(() => {
+        console.log('=== CONTAINER DIMENSIONS DEBUG ===');
+        console.log('Window width:', window.innerWidth);
+        console.log('Document body width:', document.body.offsetWidth);
+        console.log('Thumbnail gallery width:', thumbnailGallery.offsetWidth);
+        console.log('Cards container width:', cardsContainer.offsetWidth);
+        console.log('Cards grid width:', cardsGrid.offsetWidth);
+        console.log('Cards grid computed styles:');
+        const computedStyles = window.getComputedStyle(cardsGrid);
+        console.log('  - width:', computedStyles.width);
+        console.log('  - max-width:', computedStyles.maxWidth);
+        console.log('  - padding:', computedStyles.padding);
+        console.log('  - margin:', computedStyles.margin);
+        console.log('  - grid-template-columns:', computedStyles.gridTemplateColumns);
+        console.log('  - gap:', computedStyles.gap);
+        console.log('Cards grid bounding rect:', cardsGrid.getBoundingClientRect());
+        console.log('=== END CONTAINER DIMENSIONS DEBUG ===');
+    }, 100);
+    
+    // Batch load image URLs first
+    const filenames = recommendations.map(artwork => artwork.filename);
+    await batchLoadImageUrls(filenames);
+    
+    // Create cards with a staggered animation
+    recommendations.forEach((artwork, index) => {
+        setTimeout(() => {
+            createPreferenceCard(artwork, index, cardsGrid);
+        }, index * 150); // Stagger by 150ms
+    });
+}
+
+// Function to create individual preference card
+function createPreferenceCard(artwork, index, container) {
+    console.log('Creating preference card for:', artwork.title);
+    
+    const card = document.createElement('div');
+    card.className = 'preference-card';
+    card.style.animationDelay = `${index * 0.1}s`;
+    
+    // Get cached image URL or use fallback
+    const imageUrl = imageUrlCache.get(artwork.filename) || `/catalog/images/${artwork.filename}`;
+    
+    card.innerHTML = `
+        <div class="card-image-container">
+            <img src="${imageUrl}" alt="${artwork.title}" class="card-image" loading="lazy">
+            <div class="card-overlay">
+                <button class="quick-view-btn" onclick="openArtworkModal('${artwork.filename}', ${index})">
+                    <i class="fas fa-search-plus"></i>
+                    Quick View
+                </button>
+            </div>
+        </div>
+        <div class="card-content">
+            <div class="card-header">
+                <h4 class="card-title">${artwork.title}</h4>
+                <p class="card-artist">${artwork.artist || 'Unknown Artist'}</p>
+            </div>
+            <div class="card-description">
+                <p class="description-text">${artwork.description || artwork.title + ' - A beautiful piece that would enhance any space with its unique character and artistic expression.'}</p>
+            </div>
+            <div class="card-meta">
+                <div class="card-attributes">
+                    ${artwork.subject ? `<span class="attribute-tag">${artwork.subject}</span>` : ''}
+                    ${artwork.style ? `<span class="attribute-tag">${artwork.style}</span>` : ''}
+                    ${artwork.medium ? `<span class="attribute-tag">${artwork.medium}</span>` : ''}
+                </div>
+                <div class="card-price">
+                    <span class="price-label">Price:</span>
+                    <span class="price-value">$${artwork.price || '299'}</span>
+                </div>
+            </div>
+            <div class="card-actions">
+                <button class="btn-view-room" onclick="viewInRoom(${index})">
+                    <i class="fas fa-eye"></i>
+                    View in Room
+                </button>
+                <button class="btn-purchase" onclick="handlePurchaseClick('${artwork.filename}', '${artwork.title}', '${artwork.price || '299'}')">
+                    <i class="fas fa-shopping-cart"></i>
+                    Purchase
+                </button>
+            </div>
+        </div>
+    `;
+    
+    container.appendChild(card);
+    
+    // Add entrance animation
+    setTimeout(() => {
+        card.classList.add('card-visible');
+    }, 50);
+}
+
+// Function to create individual virtual showroom card (replaces thumbnail)
+function createVirtualShowroomCard(artwork, index, container) {
+    console.log('Creating virtual showroom card for:', artwork.title);
+    
+    const card = document.createElement('div');
+    card.className = 'virtual-showroom-card';
+    card.style.animationDelay = `${index * 0.1}s`;
+    
+    // Add selection state if this is the current artwork
+    if (index === currentArtworkIndex) {
+        card.classList.add('selected');
+    }
+    
+    // Get cached image URL or use fallback
+    const imageUrl = imageUrlCache.get(artwork.filename) || `/catalog/images/${artwork.filename}`;
+    
+    card.innerHTML = `
+        <div class="card-image-container">
+            <img src="${imageUrl}" alt="${artwork.title}" class="card-image" loading="lazy">
+            <div class="card-overlay">
+                <button class="view-in-showroom-btn" onclick="selectVirtualShowroomCard(${index})">
+                    <i class="fas fa-eye"></i>
+                    View in Room
+                </button>
+            </div>
+        </div>
+        <div class="card-content">
+            <div class="card-header">
+                <h4 class="card-title">${artwork.title}</h4>
+                <p class="card-artist">${artwork.artist || 'Unknown Artist'}</p>
+            </div>
+            <div class="card-description">
+                <p class="description-text">${artwork.description || artwork.title + ' - A beautiful piece that would enhance any space with its unique character and artistic expression.'}</p>
+            </div>
+            <div class="card-meta">
+                <div class="card-attributes">
+                    ${artwork.subject ? `<span class="attribute-tag">${artwork.subject}</span>` : ''}
+                    ${artwork.style ? `<span class="attribute-tag">${artwork.style}</span>` : ''}
+                    ${artwork.medium ? `<span class="attribute-tag">${artwork.medium}</span>` : ''}
+                </div>
+                <div class="card-price">
+                    <span class="price-label">Price:</span>
+                    <span class="price-value">$${artwork.price || '299'}</span>
+                </div>
+            </div>
+            <div class="card-actions">
+                <button class="btn-quick-view" onclick="openArtworkModal('${artwork.filename}', ${index})">
+                    <i class="fas fa-search-plus"></i>
+                    Quick View
+                </button>
+                <button class="btn-purchase" onclick="handlePurchaseClick('${artwork.filename}', '${artwork.title}', '${artwork.price || '299'}')">
+                    <i class="fas fa-shopping-cart"></i>
+                    Purchase
+                </button>
+            </div>
+        </div>
+    `;
+    
+    container.appendChild(card);
+    
+    // Add entrance animation
+    setTimeout(() => {
+        card.classList.add('card-visible');
+    }, 50);
+}
+
+// Function to select virtual showroom card and update the virtual showroom display
+function selectVirtualShowroomCard(index) {
+    console.log('=== SELECT VIRTUAL SHOWROOM CARD ===');
+    console.log('Selecting card at index:', index);
+    console.log('Current artwork index before:', currentArtworkIndex);
+    
+    // Update the current artwork index
+    currentArtworkIndex = index;
+    
+    // Update the virtual showroom display
+    updateArtworkDisplay(index);
+    
+    // Update card selection states
+    updateVirtualShowroomCardSelection(index);
+    
+    // Smooth scroll to showroom
+    document.getElementById('virtual-showroom').scrollIntoView({
+        behavior: 'smooth',
+        block: 'center'
+    });
+    
+    console.log('=== END SELECT VIRTUAL SHOWROOM CARD ===');
+}
+
+// Function to update virtual showroom card selection states
+function updateVirtualShowroomCardSelection(index) {
+    const cards = document.querySelectorAll('.virtual-showroom-card');
+    cards.forEach((card, i) => {
+        card.classList.toggle('selected', i === index);
+    });
+}
+
+// Function to view artwork in room (placeholder for now)
+function viewInRoom(artworkIndex) {
+    console.log('View in room clicked for artwork index:', artworkIndex);
+    
+    // For now, show a mock alert - this can be enhanced later
+    const artwork = allArtworks[artworkIndex];
+    if (artwork) {
+        alert(`View in Room feature coming soon!\n\nArtwork: ${artwork.title}\nThis will show how "${artwork.title}" looks in a room setting.`);
+    }
+}
+
+// Function to open artwork modal (placeholder for now)
+function openArtworkModal(filename, index) {
+    console.log('Opening artwork modal for:', filename, 'at index:', index);
+    
+    // For now, show a mock alert - this can be enhanced later
+    const artwork = allArtworks[index];
+    if (artwork) {
+        alert(`Artwork Details:\n\nTitle: ${artwork.title}\nArtist: ${artwork.artist || 'Unknown Artist'}\nPrice: $${artwork.price || '0'}\n\nDetailed modal view coming soon!`);
+    }
 }
 
 function displayCurrentArtwork() {
@@ -1459,8 +1816,7 @@ async function updateArtworkDisplay(index, forceInstant, onLoadedCallback) {
     });
     
     console.log('Getting image URL for filename:', artwork.filename);
-            // Use pre-generated image_url if available, otherwise fall back to getImageUrl
-        const imageSrc = artwork.image_url || await getImageUrl(artwork.filename);
+    const imageSrc = await getImageUrl(artwork.filename);
     console.log('Image URL received:', imageSrc);
     
     const artworkImage = document.getElementById('artwork-image');
@@ -1767,12 +2123,11 @@ async function createThumbnailGallery() {
         // Process current batch in parallel
         const batchPromises = batch.map(async (artwork) => {
             try {
-                // Use pre-generated image_url if available, otherwise fall back to getImageUrl
-                const imageUrl = artwork.image_url || await getImageUrl(artwork.filename);
+                const imageUrl = await getImageUrl(artwork.filename);
                 return { artwork, imageUrl };
             } catch (error) {
                 console.warn('Failed to get image URL for', artwork.filename, 'using fallback');
-                return { artwork, imageUrl: artwork.image_url || `/catalog/images/${artwork.filename}` };
+                return { artwork, imageUrl: `/catalog/images/${artwork.filename}` };
             }
         });
         
@@ -2044,7 +2399,35 @@ function showOptionsView() {
 }
 
 // Handle purchase button click
-function handlePurchaseClick() {
+function handlePurchaseClick(filename, title, price) {
+    // If called from preference cards, use the passed parameters
+    if (filename && title && price) {
+        console.log('Purchase button clicked for:', { filename, title, price });
+        
+        // Enhanced purchase dialog with artwork details
+        const confirmPurchase = confirm(
+            `Purchase Artwork?\n\n` +
+            `Title: ${title}\n` +
+            `Price: $${price}\n\n` +
+            `This will redirect you to our secure checkout process.\n` +
+            `Continue with purchase?`
+        );
+        
+        if (confirmPurchase) {
+            // For now, show a success message - this will integrate with payment system later
+            alert(
+                `Thank you for your interest in "${title}"!\n\n` +
+                `You would now be redirected to our secure payment portal.\n` +
+                `Purchase functionality will be fully integrated soon.`
+            );
+            
+            // TODO: Integrate with actual payment system
+            // window.location.href = `/purchase?artwork=${filename}&price=${price}`;
+        }
+        return;
+    }
+    
+    // Original functionality for virtual showroom
     const currentArtwork = allArtworks[currentArtworkIndex];
     if (currentArtwork && currentArtwork.product_url) {
         window.open(currentArtwork.product_url, '_blank');
@@ -2055,7 +2438,7 @@ function handlePurchaseClick() {
 
 // Update purchase button with current artwork's product URL
 function updatePurchaseButton() {
-    const purchaseButton = document.getElementById('purchase-button');
+    const purchaseButton = document.getElementById('buy-now-btn');
     if (purchaseButton) {
         const currentArtwork = allArtworks[currentArtworkIndex];
         if (currentArtwork && currentArtwork.product_url) {
@@ -2076,8 +2459,6 @@ async function batchLoadImageUrls(filenames) {
     
     const promises = filenames.map(async (filename) => {
         try {
-            // Note: This function is primarily for pre-loading, but with pre-generated URLs
-            // in recommendations, this should be called less frequently
             const url = await getImageUrl(filename);
             return { filename, url, success: true };
         } catch (error) {

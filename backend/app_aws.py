@@ -1121,6 +1121,11 @@ def serve_index():
     """Serve the main index.html file."""
     return send_from_directory('../frontend', 'index.html')
 
+@app.route('/e2e_navigation_test.html')
+def serve_e2e_test():
+    """Serve the E2E navigation test file."""
+    return send_from_directory('.', 'e2e_navigation_test.html')
+
 @app.route('/recommend', methods=['POST'])
 @limiter.limit("30 per minute")
 def recommend_unified():
