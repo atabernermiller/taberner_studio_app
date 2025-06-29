@@ -757,12 +757,16 @@ function showResultsView() {
     uploadView.style.display = 'none';
     resultsArea.style.display = 'block';
     
-    // Set the room image in the showroom
-    const roomImage = document.getElementById('room-image');
-    const virtualShowroom = document.getElementById('virtual-showroom');
-    const artworkOverlay = document.getElementById('artwork-overlay');
-    if (roomImage) {
-        if (uploadedImage) {
+    // Only set up virtual showroom for upload workflow
+    if (uploadedImage) {
+        console.log('Upload workflow - setting up virtual showroom');
+        
+        // Set the room image in the showroom
+        const roomImage = document.getElementById('room-image');
+        const virtualShowroom = document.getElementById('virtual-showroom');
+        const artworkOverlay = document.getElementById('artwork-overlay');
+        
+        if (roomImage) {
             console.log('Upload workflow - optimizing uploaded image');
             
             // Optimize the uploaded image for better performance
@@ -864,12 +868,10 @@ function showResultsView() {
                 spinnerOverlay.style.display = 'flex';
             }
         } else {
-            // For preference-based recommendations, show a default room
-            roomImage.src = 'assets/mock/mock-room.jpg';
-            roomImage.style.display = 'block';
+            console.error('Room image element not found');
         }
     } else {
-        console.error('Room image element not found');
+        console.log('Preferences workflow - virtual showroom will be hidden by displayPreferenceCards function');
     }
     
     console.log('About to scroll to top - Current position:', window.scrollY);
@@ -1102,17 +1104,14 @@ function displayResults(recommendations, type = 'upload') {
         currentArtworkIndex: currentArtworkIndex
     });
     
-    // Update the header text based on recommendation type
-    const headerText = document.querySelector('.results-title');
-    if (headerText) {
-        headerText.textContent = "Here are some artworks we think you'll love!";
-        console.log('Updated header text to:', headerText.textContent);
+    // Use different display methods based on workflow type
+    if (type === 'preferences') {
+        // For preferences workflow, use preference cards without virtual showroom
+        displayPreferenceCards(recommendations, type);
     } else {
-        console.warn('Header element not found');
+        // For upload workflow, use virtual showroom with card-style thumbnails
+        displayVirtualShowroomWithCards(recommendations, type);
     }
-    
-    // Use virtual showroom with card-style thumbnails
-    displayVirtualShowroomWithCards(recommendations, type);
     
     setTimeout(() => {
         console.log('[displayResults] State after updating:', {
@@ -1139,9 +1138,27 @@ function displayVirtualShowroomWithCards(recommendations, type = 'upload') {
     // Show the virtual showroom
     if (virtualShowroom) {
         virtualShowroom.style.display = 'block';
-        // Initialize the virtual showroom first
-        displayCurrentArtwork();
     }
+    const showroomContainer = document.getElementById('showroom-container');
+    if (showroomContainer) {
+        showroomContainer.style.display = 'block';
+    }
+    const dragHint = document.getElementById('drag-hint');
+    if (dragHint) {
+        dragHint.style.display = 'block';
+    }
+    const productDetails = document.getElementById('product-details');
+    if (productDetails) {
+        productDetails.style.display = 'block';
+    }
+    
+    // Set up the virtual showroom with the uploaded room image and first artwork
+    displayCurrentArtwork();
+    
+    // Initialize drag and resize functionality for the artwork overlay
+    setTimeout(() => {
+        initializeArtworkInteraction();
+    }, 500); // Small delay to ensure the virtual showroom is fully set up
     
     // Customize loading text based on workflow type
     const loadingTitle = type === 'upload' 
@@ -1184,6 +1201,20 @@ function displayPreferenceCards(recommendations, type = 'preferences') {
     // Hide the virtual showroom for card layout
     if (virtualShowroom) {
         virtualShowroom.style.display = 'none';
+    }
+    // Hide the drag hint and showroom container for preferences
+    const showroomContainer = document.getElementById('showroom-container');
+    if (showroomContainer) {
+        showroomContainer.style.display = 'none';
+    }
+    const dragHint = document.getElementById('drag-hint');
+    if (dragHint) {
+        dragHint.style.display = 'none';
+    }
+    // Hide the product details for preferences
+    const productDetails = document.getElementById('product-details');
+    if (productDetails) {
+        productDetails.style.display = 'none';
     }
     
     // Customize loading text based on workflow type
@@ -1355,10 +1386,6 @@ function createPreferenceCard(artwork, index, container) {
         <div class="card-image-container">
             <img src="${imageUrl}" alt="${artwork.title}" class="card-image" loading="lazy">
             <div class="card-overlay">
-                <button class="quick-view-btn" onclick="openArtworkModal('${artwork.filename}', ${index})">
-                    <i class="fas fa-search-plus"></i>
-                    Quick View
-                </button>
             </div>
         </div>
         <div class="card-content">
@@ -1381,10 +1408,6 @@ function createPreferenceCard(artwork, index, container) {
                 </div>
             </div>
             <div class="card-actions">
-                <button class="btn-view-room" onclick="viewInRoom(${index})">
-                    <i class="fas fa-eye"></i>
-                    View in Room
-                </button>
                 <button class="btn-purchase" onclick="handlePurchaseClick('${artwork.filename}', '${artwork.title}', '${artwork.price || '299'}')">
                     <i class="fas fa-shopping-cart"></i>
                     Purchase
@@ -1447,10 +1470,6 @@ function createVirtualShowroomCard(artwork, index, container) {
                 </div>
             </div>
             <div class="card-actions">
-                <button class="btn-quick-view" onclick="openArtworkModal('${artwork.filename}', ${index})">
-                    <i class="fas fa-search-plus"></i>
-                    Quick View
-                </button>
                 <button class="btn-purchase" onclick="handlePurchaseClick('${artwork.filename}', '${artwork.title}', '${artwork.price || '299'}')">
                     <i class="fas fa-shopping-cart"></i>
                     Purchase
