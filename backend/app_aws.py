@@ -267,6 +267,9 @@ def safe_float(value):
         return 0.0
     if isinstance(value, (int, float)):
         return float(value)
+    # Explicitly handle Decimal type from DynamoDB
+    if hasattr(value, 'as_tuple') or str(type(value)) == "<class 'decimal.Decimal'>":
+        return float(value)
     if hasattr(value, '__float__'):
         return float(value)
     try:
@@ -282,7 +285,8 @@ def convert_decimals_to_floats(obj):
         return {key: convert_decimals_to_floats(value) for key, value in obj.items()}
     if isinstance(obj, list):
         return [convert_decimals_to_floats(item) for item in obj]
-    if hasattr(obj, 'as_tuple'):  # Decimal type check
+    # Check for Decimal type more safely
+    if hasattr(obj, 'as_tuple') or str(type(obj)) == "<class 'decimal.Decimal'>":
         return float(obj)
     return obj
 
@@ -644,19 +648,21 @@ def get_contextual_recommendations(user_colors, room_characteristics, max_recs=r
         app.logger.info(f"Contextual filtering - Preferred subjects: {preferred_subjects}, Preferred styles: {preferred_styles}")
         
         for artwork in art_catalog:
-            catalog_colors = artwork['attributes'].get('dominant_colors', [])
+            # Safely access attributes
+            attributes = artwork.get('attributes', {}) or {}
+            catalog_colors = attributes.get('dominant_colors', [])
             if not catalog_colors:
                 continue
             
             # Calculate color similarity score (lower is better)
-            color_score = float(calculate_color_similarity_score(user_colors, catalog_colors))
+            color_score = safe_float(calculate_color_similarity_score(user_colors, catalog_colors))
             
             # Calculate context bonus (higher is better)
-            context_bonus = float(calculate_context_bonus(artwork, preferred_subjects, preferred_styles))
+            context_bonus = safe_float(calculate_context_bonus(artwork, preferred_subjects, preferred_styles, room_characteristics))
             
             # Combined score: color score (lower better) - context bonus (higher better)
             # This way, good context matches get prioritized
-            total_score = color_score - (context_bonus * 50.0)  # Weight context bonus
+            total_score = safe_float(color_score) - (safe_float(context_bonus) * 50.0)  # Weight context bonus
             
             scored_artworks.append({
                 'artwork': artwork,
@@ -683,26 +689,41 @@ def calculate_color_similarity_score(user_colors, catalog_colors):
     """Calculate color similarity score between user and catalog colors."""
     try:
         # Convert hex to RGB for comparison, ensuring all percentages are floats
-        user_rgb = {item['color']: (tuple(int(item['color'][i:i+2], 16) for i in (1, 3, 5)), safe_float(item['percentage'])) for item in user_colors}
-        catalog_rgb = {item['color']: (tuple(int(item['color'][i:i+2], 16) for i in (1, 3, 5)), safe_float(item['percentage'])) for item in catalog_colors}
+        user_rgb = {}
+        for item in user_colors:
+            color = item['color']
+            percentage = safe_float(item.get('percentage', 0.0))
+            rgb = tuple(int(color[i:i+2], 16) for i in (1, 3, 5))
+            user_rgb[color] = (rgb, percentage)
+        
+        catalog_rgb = {}
+        for item in catalog_colors:
+            color = item['color']
+            percentage = safe_float(item.get('percentage', 0.0))
+            rgb = tuple(int(color[i:i+2], 16) for i in (1, 3, 5))
+            catalog_rgb[color] = (rgb, percentage)
 
         # Weighted color distance score
         total_score = 0.0
         for uc_hex, (uc_rgb, uc_perc) in user_rgb.items():
             for cc_hex, (cc_rgb, cc_perc) in catalog_rgb.items():
-                dist = np.linalg.norm(np.array(uc_rgb) - np.array(cc_rgb))
-                total_score += float(dist) * float(uc_perc) * float(cc_perc)
+                # Ensure all values are floats before arithmetic
+                uc_rgb_array = np.array(uc_rgb, dtype=float)
+                cc_rgb_array = np.array(cc_rgb, dtype=float)
+                dist = float(np.linalg.norm(uc_rgb_array - cc_rgb_array))
+                total_score += dist * safe_float(uc_perc) * safe_float(cc_perc)
         
         return float(total_score)
-    except Exception:
+    except Exception as e:
+        app.logger.error(f"Error in color similarity calculation: {e}")
         return float('inf')  # Return high score if calculation fails
 
-def calculate_context_bonus(artwork, preferred_subjects, preferred_styles):
-    """Calculate context bonus based on how well artwork matches room characteristics."""
+def calculate_context_bonus(artwork, preferred_subjects, preferred_styles, room_characteristics=None):
+    """Calculate enhanced context bonus using new catalog attributes."""
     bonus = 0.0
     attrs = artwork.get('attributes', {})
     
-    # Check subject match
+    # 1. Subject match (enhanced)
     subject_attr = attrs.get('subject')
     if isinstance(subject_attr, dict):
         subject_label = subject_attr.get('label', '')
@@ -712,9 +733,9 @@ def calculate_context_bonus(artwork, preferred_subjects, preferred_styles):
         subject_confidence = 1.0
     
     if subject_label in preferred_subjects:
-        bonus += subject_confidence * 2.0  # Subject match is important
+        bonus += subject_confidence * 2.5  # Increased weight for subject match
     
-    # Check style match  
+    # 2. Style match (enhanced)
     style_attr = attrs.get('style')
     if isinstance(style_attr, dict):
         style_label = style_attr.get('label', '')
@@ -724,7 +745,77 @@ def calculate_context_bonus(artwork, preferred_subjects, preferred_styles):
         style_confidence = 1.0
     
     if style_label in preferred_styles:
-        bonus += style_confidence * 1.5  # Style match is also valuable
+        bonus += style_confidence * 2.0  # Increased weight for style match
+    
+    # 3. NEW: Mood compatibility
+    artwork_mood = attrs.get('mood', '') or ''
+    artwork_mood = artwork_mood.lower() if artwork_mood else ''
+    if room_characteristics and artwork_mood:
+        room_type = room_characteristics.get('room_type', '') or ''
+        room_type = room_type.lower() if room_type else ''
+        brightness = room_characteristics.get('brightness', '') or ''
+        brightness = brightness.lower() if brightness else ''
+        
+        # Mood-room compatibility scoring
+        if room_type == 'bedroom' and artwork_mood in ['serene', 'romantic', 'contemplative']:
+            bonus += 1.5
+        elif room_type == 'living_room' and artwork_mood in ['uplifting', 'energetic', 'dramatic']:
+            bonus += 1.5
+        elif brightness == 'dark' and artwork_mood in ['uplifting', 'energetic']:
+            bonus += 1.0  # Bright mood art for dark rooms
+        elif brightness == 'bright' and artwork_mood in ['serene', 'contemplative']:
+            bonus += 0.5  # Calm art for bright rooms
+    
+    # 4. NEW: Emotional impact scoring
+    emotional_impact = safe_float(attrs.get('emotional_impact', 0.5))
+    if emotional_impact > 0.7:
+        bonus += 0.8  # High emotional impact gets bonus
+    elif emotional_impact > 0.5:
+        bonus += 0.4
+    
+    # 5. NEW: Color harmony matching
+    if room_characteristics:
+        room_color_temp = room_characteristics.get('color_palette', {}).get('temperature', '') or ''
+        artwork_color_harmony = attrs.get('color_harmony', '') or ''
+        
+        # Complementary color matching
+        if room_color_temp == 'warm' and artwork_color_harmony == 'cool':
+            bonus += 0.8  # Complementary colors create balance
+        elif room_color_temp == 'cool' and artwork_color_harmony == 'warm':
+            bonus += 0.8
+        elif room_color_temp == artwork_color_harmony and room_color_temp:
+            bonus += 0.5  # Harmonious colors
+    
+    # 6. NEW: Room-specific recommendations
+    room_suggestions = attrs.get('room_suggestions', {}) or {}
+    if room_characteristics and room_suggestions:
+        detected_room = room_characteristics.get('room_type', '') or ''
+        detected_room = detected_room.replace('_', ' ').title()
+        
+        # Check primary room suggestion
+        primary_room = room_suggestions.get('primary', {}) or {}
+        if primary_room.get('room') == detected_room:
+            primary_confidence = safe_float(primary_room.get('confidence', 0))
+            bonus += primary_confidence * 1.5
+        
+        # Check secondary room suggestions
+        secondary_rooms = room_suggestions.get('secondary', []) or []
+        for room_info in secondary_rooms:
+            if isinstance(room_info, dict) and room_info.get('room') == detected_room:
+                secondary_confidence = safe_float(room_info.get('confidence', 0))
+                bonus += secondary_confidence * 1.0
+    
+    # 7. NEW: Size appropriateness
+    if room_characteristics:
+        room_complexity = room_characteristics.get('texture_complexity', '') or ''
+        recommended_size = attrs.get('recommended_size', 'medium') or 'medium'
+        
+        # Complex rooms can handle larger art
+        if room_complexity == 'complex' and recommended_size == 'large':
+            bonus += 0.5
+        # Simple rooms work well with medium art
+        elif room_complexity == 'simple' and recommended_size in ['small', 'medium']:
+            bonus += 0.3
     
     return float(bonus)
 
@@ -752,6 +843,9 @@ def load_catalog_from_dynamodb():
                 ExclusiveStartKey=response['LastEvaluatedKey']
             )
             items.extend(response.get('Items', []))
+        
+        # Convert all Decimal types to floats for arithmetic operations
+        items = [convert_decimals_to_floats(item) for item in items]
         
         app.logger.info(f"Fetched {len(items)} items from DynamoDB and cached for 600s")
         
@@ -782,7 +876,14 @@ def load_local_catalog_fallback():
     """Load catalog from local JSON file as fallback for testing."""
     try:
         import os
+        # Try enhanced catalog first, fallback to original
+        enhanced_catalog_path = os.path.join(os.path.dirname(__file__), 'catalog', 'catalog_enhanced.json')
         catalog_path = os.path.join(os.path.dirname(__file__), 'catalog', 'catalog.json')
+        
+        # Use enhanced catalog if available
+        if os.path.exists(enhanced_catalog_path):
+            catalog_path = enhanced_catalog_path
+            app.logger.info("Using enhanced catalog with improved attributes")
         
         if os.path.exists(catalog_path):
             with open(catalog_path, 'r') as f:
@@ -810,7 +911,9 @@ def get_smart_recommendations(user_colors, max_recs=recommendation_config['max_r
     # Calculate scores for all artworks
     scored_artworks = []
     for artwork in art_catalog:
-        catalog_colors = artwork['attributes']['dominant_colors']
+        # Safely access attributes
+        attributes = artwork.get('attributes', {}) or {}
+        catalog_colors = attributes.get('dominant_colors', [])
         if not catalog_colors:
             continue
 
