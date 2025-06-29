@@ -548,7 +548,7 @@ def preferences_options():
     items = load_catalog_from_dynamodb()
     styles = set()
     subjects = set()
-    CONFIDENCE_THRESHOLD = 0.7  # Only show attributes with confidence >= 0.7
+    CONFIDENCE_THRESHOLD = 0.3  # Only show attributes with confidence >= 0.3
     
     for art in items:
         attrs = art.get('attributes', {})

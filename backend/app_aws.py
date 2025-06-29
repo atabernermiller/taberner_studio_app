@@ -40,8 +40,9 @@ from io import BytesIO
 from werkzeug.utils import secure_filename
 from botocore.exceptions import ClientError, NoCredentialsError
 from config import config
-from sklearn.metrics.pairwise import cosine_similarity
-import torch
+import random
+import threading
+from functools import wraps
 
 logging.basicConfig(
     level=logging.INFO,
@@ -350,29 +351,7 @@ def calculate_quality_score(item):
     
     return min(score, 1.0)  # Cap at 1.0
 
-def create_user_preference_embedding(user_preferences):
-    """Create embedding for user preferences using CLIP."""
-    try:
-        from transformers import CLIPProcessor, CLIPModel
-        
-        # Load CLIP model
-        model_name = "openai/clip-vit-base-patch32"
-        model = CLIPModel.from_pretrained(model_name)
-        processor = CLIPProcessor.from_pretrained(model_name)
-        
-        # Create text description from preferences
-        user_text = " ".join([f"{k}: {v}" for k, v in user_preferences.items()])
-        
-        # Get text embedding
-        inputs = processor(text=user_text, return_tensors="pt", padding=True, truncation=True)
-        with torch.no_grad():
-            text_features = model.get_text_features(**inputs)
-        
-        return text_features.numpy().flatten()
-        
-    except Exception as e:
-        logger.error(f"Error creating user preference embedding: {e}")
-        return None
+# Removed embedding functionality - using simple filtering instead
 
 def extract_dominant_colors(image_stream, n_colors=5):
     """Extracts dominant colors from an image stream with their percentages."""
@@ -416,7 +395,7 @@ def extract_dominant_colors(image_stream, n_colors=5):
         return []
 
 def load_catalog_from_dynamodb():
-    """Load art catalog from DynamoDB with improved caching."""
+    """Load art catalog from DynamoDB with local fallback for testing."""
     # Check cache first
     cached_data = catalog_cache.get('art_catalog')
     if cached_data:
@@ -442,12 +421,47 @@ def load_catalog_from_dynamodb():
         
         app.logger.info(f"Fetched {len(items)} items from DynamoDB and cached for 600s")
         
+        # If DynamoDB is empty, try to load from local catalog for testing
+        if len(items) == 0:
+            app.logger.info("DynamoDB catalog is empty, attempting to load local catalog for testing")
+            local_items = load_local_catalog_fallback()
+            if local_items:
+                app.logger.info(f"Loaded {len(local_items)} items from local catalog")
+                items = local_items
+        
         # Cache the results
         catalog_cache.set('art_catalog', items)
         return items
         
     except Exception as e:
         app.logger.error(f"Error loading catalog from DynamoDB: {e}")
+        # Try local fallback on error
+        app.logger.info("Attempting local catalog fallback due to DynamoDB error")
+        local_items = load_local_catalog_fallback()
+        if local_items:
+            app.logger.info(f"Loaded {len(local_items)} items from local catalog fallback")
+            catalog_cache.set('art_catalog', local_items)
+            return local_items
+        return []
+
+def load_local_catalog_fallback():
+    """Load catalog from local JSON file as fallback for testing."""
+    try:
+        import os
+        catalog_path = os.path.join(os.path.dirname(__file__), 'catalog', 'catalog.json')
+        
+        if os.path.exists(catalog_path):
+            with open(catalog_path, 'r') as f:
+                catalog_data = json.load(f)
+            
+            app.logger.info(f"Successfully loaded {len(catalog_data)} items from local catalog")
+            return catalog_data
+        else:
+            app.logger.warning(f"Local catalog file not found at {catalog_path}")
+            return []
+            
+    except Exception as e:
+        app.logger.error(f"Error loading local catalog fallback: {e}")
         return []
 
 def get_smart_recommendations(user_colors, max_recs=recommendation_config['max_recommendations']):
@@ -504,7 +518,6 @@ def get_smart_recommendations(user_colors, max_recs=recommendation_config['max_r
         diversity_candidates = scored_artworks[middle_start:middle_end]
         
         # Randomly select from diversity candidates
-        import random
         if len(diversity_candidates) > remaining_count:
             diversity_recs = random.sample(diversity_candidates, remaining_count)
         else:
@@ -646,59 +659,7 @@ def store_quarantined_image(image_bytes, filename, reason):
         logger.error(f"Error storing quarantined image: {e}")
         return None
 
-def get_text_embedding(text, model, processor):
-    """Get text embedding using CLIP model."""
-    try:
-        inputs = processor(text, return_tensors="pt", padding=True, truncation=True)
-        with torch.no_grad():
-            text_features = model.get_text_features(**inputs)
-        return text_features.cpu().numpy()
-    except Exception as e:
-        app.logger.error(f"Error getting text embedding: {e}")
-        return None
-
-def get_vector_based_recommendations(user_preferences, max_recs=recommendation_config['max_recommendations']):
-    """Get vector-based recommendations using CLIP embeddings."""
-    try:
-        # Get catalog data
-        catalog_data = load_catalog_from_dynamodb()
-        if not catalog_data:
-            return []
-        
-        # Filter items that have embeddings (fix: look inside attributes)
-        items_with_embeddings = [item for item in catalog_data if 'attributes' in item and 'embedding' in item['attributes']]
-        if not items_with_embeddings:
-            logger.warning("No items with embeddings found in catalog")
-            return []
-        
-        # Create user preference embedding
-        user_embedding = create_user_preference_embedding(user_preferences)
-        if user_embedding is None:
-            logger.warning("Could not create user preference embedding")
-            return []
-        
-        # Calculate similarities
-        recommendations = []
-        for item in items_with_embeddings:
-            try:
-                item_embedding = np.array(item['attributes']['embedding'])
-                similarity = cosine_similarity([user_embedding], [item_embedding])[0][0]
-                
-                recommendations.append({
-                    'item': item,
-                    'similarity': similarity
-                })
-            except Exception as e:
-                logger.warning(f"Error calculating similarity for item {item.get('filename', 'unknown')}: {e}")
-                continue
-        
-        # Sort by similarity and return top recommendations
-        recommendations.sort(key=lambda x: x['similarity'], reverse=True)
-        return [rec['item'] for rec in recommendations[:max_recs]]
-        
-    except Exception as e:
-        logger.error(f"Error in get_vector_based_recommendations: {e}")
-        return []
+# Removed vector-based recommendations - using simple filtering instead
 
 def generate_presigned_url(filename):
     """Generate a presigned URL for an S3 object."""
@@ -791,7 +752,7 @@ def preferences_options():
     try:
         items = load_catalog_from_dynamodb()
         subjects = set()
-        CONFIDENCE_THRESHOLD = 0.7  # Only show attributes with confidence >= 0.7
+        CONFIDENCE_THRESHOLD = 0.3  # Only show attributes with confidence >= 0.3
         
         for art in items:
             attrs = art.get('attributes', {})
