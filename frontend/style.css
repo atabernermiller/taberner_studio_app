@@ -1082,9 +1082,9 @@ header {
 }
 
 .product-description {
-    font-size: 1rem;
+    font-size: 1.1rem;
     line-height: 1.6;
-    color: var(--secondary-text);
+    color: var(--primary-text);
     margin-bottom: 1.5rem;
 }
 
@@ -1215,18 +1215,18 @@ header {
 }
 
 .thumbnail-item.selected {
-    border-color: var(--accent-color);
-    box-shadow: 0 0 0 3px var(--accent-light), 0 12px 32px rgba(212, 175, 55, 0.4);
+    border-color: #2c5282;
+    box-shadow: 0 0 0 3px rgba(44, 82, 130, 0.6), 0 12px 32px rgba(44, 82, 130, 0.4);
     transform: translateY(-8px) scale(1.08);
     animation: selectedPulse 2s ease-in-out infinite;
 }
 
 @keyframes selectedPulse {
     0%, 100% { 
-        box-shadow: 0 0 0 3px var(--accent-light), 0 12px 32px rgba(212, 175, 55, 0.4);
+        box-shadow: 0 0 0 3px rgba(44, 82, 130, 0.6), 0 12px 32px rgba(44, 82, 130, 0.4);
     }
     50% { 
-        box-shadow: 0 0 0 5px var(--accent-light), 0 16px 40px rgba(212, 175, 55, 0.6);
+        box-shadow: 0 0 0 5px rgba(44, 82, 130, 0.8), 0 16px 40px rgba(44, 82, 130, 0.6);
     }
 }
 
@@ -1235,7 +1235,7 @@ header {
     position: absolute;
     top: 8px;
     right: 8px;
-    background: var(--accent-color);
+    background: #2c5282;
     color: white;
     width: 28px;
     height: 28px;
@@ -1247,7 +1247,7 @@ header {
     font-weight: bold;
     z-index: 10;
     animation: checkmarkBounce 0.6s ease-out;
-    box-shadow: 0 4px 12px rgba(212, 175, 55, 0.5);
+    box-shadow: 0 4px 12px rgba(44, 82, 130, 0.5);
 }
 
 @keyframes checkmarkBounce {
@@ -1305,7 +1305,7 @@ header {
 .thumbnail-item.selected .thumbnail-overlay {
     opacity: 1;
     transform: translateY(0);
-    background: linear-gradient(135deg, rgba(212, 175, 55, 0.9) 0%, rgba(0, 0, 0, 0.8) 50%);
+    background: linear-gradient(135deg, rgba(44, 82, 130, 0.7) 0%, rgba(0, 0, 0, 0.8) 50%);
 }
 
 .thumbnail-title {
@@ -2134,19 +2134,7 @@ header {
     opacity: 1;
 }
 
-.quick-view-btn {
-    padding: 10px 20px;
-    background: white;
-    border: none;
-    border-radius: 20px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: transform 0.2s ease;
-}
 
-.quick-view-btn:hover {
-    transform: scale(1.05);
-}
 
 /* Artwork Details */
 .artwork-details {
@@ -2890,33 +2878,6 @@ header {
     opacity: 1;
 }
 
-.quick-view-btn {
-    background: var(--accent-color);
-    color: #000;
-    border: none;
-    padding: 0.75rem 1.5rem;
-    border-radius: 50px;
-    font-weight: 600;
-    font-size: 0.9rem;
-    cursor: pointer;
-    transition: all var(--transition-speed) ease;
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    box-shadow: 0 4px 12px rgba(212, 175, 55, 0.3);
-    transform: translateY(10px);
-}
-
-.preference-card:hover .quick-view-btn {
-    transform: translateY(0);
-}
-
-.quick-view-btn:hover {
-    background: var(--accent-hover);
-    transform: translateY(-2px) scale(1.05);
-    box-shadow: 0 8px 20px rgba(212, 175, 55, 0.5);
-}
-
 .card-content {
     padding: 1.8rem;
 }
@@ -2949,8 +2910,8 @@ header {
 }
 
 .description-text {
-    font-size: 0.85rem;
-    color: var(--secondary-text);
+    font-size: 1rem;
+    color: var(--primary-text);
     line-height: 1.5;
     margin: 0;
     font-style: italic;
@@ -3182,8 +3143,8 @@ header {
 }
 
 .virtual-showroom-card.selected {
-    border-color: var(--accent-color);
-    box-shadow: 0 12px 40px rgba(212, 175, 55, 0.3);
+    border-color: #2c5282;
+    box-shadow: 0 12px 40px rgba(44, 82, 130, 0.4);
 }
 
 .virtual-showroom-card.selected::before {
@@ -3193,7 +3154,7 @@ header {
     left: -3px;
     right: -3px;
     bottom: -3px;
-    background: linear-gradient(45deg, var(--accent-color), var(--accent-hover), var(--accent-color));
+    background: linear-gradient(45deg, #2c5282, #3a6ea5, #2c5282);
     border-radius: var(--border-radius);
     z-index: -1;
     animation: selectedGlow 2s ease-in-out infinite alternate;
@@ -3255,23 +3216,13 @@ header {
 }
 
 .virtual-showroom-card.selected .view-in-showroom-btn {
-    background: var(--accent-color);
-    color: #000;
-    border-color: var(--accent-color);
-}
-
-.btn-quick-view {
-    background: var(--glass-bg);
+    background: rgba(44, 82, 130, 0.3);
     color: var(--primary-text);
-    border: 2px solid var(--glass-border);
-    backdrop-filter: blur(10px);
+    border-color: #2c5282;
+    box-shadow: 0 0 15px rgba(44, 82, 130, 0.4);
 }
 
-.btn-quick-view:hover {
-    background: var(--accent-color);
-    color: #000;
-    border-color: var(--accent-color);
-}
+
 
 /* Responsive adjustments for virtual showroom cards */
 @media (max-width: 768px) {
