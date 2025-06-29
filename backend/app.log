@@ -19328,3 +19328,565 @@ Config:
 2025-06-28 20:47:27,602 INFO Generating new S3 URL for Maui_sunset.jpg
 2025-06-28 20:47:27,602 INFO 127.0.0.1 - - [28/Jun/2025 20:47:27] "GET /catalog/images/Seattle_Library.jpeg HTTP/1.1" 200 -
 2025-06-28 20:47:27,604 INFO 127.0.0.1 - - [28/Jun/2025 20:47:27] "GET /catalog/images/Maui_sunset.jpg HTTP/1.1" 200 -
+2025-06-29 07:38:06,977 INFO Entrypoint: /Users/annette/taberner-studio-apps/taberner_studio_app/backend/app_aws.py
+2025-06-29 07:38:06,978 INFO Working directory: /Users/annette/taberner-studio-apps/taberner_studio_app/backend
+2025-06-29 07:38:06,978 INFO sys.argv: ['app_aws.py']
+2025-06-29 07:38:06,978 INFO Python version: 3.9.6 (default, Apr 30 2025, 02:07:17) 
+[Clang 17.0.0 (clang-1700.0.13.5)]
+2025-06-29 07:38:06,978 INFO __name__: __main__
+2025-06-29 07:38:06,978 INFO Environment variables (filtered):
+2025-06-29 07:38:06,978 INFO   MallocNanoZone=0
+2025-06-29 07:38:06,978 INFO   USER=annette
+2025-06-29 07:38:06,978 INFO   COMMAND_MODE=unix2003
+2025-06-29 07:38:06,978 INFO   __CFBundleIdentifier=com.todesktop.230313mzl4w4u92
+2025-06-29 07:38:06,978 INFO   PATH=/Users/annette/taberner-studio-apps/taberner_studio_app/backend/venv/bin:/Users/annette/.codeium/windsurf/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin://Applications/Topaz Photo AI.app/Contents/Resources/bin:/Users/annette/.codeium/windsurf/bin:/Users/annette/anaconda3/bin:/Users/annette/anaconda3/condabin:/Users/annette/.cursor/extensions/ms-python.debugpy-2025.6.0-darwin-arm64/bundled/scripts/noConfigScripts
+2025-06-29 07:38:06,978 INFO   LOGNAME=annette
+2025-06-29 07:38:06,978 INFO   SSH_AUTH_SOCK=/private/tmp/com.apple.launchd.uONtK3gSfv/Listeners
+2025-06-29 07:38:06,978 INFO   HOME=/Users/annette
+2025-06-29 07:38:06,978 INFO   SHELL=/bin/zsh
+2025-06-29 07:38:06,978 INFO   TMPDIR=/var/folders/7j/rzhnb4z12kbbq9624j75xsy00000gn/T/
+2025-06-29 07:38:06,978 INFO   __CF_USER_TEXT_ENCODING=0x1F5:0x0:0x0
+2025-06-29 07:38:06,978 INFO   XPC_SERVICE_NAME=0
+2025-06-29 07:38:06,978 INFO   XPC_FLAGS=0x0
+2025-06-29 07:38:06,978 INFO   ORIGINAL_XDG_CURRENT_DESKTOP=undefined
+2025-06-29 07:38:06,978 INFO   CURSOR_TRACE_ID=43efb6ed046a4bd8a670a865db0ebdcc
+2025-06-29 07:38:06,978 INFO   SHLVL=1
+2025-06-29 07:38:06,978 INFO   PWD=/Users/annette/taberner-studio-apps/taberner_studio_app/backend
+2025-06-29 07:38:06,978 INFO   OLDPWD=/Users/annette/taberner-studio-apps/taberner_studio_app
+2025-06-29 07:38:06,978 INFO   HOMEBREW_PREFIX=/opt/homebrew
+2025-06-29 07:38:06,978 INFO   HOMEBREW_CELLAR=/opt/homebrew/Cellar
+2025-06-29 07:38:06,978 INFO   HOMEBREW_REPOSITORY=/opt/homebrew
+2025-06-29 07:38:06,978 INFO   INFOPATH=/opt/homebrew/share/info:/opt/homebrew/share/info:
+2025-06-29 07:38:06,978 INFO   CONDA_EXE=/Users/annette/anaconda3/bin/conda
+2025-06-29 07:38:06,978 INFO   _CE_M=
+2025-06-29 07:38:06,978 INFO   _CE_CONDA=
+2025-06-29 07:38:06,978 INFO   CONDA_PYTHON_EXE=/Users/annette/anaconda3/bin/python
+2025-06-29 07:38:06,978 INFO   CONDA_SHLVL=1
+2025-06-29 07:38:06,978 INFO   CONDA_PREFIX=/Users/annette/anaconda3
+2025-06-29 07:38:06,978 INFO   CONDA_DEFAULT_ENV=base
+2025-06-29 07:38:06,979 INFO   CONDA_PROMPT_MODIFIER=(base) 
+2025-06-29 07:38:06,979 INFO   PAGER=head -n 10000 | cat
+2025-06-29 07:38:06,979 INFO   npm_config_yes=true
+2025-06-29 07:38:06,979 INFO   DISABLE_AUTO_UPDATE=true
+2025-06-29 07:38:06,979 INFO   PIP_NO_INPUT=true
+2025-06-29 07:38:06,979 INFO   COMPOSER_NO_INTERACTION=1
+2025-06-29 07:38:06,979 INFO   TERM_PROGRAM=vscode
+2025-06-29 07:38:06,979 INFO   TERM_PROGRAM_VERSION=1.1.6
+2025-06-29 07:38:06,979 INFO   LANG=en_US.UTF-8
+2025-06-29 07:38:06,979 INFO   COLORTERM=truecolor
+2025-06-29 07:38:06,979 INFO   GIT_ASKPASS=/Applications/Cursor.app/Contents/Resources/app/extensions/git/dist/askpass.sh
+2025-06-29 07:38:06,979 INFO   VSCODE_GIT_ASKPASS_NODE=/Applications/Cursor.app/Contents/Frameworks/Cursor Helper (Plugin).app/Contents/MacOS/Cursor Helper (Plugin)
+2025-06-29 07:38:06,979 INFO   VSCODE_GIT_ASKPASS_EXTRA_ARGS=
+2025-06-29 07:38:06,979 INFO   VSCODE_GIT_ASKPASS_MAIN=/Applications/Cursor.app/Contents/Resources/app/extensions/git/dist/askpass-main.js
+2025-06-29 07:38:06,979 INFO   VSCODE_GIT_IPC_HANDLE=/var/folders/7j/rzhnb4z12kbbq9624j75xsy00000gn/T/vscode-git-e4048c60c4.sock
+2025-06-29 07:38:06,979 INFO   PYDEVD_DISABLE_FILE_VALIDATION=1
+2025-06-29 07:38:06,979 INFO   VSCODE_DEBUGPY_ADAPTER_ENDPOINTS=/Users/annette/.cursor/extensions/ms-python.debugpy-2025.6.0-darwin-arm64/.noConfigDebugAdapterEndpoints/endpoint-0ada6dcc4fe34815.txt
+2025-06-29 07:38:06,979 INFO   BUNDLED_DEBUGPY_PATH=/Users/annette/.cursor/extensions/ms-python.debugpy-2025.6.0-darwin-arm64/bundled/libs/debugpy
+2025-06-29 07:38:06,979 INFO   TERM=xterm-256color
+2025-06-29 07:38:06,979 INFO   VIRTUAL_ENV=/Users/annette/taberner-studio-apps/taberner_studio_app/backend/venv
+2025-06-29 07:38:06,979 INFO   PS1=(venv) (base) %n@%m %1~ %# 
+2025-06-29 07:38:06,979 INFO   _=/Users/annette/taberner-studio-apps/taberner_studio_app/backend/venv/bin/python
+2025-06-29 07:38:06,979 INFO   APP_ENV=aws
+2025-06-29 07:38:06,979 INFO   AWS_REGION=us-east-1
+2025-06-29 07:38:06,979 INFO   CATALOG_TABLE_NAME=taberner-studio-catalog
+2025-06-29 07:38:06,979 INFO   CATALOG_BUCKET_NAME=taberner-studio-catalog-images-us-east-1
+2025-06-29 07:38:06,979 INFO   APPROVED_BUCKET=taberner-studio-images-us-east-1
+2025-06-29 07:38:06,979 INFO   QUARANTINE_BUCKET=taberner-studio-quarantine-us-east-1
+2025-06-29 07:38:06,979 INFO   MAX_RECOMMENDATIONS=8
+2025-06-29 07:38:06,979 INFO   MIN_RECOMMENDATIONS=4
+2025-06-29 07:38:06,979 INFO   KMP_DUPLICATE_LIB_OK=True
+2025-06-29 07:38:06,980 INFO   KMP_INIT_AT_FORK=FALSE
+2025-06-29 07:38:06,980 INFO === Application Starting ===
+2025-06-29 07:38:06,980 INFO Memory usage at startup: 129.47 MB (0.2%)
+2025-06-29 07:38:06,980 INFO Configuration:
+Config:
+  AWS Region: us-east-1
+  App Environment: aws
+  Catalog Table: taberner-studio-catalog
+  Catalog Bucket: taberner-studio-catalog-images-us-east-1
+  Approved Bucket: taberner-studio-images-us-east-1
+  Quarantine Bucket: taberner-studio-quarantine-us-east-1
+  Max Recommendations: 8
+  Min Recommendations: 4
+  Confidence Threshold: 0.7
+  Cache TTLs: Catalog=300s, URLs=3600s, Moderation=600s
+2025-06-29 07:38:06,980 INFO === CONFIGURATION SOURCE LOG ===
+2025-06-29 07:38:06,980 INFO ✓ AWS_REGION: us-east-1 (from environment)
+2025-06-29 07:38:06,980 INFO ✓ CATALOG_TABLE_NAME: taberner-studio-catalog (from environment)
+2025-06-29 07:38:06,980 INFO ✓ CATALOG_BUCKET_NAME: taberner-studio-catalog-images-us-east-1 (from environment)
+2025-06-29 07:38:06,980 INFO ✓ APPROVED_BUCKET: taberner-studio-images-us-east-1 (from environment)
+2025-06-29 07:38:06,980 INFO ✓ QUARANTINE_BUCKET: taberner-studio-quarantine-us-east-1 (from environment)
+2025-06-29 07:38:06,980 INFO ✓ APP_ENV: aws (from environment)
+2025-06-29 07:38:06,980 INFO ✓ MAX_RECOMMENDATIONS: 8 (from environment)
+2025-06-29 07:38:06,980 INFO ✓ MIN_RECOMMENDATIONS: 4 (from environment)
+2025-06-29 07:38:06,980 INFO ⚠ CONFIDENCE_THRESHOLD: using fallback value (from constants)
+2025-06-29 07:38:06,980 INFO ⚠ CATALOG_CACHE_TTL: using fallback value (from constants)
+2025-06-29 07:38:06,980 INFO ⚠ PRESIGNED_URL_CACHE_TTL: using fallback value (from constants)
+2025-06-29 07:38:06,980 INFO ⚠ MODERATION_CACHE_TTL: using fallback value (from constants)
+2025-06-29 07:38:06,980 INFO === END CONFIGURATION SOURCE LOG ===
+2025-06-29 07:38:06,980 INFO === STARTUP VALIDATION ===
+2025-06-29 07:38:06,980 INFO All required environment variables are set
+2025-06-29 07:38:06,980 INFO AWS Region: us-east-1
+2025-06-29 07:38:06,980 INFO Catalog Table: taberner-studio-catalog
+2025-06-29 07:38:06,980 INFO Catalog Bucket: taberner-studio-catalog-images-us-east-1
+2025-06-29 07:38:06,980 INFO Approved Bucket: taberner-studio-images-us-east-1
+2025-06-29 07:38:06,980 INFO Quarantine Bucket: taberner-studio-quarantine-us-east-1
+2025-06-29 07:38:06,980 INFO === STARTUP VALIDATION COMPLETE ===
+2025-06-29 07:38:06,981 INFO === INITIALIZING AWS CLIENTS ===
+2025-06-29 07:38:06,981 INFO Initializing AWS clients for region: us-east-1
+2025-06-29 07:38:06,997 INFO Found credentials in shared credentials file: ~/.aws/credentials
+2025-06-29 07:38:07,476 INFO AWS credentials validated for account: 672104585346
+2025-06-29 07:38:07,678 INFO AWS clients initialized successfully
+2025-06-29 07:38:07,679 INFO AWS clients initialized successfully
+2025-06-29 07:38:07,680 INFO DynamoDB table reference created: taberner-studio-catalog
+2025-06-29 07:38:08,079 INFO DynamoDB table access test successful. Item count: 1
+2025-06-29 07:38:08,085 INFO === APPLICATION MODULE LOADED ===
+2025-06-29 07:38:08,085 INFO Gunicorn should now be able to start the Flask application
+2025-06-29 07:38:08,085 INFO === STARTING FLASK APPLICATION ===
+2025-06-29 07:38:08,085 INFO Flask app will run on host: 0.0.0.0, port: 8000
+2025-06-29 07:38:08,085 INFO Debug mode: False
+2025-06-29 07:39:02,389 INFO Entrypoint: /Users/annette/taberner-studio-apps/taberner_studio_app/backend/app_aws.py
+2025-06-29 07:39:02,389 INFO Working directory: /Users/annette/taberner-studio-apps/taberner_studio_app/backend
+2025-06-29 07:39:02,389 INFO sys.argv: ['app_aws.py']
+2025-06-29 07:39:02,389 INFO Python version: 3.9.6 (default, Apr 30 2025, 02:07:17) 
+[Clang 17.0.0 (clang-1700.0.13.5)]
+2025-06-29 07:39:02,389 INFO __name__: __main__
+2025-06-29 07:39:02,389 INFO Environment variables (filtered):
+2025-06-29 07:39:02,389 INFO   MallocNanoZone=0
+2025-06-29 07:39:02,389 INFO   USER=annette
+2025-06-29 07:39:02,389 INFO   COMMAND_MODE=unix2003
+2025-06-29 07:39:02,389 INFO   __CFBundleIdentifier=com.todesktop.230313mzl4w4u92
+2025-06-29 07:39:02,389 INFO   PATH=/Users/annette/taberner-studio-apps/taberner_studio_app/backend/venv/bin:/Users/annette/.codeium/windsurf/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin://Applications/Topaz Photo AI.app/Contents/Resources/bin:/Users/annette/.codeium/windsurf/bin:/Users/annette/anaconda3/bin:/Users/annette/anaconda3/condabin:/Users/annette/.cursor/extensions/ms-python.debugpy-2025.6.0-darwin-arm64/bundled/scripts/noConfigScripts
+2025-06-29 07:39:02,389 INFO   LOGNAME=annette
+2025-06-29 07:39:02,389 INFO   SSH_AUTH_SOCK=/private/tmp/com.apple.launchd.uONtK3gSfv/Listeners
+2025-06-29 07:39:02,389 INFO   HOME=/Users/annette
+2025-06-29 07:39:02,389 INFO   SHELL=/bin/zsh
+2025-06-29 07:39:02,389 INFO   TMPDIR=/var/folders/7j/rzhnb4z12kbbq9624j75xsy00000gn/T/
+2025-06-29 07:39:02,389 INFO   __CF_USER_TEXT_ENCODING=0x1F5:0x0:0x0
+2025-06-29 07:39:02,389 INFO   XPC_SERVICE_NAME=0
+2025-06-29 07:39:02,389 INFO   XPC_FLAGS=0x0
+2025-06-29 07:39:02,389 INFO   ORIGINAL_XDG_CURRENT_DESKTOP=undefined
+2025-06-29 07:39:02,389 INFO   CURSOR_TRACE_ID=43efb6ed046a4bd8a670a865db0ebdcc
+2025-06-29 07:39:02,390 INFO   SHLVL=1
+2025-06-29 07:39:02,390 INFO   PWD=/Users/annette/taberner-studio-apps/taberner_studio_app/backend
+2025-06-29 07:39:02,390 INFO   OLDPWD=/Users/annette/taberner-studio-apps/taberner_studio_app
+2025-06-29 07:39:02,390 INFO   HOMEBREW_PREFIX=/opt/homebrew
+2025-06-29 07:39:02,390 INFO   HOMEBREW_CELLAR=/opt/homebrew/Cellar
+2025-06-29 07:39:02,390 INFO   HOMEBREW_REPOSITORY=/opt/homebrew
+2025-06-29 07:39:02,390 INFO   INFOPATH=/opt/homebrew/share/info:/opt/homebrew/share/info:
+2025-06-29 07:39:02,390 INFO   CONDA_EXE=/Users/annette/anaconda3/bin/conda
+2025-06-29 07:39:02,390 INFO   _CE_M=
+2025-06-29 07:39:02,390 INFO   _CE_CONDA=
+2025-06-29 07:39:02,390 INFO   CONDA_PYTHON_EXE=/Users/annette/anaconda3/bin/python
+2025-06-29 07:39:02,390 INFO   CONDA_SHLVL=1
+2025-06-29 07:39:02,390 INFO   CONDA_PREFIX=/Users/annette/anaconda3
+2025-06-29 07:39:02,390 INFO   CONDA_DEFAULT_ENV=base
+2025-06-29 07:39:02,390 INFO   CONDA_PROMPT_MODIFIER=(base) 
+2025-06-29 07:39:02,390 INFO   PAGER=head -n 10000 | cat
+2025-06-29 07:39:02,390 INFO   npm_config_yes=true
+2025-06-29 07:39:02,390 INFO   DISABLE_AUTO_UPDATE=true
+2025-06-29 07:39:02,390 INFO   PIP_NO_INPUT=true
+2025-06-29 07:39:02,390 INFO   COMPOSER_NO_INTERACTION=1
+2025-06-29 07:39:02,390 INFO   TERM_PROGRAM=vscode
+2025-06-29 07:39:02,390 INFO   TERM_PROGRAM_VERSION=1.1.6
+2025-06-29 07:39:02,390 INFO   LANG=en_US.UTF-8
+2025-06-29 07:39:02,390 INFO   COLORTERM=truecolor
+2025-06-29 07:39:02,390 INFO   GIT_ASKPASS=/Applications/Cursor.app/Contents/Resources/app/extensions/git/dist/askpass.sh
+2025-06-29 07:39:02,390 INFO   VSCODE_GIT_ASKPASS_NODE=/Applications/Cursor.app/Contents/Frameworks/Cursor Helper (Plugin).app/Contents/MacOS/Cursor Helper (Plugin)
+2025-06-29 07:39:02,390 INFO   VSCODE_GIT_ASKPASS_EXTRA_ARGS=
+2025-06-29 07:39:02,390 INFO   VSCODE_GIT_ASKPASS_MAIN=/Applications/Cursor.app/Contents/Resources/app/extensions/git/dist/askpass-main.js
+2025-06-29 07:39:02,390 INFO   VSCODE_GIT_IPC_HANDLE=/var/folders/7j/rzhnb4z12kbbq9624j75xsy00000gn/T/vscode-git-e4048c60c4.sock
+2025-06-29 07:39:02,390 INFO   PYDEVD_DISABLE_FILE_VALIDATION=1
+2025-06-29 07:39:02,390 INFO   VSCODE_DEBUGPY_ADAPTER_ENDPOINTS=/Users/annette/.cursor/extensions/ms-python.debugpy-2025.6.0-darwin-arm64/.noConfigDebugAdapterEndpoints/endpoint-0ada6dcc4fe34815.txt
+2025-06-29 07:39:02,390 INFO   BUNDLED_DEBUGPY_PATH=/Users/annette/.cursor/extensions/ms-python.debugpy-2025.6.0-darwin-arm64/bundled/libs/debugpy
+2025-06-29 07:39:02,390 INFO   TERM=xterm-256color
+2025-06-29 07:39:02,390 INFO   VIRTUAL_ENV=/Users/annette/taberner-studio-apps/taberner_studio_app/backend/venv
+2025-06-29 07:39:02,390 INFO   PS1=(venv) (base) %n@%m %1~ %# 
+2025-06-29 07:39:02,390 INFO   AWS_REGION=us-east-1
+2025-06-29 07:39:02,390 INFO   CATALOG_BUCKET_NAME=taberner-studio-catalog-us-east-1
+2025-06-29 07:39:02,390 INFO   APPROVED_BUCKET=taberner-studio-images-us-east-1
+2025-06-29 07:39:02,391 INFO   QUARANTINE_BUCKET=taberner-studio-quarantine-us-east-1
+2025-06-29 07:39:02,391 INFO   _=/Users/annette/taberner-studio-apps/taberner_studio_app/backend/venv/bin/python
+2025-06-29 07:39:02,391 INFO   APP_ENV=aws
+2025-06-29 07:39:02,391 INFO   CATALOG_TABLE_NAME=taberner-studio-catalog
+2025-06-29 07:39:02,391 INFO   MAX_RECOMMENDATIONS=8
+2025-06-29 07:39:02,391 INFO   MIN_RECOMMENDATIONS=4
+2025-06-29 07:39:02,391 INFO   KMP_DUPLICATE_LIB_OK=True
+2025-06-29 07:39:02,391 INFO   KMP_INIT_AT_FORK=FALSE
+2025-06-29 07:39:02,391 INFO === Application Starting ===
+2025-06-29 07:39:02,391 INFO Memory usage at startup: 129.33 MB (0.2%)
+2025-06-29 07:39:02,391 INFO Configuration:
+Config:
+  AWS Region: us-east-1
+  App Environment: aws
+  Catalog Table: taberner-studio-catalog
+  Catalog Bucket: taberner-studio-catalog-us-east-1
+  Approved Bucket: taberner-studio-images-us-east-1
+  Quarantine Bucket: taberner-studio-quarantine-us-east-1
+  Max Recommendations: 8
+  Min Recommendations: 4
+  Confidence Threshold: 0.7
+  Cache TTLs: Catalog=300s, URLs=3600s, Moderation=600s
+2025-06-29 07:39:02,391 INFO === CONFIGURATION SOURCE LOG ===
+2025-06-29 07:39:02,391 INFO ✓ AWS_REGION: us-east-1 (from environment)
+2025-06-29 07:39:02,391 INFO ✓ CATALOG_TABLE_NAME: taberner-studio-catalog (from environment)
+2025-06-29 07:39:02,391 INFO ✓ CATALOG_BUCKET_NAME: taberner-studio-catalog-us-east-1 (from environment)
+2025-06-29 07:39:02,391 INFO ✓ APPROVED_BUCKET: taberner-studio-images-us-east-1 (from environment)
+2025-06-29 07:39:02,391 INFO ✓ QUARANTINE_BUCKET: taberner-studio-quarantine-us-east-1 (from environment)
+2025-06-29 07:39:02,391 INFO ✓ APP_ENV: aws (from environment)
+2025-06-29 07:39:02,391 INFO ✓ MAX_RECOMMENDATIONS: 8 (from environment)
+2025-06-29 07:39:02,391 INFO ✓ MIN_RECOMMENDATIONS: 4 (from environment)
+2025-06-29 07:39:02,391 INFO ⚠ CONFIDENCE_THRESHOLD: using fallback value (from constants)
+2025-06-29 07:39:02,391 INFO ⚠ CATALOG_CACHE_TTL: using fallback value (from constants)
+2025-06-29 07:39:02,391 INFO ⚠ PRESIGNED_URL_CACHE_TTL: using fallback value (from constants)
+2025-06-29 07:39:02,391 INFO ⚠ MODERATION_CACHE_TTL: using fallback value (from constants)
+2025-06-29 07:39:02,391 INFO === END CONFIGURATION SOURCE LOG ===
+2025-06-29 07:39:02,391 INFO === STARTUP VALIDATION ===
+2025-06-29 07:39:02,391 INFO All required environment variables are set
+2025-06-29 07:39:02,391 INFO AWS Region: us-east-1
+2025-06-29 07:39:02,391 INFO Catalog Table: taberner-studio-catalog
+2025-06-29 07:39:02,391 INFO Catalog Bucket: taberner-studio-catalog-us-east-1
+2025-06-29 07:39:02,392 INFO Approved Bucket: taberner-studio-images-us-east-1
+2025-06-29 07:39:02,392 INFO Quarantine Bucket: taberner-studio-quarantine-us-east-1
+2025-06-29 07:39:02,392 INFO === STARTUP VALIDATION COMPLETE ===
+2025-06-29 07:39:02,392 INFO === INITIALIZING AWS CLIENTS ===
+2025-06-29 07:39:02,392 INFO Initializing AWS clients for region: us-east-1
+2025-06-29 07:39:02,405 INFO Found credentials in shared credentials file: ~/.aws/credentials
+2025-06-29 07:39:02,840 INFO AWS credentials validated for account: 672104585346
+2025-06-29 07:39:02,952 INFO AWS clients initialized successfully
+2025-06-29 07:39:02,953 INFO AWS clients initialized successfully
+2025-06-29 07:39:02,955 INFO DynamoDB table reference created: taberner-studio-catalog
+2025-06-29 07:39:03,318 INFO DynamoDB table access test successful. Item count: 1
+2025-06-29 07:39:03,322 INFO === APPLICATION MODULE LOADED ===
+2025-06-29 07:39:03,323 INFO Gunicorn should now be able to start the Flask application
+2025-06-29 07:39:03,323 INFO === STARTING FLASK APPLICATION ===
+2025-06-29 07:39:03,323 INFO Flask app will run on host: 0.0.0.0, port: 8000
+2025-06-29 07:39:03,323 INFO Debug mode: False
+2025-06-29 07:39:03,325 INFO  * Running on all addresses (0.0.0.0)
+   WARNING: This is a development server. Do not use it in a production deployment.
+ * Running on http://127.0.0.1:8000
+ * Running on http://10.0.0.208:8000 (Press CTRL+C to quit)
+2025-06-29 07:39:06,162 INFO Health check completed: healthy
+2025-06-29 07:39:06,163 INFO 127.0.0.1 - - [29/Jun/2025 07:39:06] "GET /health HTTP/1.1" 200 -
+2025-06-29 07:39:27,352 INFO 127.0.0.1 - - [29/Jun/2025 07:39:27] "GET / HTTP/1.1" 200 -
+2025-06-29 07:39:27,380 INFO 127.0.0.1 - - [29/Jun/2025 07:39:27] "GET /assets/mock/mock-room.jpg HTTP/1.1" 200 -
+2025-06-29 07:39:27,380 INFO 127.0.0.1 - - [29/Jun/2025 07:39:27] "GET /style.css?v=20250623w HTTP/1.1" 200 -
+2025-06-29 07:39:27,380 INFO 127.0.0.1 - - [29/Jun/2025 07:39:27] "GET /assets/Taberner-Studio-logo.png HTTP/1.1" 200 -
+2025-06-29 07:39:27,401 INFO 127.0.0.1 - - [29/Jun/2025 07:39:27] "GET /script.js?v=20250623x HTTP/1.1" 200 -
+2025-06-29 07:39:27,401 INFO 127.0.0.1 - - [29/Jun/2025 07:39:27] "GET /config.js HTTP/1.1" 200 -
+2025-06-29 07:39:27,671 INFO Cache miss - fetching catalog from DynamoDB
+2025-06-29 07:39:27,873 INFO 127.0.0.1 - - [29/Jun/2025 07:39:27] "GET /assets/Taberner-Studio-logo.png HTTP/1.1" 200 -
+2025-06-29 07:39:27,965 INFO Fetched 59 items from DynamoDB and cached for 600s
+2025-06-29 07:39:27,966 INFO 127.0.0.1 - - [29/Jun/2025 07:39:27] "GET /api/preferences-options HTTP/1.1" 200 -
+2025-06-29 07:39:30,642 INFO Returning cached catalog data
+2025-06-29 07:39:30,644 INFO 127.0.0.1 - - [29/Jun/2025 07:39:30] "GET /api/preferences-options HTTP/1.1" 200 -
+2025-06-29 07:39:38,269 INFO Successfully analyzed image colors: 5 colors found
+2025-06-29 07:39:41,350 INFO Room analysis complete: {'brightness': 'medium', 'color_palette': {'saturation': 'muted', 'temperature': 'warm'}, 'contrast': 'high', 'texture_complexity': 'complex', 'architectural_style': 'contemporary', 'room_type': 'bedroom'}
+2025-06-29 07:39:41,350 INFO Art recommendations: {'preferred_styles': ['Mixed Media', 'Contemporary'], 'preferred_subjects': ['Nature', 'Landscape', 'Abstract', 'Portrait'], 'size_recommendation': 'medium', 'color_guidance': '', 'reasoning': ['Contemporary spaces allow for diverse art styles', 'Muted room colors allow for more vibrant art', 'Bedrooms benefit from calming subjects']}
+2025-06-29 07:39:41,350 INFO Using contextual recommendations based on room analysis
+2025-06-29 07:39:41,350 INFO Returning cached catalog data
+2025-06-29 07:39:41,350 INFO Contextual filtering - Preferred subjects: ['Nature', 'Landscape', 'Abstract', 'Portrait'], Preferred styles: ['Mixed Media', 'Contemporary']
+2025-06-29 07:39:41,351 ERROR Error in contextual recommendations: unsupported operand type(s) for -: 'float' and 'decimal.Decimal'
+2025-06-29 07:39:41,351 INFO Returning cached catalog data
+2025-06-29 07:39:41,358 INFO Generated 8 contextual recommendations for uploaded image
+2025-06-29 07:39:41,358 INFO === RECOMMENDATION REQUEST COMPLETE ===
+2025-06-29 07:39:41,358 INFO Returning 8 recommendations
+2025-06-29 07:39:41,358 INFO First recommendation: Artwork Moments in Motion
+2025-06-29 07:39:41,359 INFO 127.0.0.1 - - [29/Jun/2025 07:39:41] "POST /upload-image HTTP/1.1" 200 -
+2025-06-29 07:39:42,413 INFO Generating new S3 URL for Pipers.jpg
+2025-06-29 07:39:42,414 INFO Generating new S3 URL for Eagle_Landing.jpg
+2025-06-29 07:39:42,416 INFO 127.0.0.1 - - [29/Jun/2025 07:39:42] "GET /catalog/images/Pipers.jpg HTTP/1.1" 200 -
+2025-06-29 07:39:42,417 INFO 127.0.0.1 - - [29/Jun/2025 07:39:42] "GET /catalog/images/Eagle_Landing.jpg HTTP/1.1" 200 -
+2025-06-29 07:39:42,418 INFO Generating new S3 URL for Horse_Waltz.jpg
+2025-06-29 07:39:42,420 INFO 127.0.0.1 - - [29/Jun/2025 07:39:42] "GET /catalog/images/Horse_Waltz.jpg HTTP/1.1" 200 -
+2025-06-29 07:39:42,421 INFO Generating new S3 URL for MontanaRoad.jpg
+2025-06-29 07:39:42,422 INFO Generating new S3 URL for HawiiBeach.jpg
+2025-06-29 07:39:42,423 INFO 127.0.0.1 - - [29/Jun/2025 07:39:42] "GET /catalog/images/MontanaRoad.jpg HTTP/1.1" 200 -
+2025-06-29 07:39:42,424 INFO 127.0.0.1 - - [29/Jun/2025 07:39:42] "GET /catalog/images/HawiiBeach.jpg HTTP/1.1" 200 -
+2025-06-29 07:39:42,425 INFO Generating new S3 URL for Seattle_Library.jpeg
+2025-06-29 07:39:42,425 INFO Generating new S3 URL for RunningFreeFiullSize.jpg
+2025-06-29 07:39:42,426 INFO 127.0.0.1 - - [29/Jun/2025 07:39:42] "GET /catalog/images/Seattle_Library.jpeg HTTP/1.1" 200 -
+2025-06-29 07:39:42,428 INFO 127.0.0.1 - - [29/Jun/2025 07:39:42] "GET /catalog/images/RunningFreeFiullSize.jpg HTTP/1.1" 200 -
+2025-06-29 07:39:42,428 INFO Generating new S3 URL for Maui_sunset.jpg
+2025-06-29 07:39:42,430 INFO 127.0.0.1 - - [29/Jun/2025 07:39:42] "GET /catalog/images/Maui_sunset.jpg HTTP/1.1" 200 -
+2025-06-29 07:41:58,097 INFO Entrypoint: /Users/annette/taberner-studio-apps/taberner_studio_app/backend/app_aws.py
+2025-06-29 07:41:58,097 INFO Working directory: /Users/annette/taberner-studio-apps/taberner_studio_app/backend
+2025-06-29 07:41:58,097 INFO sys.argv: ['app_aws.py']
+2025-06-29 07:41:58,097 INFO Python version: 3.9.6 (default, Apr 30 2025, 02:07:17) 
+[Clang 17.0.0 (clang-1700.0.13.5)]
+2025-06-29 07:41:58,097 INFO __name__: __main__
+2025-06-29 07:41:58,097 INFO Environment variables (filtered):
+2025-06-29 07:41:58,097 INFO   MallocNanoZone=0
+2025-06-29 07:41:58,097 INFO   USER=annette
+2025-06-29 07:41:58,097 INFO   COMMAND_MODE=unix2003
+2025-06-29 07:41:58,097 INFO   __CFBundleIdentifier=com.todesktop.230313mzl4w4u92
+2025-06-29 07:41:58,097 INFO   PATH=/Users/annette/taberner-studio-apps/taberner_studio_app/backend/venv/bin:/Users/annette/.codeium/windsurf/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin://Applications/Topaz Photo AI.app/Contents/Resources/bin:/Users/annette/.codeium/windsurf/bin:/Users/annette/anaconda3/bin:/Users/annette/anaconda3/condabin:/Users/annette/.cursor/extensions/ms-python.debugpy-2025.6.0-darwin-arm64/bundled/scripts/noConfigScripts
+2025-06-29 07:41:58,097 INFO   LOGNAME=annette
+2025-06-29 07:41:58,097 INFO   SSH_AUTH_SOCK=/private/tmp/com.apple.launchd.uONtK3gSfv/Listeners
+2025-06-29 07:41:58,097 INFO   HOME=/Users/annette
+2025-06-29 07:41:58,098 INFO   SHELL=/bin/zsh
+2025-06-29 07:41:58,098 INFO   TMPDIR=/var/folders/7j/rzhnb4z12kbbq9624j75xsy00000gn/T/
+2025-06-29 07:41:58,098 INFO   __CF_USER_TEXT_ENCODING=0x1F5:0x0:0x0
+2025-06-29 07:41:58,098 INFO   XPC_SERVICE_NAME=0
+2025-06-29 07:41:58,098 INFO   XPC_FLAGS=0x0
+2025-06-29 07:41:58,098 INFO   ORIGINAL_XDG_CURRENT_DESKTOP=undefined
+2025-06-29 07:41:58,098 INFO   CURSOR_TRACE_ID=43efb6ed046a4bd8a670a865db0ebdcc
+2025-06-29 07:41:58,098 INFO   SHLVL=1
+2025-06-29 07:41:58,098 INFO   PWD=/Users/annette/taberner-studio-apps/taberner_studio_app/backend
+2025-06-29 07:41:58,098 INFO   OLDPWD=/Users/annette/taberner-studio-apps/taberner_studio_app
+2025-06-29 07:41:58,098 INFO   HOMEBREW_PREFIX=/opt/homebrew
+2025-06-29 07:41:58,098 INFO   HOMEBREW_CELLAR=/opt/homebrew/Cellar
+2025-06-29 07:41:58,098 INFO   HOMEBREW_REPOSITORY=/opt/homebrew
+2025-06-29 07:41:58,098 INFO   INFOPATH=/opt/homebrew/share/info:/opt/homebrew/share/info:
+2025-06-29 07:41:58,098 INFO   CONDA_EXE=/Users/annette/anaconda3/bin/conda
+2025-06-29 07:41:58,098 INFO   _CE_M=
+2025-06-29 07:41:58,098 INFO   _CE_CONDA=
+2025-06-29 07:41:58,098 INFO   CONDA_PYTHON_EXE=/Users/annette/anaconda3/bin/python
+2025-06-29 07:41:58,098 INFO   CONDA_SHLVL=1
+2025-06-29 07:41:58,098 INFO   CONDA_PREFIX=/Users/annette/anaconda3
+2025-06-29 07:41:58,098 INFO   CONDA_DEFAULT_ENV=base
+2025-06-29 07:41:58,098 INFO   CONDA_PROMPT_MODIFIER=(base) 
+2025-06-29 07:41:58,098 INFO   PAGER=head -n 10000 | cat
+2025-06-29 07:41:58,098 INFO   npm_config_yes=true
+2025-06-29 07:41:58,098 INFO   DISABLE_AUTO_UPDATE=true
+2025-06-29 07:41:58,098 INFO   PIP_NO_INPUT=true
+2025-06-29 07:41:58,098 INFO   COMPOSER_NO_INTERACTION=1
+2025-06-29 07:41:58,098 INFO   TERM_PROGRAM=vscode
+2025-06-29 07:41:58,098 INFO   TERM_PROGRAM_VERSION=1.1.6
+2025-06-29 07:41:58,098 INFO   LANG=en_US.UTF-8
+2025-06-29 07:41:58,099 INFO   COLORTERM=truecolor
+2025-06-29 07:41:58,099 INFO   GIT_ASKPASS=/Applications/Cursor.app/Contents/Resources/app/extensions/git/dist/askpass.sh
+2025-06-29 07:41:58,099 INFO   VSCODE_GIT_ASKPASS_NODE=/Applications/Cursor.app/Contents/Frameworks/Cursor Helper (Plugin).app/Contents/MacOS/Cursor Helper (Plugin)
+2025-06-29 07:41:58,099 INFO   VSCODE_GIT_ASKPASS_EXTRA_ARGS=
+2025-06-29 07:41:58,099 INFO   VSCODE_GIT_ASKPASS_MAIN=/Applications/Cursor.app/Contents/Resources/app/extensions/git/dist/askpass-main.js
+2025-06-29 07:41:58,099 INFO   VSCODE_GIT_IPC_HANDLE=/var/folders/7j/rzhnb4z12kbbq9624j75xsy00000gn/T/vscode-git-e4048c60c4.sock
+2025-06-29 07:41:58,099 INFO   PYDEVD_DISABLE_FILE_VALIDATION=1
+2025-06-29 07:41:58,099 INFO   VSCODE_DEBUGPY_ADAPTER_ENDPOINTS=/Users/annette/.cursor/extensions/ms-python.debugpy-2025.6.0-darwin-arm64/.noConfigDebugAdapterEndpoints/endpoint-0ada6dcc4fe34815.txt
+2025-06-29 07:41:58,099 INFO   BUNDLED_DEBUGPY_PATH=/Users/annette/.cursor/extensions/ms-python.debugpy-2025.6.0-darwin-arm64/bundled/libs/debugpy
+2025-06-29 07:41:58,099 INFO   TERM=xterm-256color
+2025-06-29 07:41:58,099 INFO   VIRTUAL_ENV=/Users/annette/taberner-studio-apps/taberner_studio_app/backend/venv
+2025-06-29 07:41:58,099 INFO   PS1=(venv) (base) %n@%m %1~ %# 
+2025-06-29 07:41:58,099 INFO   AWS_REGION=us-east-1
+2025-06-29 07:41:58,099 INFO   CATALOG_BUCKET_NAME=taberner-studio-catalog-us-east-1
+2025-06-29 07:41:58,099 INFO   APPROVED_BUCKET=taberner-studio-images-us-east-1
+2025-06-29 07:41:58,099 INFO   QUARANTINE_BUCKET=taberner-studio-quarantine-us-east-1
+2025-06-29 07:41:58,099 INFO   _=/Users/annette/taberner-studio-apps/taberner_studio_app/backend/venv/bin/python
+2025-06-29 07:41:58,099 INFO   APP_ENV=aws
+2025-06-29 07:41:58,099 INFO   CATALOG_TABLE_NAME=taberner-studio-catalog
+2025-06-29 07:41:58,099 INFO   MAX_RECOMMENDATIONS=8
+2025-06-29 07:41:58,099 INFO   MIN_RECOMMENDATIONS=4
+2025-06-29 07:41:58,099 INFO   KMP_DUPLICATE_LIB_OK=True
+2025-06-29 07:41:58,099 INFO   KMP_INIT_AT_FORK=FALSE
+2025-06-29 07:41:58,099 INFO === Application Starting ===
+2025-06-29 07:41:58,099 INFO Memory usage at startup: 130.50 MB (0.2%)
+2025-06-29 07:41:58,099 INFO Configuration:
+Config:
+  AWS Region: us-east-1
+  App Environment: aws
+  Catalog Table: taberner-studio-catalog
+  Catalog Bucket: taberner-studio-catalog-us-east-1
+  Approved Bucket: taberner-studio-images-us-east-1
+  Quarantine Bucket: taberner-studio-quarantine-us-east-1
+  Max Recommendations: 8
+  Min Recommendations: 4
+  Confidence Threshold: 0.7
+  Cache TTLs: Catalog=300s, URLs=3600s, Moderation=600s
+2025-06-29 07:41:58,099 INFO === CONFIGURATION SOURCE LOG ===
+2025-06-29 07:41:58,099 INFO ✓ AWS_REGION: us-east-1 (from environment)
+2025-06-29 07:41:58,100 INFO ✓ CATALOG_TABLE_NAME: taberner-studio-catalog (from environment)
+2025-06-29 07:41:58,100 INFO ✓ CATALOG_BUCKET_NAME: taberner-studio-catalog-us-east-1 (from environment)
+2025-06-29 07:41:58,100 INFO ✓ APPROVED_BUCKET: taberner-studio-images-us-east-1 (from environment)
+2025-06-29 07:41:58,100 INFO ✓ QUARANTINE_BUCKET: taberner-studio-quarantine-us-east-1 (from environment)
+2025-06-29 07:41:58,100 INFO ✓ APP_ENV: aws (from environment)
+2025-06-29 07:41:58,100 INFO ✓ MAX_RECOMMENDATIONS: 8 (from environment)
+2025-06-29 07:41:58,100 INFO ✓ MIN_RECOMMENDATIONS: 4 (from environment)
+2025-06-29 07:41:58,100 INFO ⚠ CONFIDENCE_THRESHOLD: using fallback value (from constants)
+2025-06-29 07:41:58,100 INFO ⚠ CATALOG_CACHE_TTL: using fallback value (from constants)
+2025-06-29 07:41:58,100 INFO ⚠ PRESIGNED_URL_CACHE_TTL: using fallback value (from constants)
+2025-06-29 07:41:58,100 INFO ⚠ MODERATION_CACHE_TTL: using fallback value (from constants)
+2025-06-29 07:41:58,100 INFO === END CONFIGURATION SOURCE LOG ===
+2025-06-29 07:41:58,100 INFO === STARTUP VALIDATION ===
+2025-06-29 07:41:58,100 INFO All required environment variables are set
+2025-06-29 07:41:58,100 INFO AWS Region: us-east-1
+2025-06-29 07:41:58,100 INFO Catalog Table: taberner-studio-catalog
+2025-06-29 07:41:58,100 INFO Catalog Bucket: taberner-studio-catalog-us-east-1
+2025-06-29 07:41:58,100 INFO Approved Bucket: taberner-studio-images-us-east-1
+2025-06-29 07:41:58,100 INFO Quarantine Bucket: taberner-studio-quarantine-us-east-1
+2025-06-29 07:41:58,100 INFO === STARTUP VALIDATION COMPLETE ===
+2025-06-29 07:41:58,101 INFO === INITIALIZING AWS CLIENTS ===
+2025-06-29 07:41:58,101 INFO Initializing AWS clients for region: us-east-1
+2025-06-29 07:41:58,116 INFO Found credentials in shared credentials file: ~/.aws/credentials
+2025-06-29 07:41:58,549 INFO AWS credentials validated for account: 672104585346
+2025-06-29 07:41:58,754 INFO AWS clients initialized successfully
+2025-06-29 07:41:58,755 INFO AWS clients initialized successfully
+2025-06-29 07:41:58,758 INFO DynamoDB table reference created: taberner-studio-catalog
+2025-06-29 07:41:59,147 INFO DynamoDB table access test successful. Item count: 1
+2025-06-29 07:41:59,153 INFO === APPLICATION MODULE LOADED ===
+2025-06-29 07:41:59,153 INFO Gunicorn should now be able to start the Flask application
+2025-06-29 07:41:59,153 INFO === STARTING FLASK APPLICATION ===
+2025-06-29 07:41:59,154 INFO Flask app will run on host: 0.0.0.0, port: 8000
+2025-06-29 07:41:59,154 INFO Debug mode: False
+2025-06-29 07:42:02,383 INFO Health check completed: healthy
+2025-06-29 07:42:02,383 INFO 127.0.0.1 - - [29/Jun/2025 07:42:02] "GET /health HTTP/1.1" 200 -
+2025-06-29 07:42:55,220 INFO Entrypoint: /Users/annette/taberner-studio-apps/taberner_studio_app/backend/app_aws.py
+2025-06-29 07:42:55,220 INFO Working directory: /Users/annette/taberner-studio-apps/taberner_studio_app/backend
+2025-06-29 07:42:55,220 INFO sys.argv: ['app_aws.py']
+2025-06-29 07:42:55,220 INFO Python version: 3.9.6 (default, Apr 30 2025, 02:07:17) 
+[Clang 17.0.0 (clang-1700.0.13.5)]
+2025-06-29 07:42:55,220 INFO __name__: __main__
+2025-06-29 07:42:55,220 INFO Environment variables (filtered):
+2025-06-29 07:42:55,220 INFO   MallocNanoZone=0
+2025-06-29 07:42:55,220 INFO   USER=annette
+2025-06-29 07:42:55,220 INFO   COMMAND_MODE=unix2003
+2025-06-29 07:42:55,220 INFO   __CFBundleIdentifier=com.todesktop.230313mzl4w4u92
+2025-06-29 07:42:55,221 INFO   PATH=/Users/annette/taberner-studio-apps/taberner_studio_app/backend/venv/bin:/Users/annette/.codeium/windsurf/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin://Applications/Topaz Photo AI.app/Contents/Resources/bin:/Users/annette/.codeium/windsurf/bin:/Users/annette/anaconda3/bin:/Users/annette/anaconda3/condabin:/Users/annette/.cursor/extensions/ms-python.debugpy-2025.6.0-darwin-arm64/bundled/scripts/noConfigScripts
+2025-06-29 07:42:55,221 INFO   LOGNAME=annette
+2025-06-29 07:42:55,221 INFO   SSH_AUTH_SOCK=/private/tmp/com.apple.launchd.uONtK3gSfv/Listeners
+2025-06-29 07:42:55,221 INFO   HOME=/Users/annette
+2025-06-29 07:42:55,221 INFO   SHELL=/bin/zsh
+2025-06-29 07:42:55,221 INFO   TMPDIR=/var/folders/7j/rzhnb4z12kbbq9624j75xsy00000gn/T/
+2025-06-29 07:42:55,221 INFO   __CF_USER_TEXT_ENCODING=0x1F5:0x0:0x0
+2025-06-29 07:42:55,221 INFO   XPC_SERVICE_NAME=0
+2025-06-29 07:42:55,221 INFO   XPC_FLAGS=0x0
+2025-06-29 07:42:55,221 INFO   ORIGINAL_XDG_CURRENT_DESKTOP=undefined
+2025-06-29 07:42:55,221 INFO   CURSOR_TRACE_ID=43efb6ed046a4bd8a670a865db0ebdcc
+2025-06-29 07:42:55,221 INFO   SHLVL=1
+2025-06-29 07:42:55,221 INFO   PWD=/Users/annette/taberner-studio-apps/taberner_studio_app/backend
+2025-06-29 07:42:55,221 INFO   OLDPWD=/Users/annette/taberner-studio-apps/taberner_studio_app
+2025-06-29 07:42:55,221 INFO   HOMEBREW_PREFIX=/opt/homebrew
+2025-06-29 07:42:55,221 INFO   HOMEBREW_CELLAR=/opt/homebrew/Cellar
+2025-06-29 07:42:55,221 INFO   HOMEBREW_REPOSITORY=/opt/homebrew
+2025-06-29 07:42:55,221 INFO   INFOPATH=/opt/homebrew/share/info:/opt/homebrew/share/info:
+2025-06-29 07:42:55,221 INFO   CONDA_EXE=/Users/annette/anaconda3/bin/conda
+2025-06-29 07:42:55,221 INFO   _CE_M=
+2025-06-29 07:42:55,221 INFO   _CE_CONDA=
+2025-06-29 07:42:55,221 INFO   CONDA_PYTHON_EXE=/Users/annette/anaconda3/bin/python
+2025-06-29 07:42:55,221 INFO   CONDA_SHLVL=1
+2025-06-29 07:42:55,221 INFO   CONDA_PREFIX=/Users/annette/anaconda3
+2025-06-29 07:42:55,221 INFO   CONDA_DEFAULT_ENV=base
+2025-06-29 07:42:55,221 INFO   CONDA_PROMPT_MODIFIER=(base) 
+2025-06-29 07:42:55,221 INFO   PAGER=head -n 10000 | cat
+2025-06-29 07:42:55,221 INFO   npm_config_yes=true
+2025-06-29 07:42:55,221 INFO   DISABLE_AUTO_UPDATE=true
+2025-06-29 07:42:55,221 INFO   PIP_NO_INPUT=true
+2025-06-29 07:42:55,221 INFO   COMPOSER_NO_INTERACTION=1
+2025-06-29 07:42:55,221 INFO   TERM_PROGRAM=vscode
+2025-06-29 07:42:55,221 INFO   TERM_PROGRAM_VERSION=1.1.6
+2025-06-29 07:42:55,221 INFO   LANG=en_US.UTF-8
+2025-06-29 07:42:55,221 INFO   COLORTERM=truecolor
+2025-06-29 07:42:55,221 INFO   GIT_ASKPASS=/Applications/Cursor.app/Contents/Resources/app/extensions/git/dist/askpass.sh
+2025-06-29 07:42:55,221 INFO   VSCODE_GIT_ASKPASS_NODE=/Applications/Cursor.app/Contents/Frameworks/Cursor Helper (Plugin).app/Contents/MacOS/Cursor Helper (Plugin)
+2025-06-29 07:42:55,221 INFO   VSCODE_GIT_ASKPASS_EXTRA_ARGS=
+2025-06-29 07:42:55,221 INFO   VSCODE_GIT_ASKPASS_MAIN=/Applications/Cursor.app/Contents/Resources/app/extensions/git/dist/askpass-main.js
+2025-06-29 07:42:55,222 INFO   VSCODE_GIT_IPC_HANDLE=/var/folders/7j/rzhnb4z12kbbq9624j75xsy00000gn/T/vscode-git-e4048c60c4.sock
+2025-06-29 07:42:55,222 INFO   PYDEVD_DISABLE_FILE_VALIDATION=1
+2025-06-29 07:42:55,222 INFO   VSCODE_DEBUGPY_ADAPTER_ENDPOINTS=/Users/annette/.cursor/extensions/ms-python.debugpy-2025.6.0-darwin-arm64/.noConfigDebugAdapterEndpoints/endpoint-0ada6dcc4fe34815.txt
+2025-06-29 07:42:55,222 INFO   BUNDLED_DEBUGPY_PATH=/Users/annette/.cursor/extensions/ms-python.debugpy-2025.6.0-darwin-arm64/bundled/libs/debugpy
+2025-06-29 07:42:55,222 INFO   TERM=xterm-256color
+2025-06-29 07:42:55,222 INFO   VIRTUAL_ENV=/Users/annette/taberner-studio-apps/taberner_studio_app/backend/venv
+2025-06-29 07:42:55,222 INFO   PS1=(venv) (base) %n@%m %1~ %# 
+2025-06-29 07:42:55,222 INFO   AWS_REGION=us-east-1
+2025-06-29 07:42:55,222 INFO   CATALOG_BUCKET_NAME=taberner-studio-catalog-us-east-1
+2025-06-29 07:42:55,222 INFO   APPROVED_BUCKET=taberner-studio-images-us-east-1
+2025-06-29 07:42:55,222 INFO   QUARANTINE_BUCKET=taberner-studio-quarantine-us-east-1
+2025-06-29 07:42:55,222 INFO   _=/Users/annette/taberner-studio-apps/taberner_studio_app/backend/venv/bin/python
+2025-06-29 07:42:55,222 INFO   APP_ENV=aws
+2025-06-29 07:42:55,222 INFO   CATALOG_TABLE_NAME=taberner-studio-catalog
+2025-06-29 07:42:55,222 INFO   MAX_RECOMMENDATIONS=8
+2025-06-29 07:42:55,222 INFO   MIN_RECOMMENDATIONS=4
+2025-06-29 07:42:55,222 INFO   KMP_DUPLICATE_LIB_OK=True
+2025-06-29 07:42:55,222 INFO   KMP_INIT_AT_FORK=FALSE
+2025-06-29 07:42:55,222 INFO === Application Starting ===
+2025-06-29 07:42:55,223 INFO Memory usage at startup: 130.42 MB (0.2%)
+2025-06-29 07:42:55,223 INFO Configuration:
+Config:
+  AWS Region: us-east-1
+  App Environment: aws
+  Catalog Table: taberner-studio-catalog
+  Catalog Bucket: taberner-studio-catalog-us-east-1
+  Approved Bucket: taberner-studio-images-us-east-1
+  Quarantine Bucket: taberner-studio-quarantine-us-east-1
+  Max Recommendations: 8
+  Min Recommendations: 4
+  Confidence Threshold: 0.7
+  Cache TTLs: Catalog=300s, URLs=3600s, Moderation=600s
+2025-06-29 07:42:55,223 INFO === CONFIGURATION SOURCE LOG ===
+2025-06-29 07:42:55,223 INFO ✓ AWS_REGION: us-east-1 (from environment)
+2025-06-29 07:42:55,223 INFO ✓ CATALOG_TABLE_NAME: taberner-studio-catalog (from environment)
+2025-06-29 07:42:55,223 INFO ✓ CATALOG_BUCKET_NAME: taberner-studio-catalog-us-east-1 (from environment)
+2025-06-29 07:42:55,223 INFO ✓ APPROVED_BUCKET: taberner-studio-images-us-east-1 (from environment)
+2025-06-29 07:42:55,223 INFO ✓ QUARANTINE_BUCKET: taberner-studio-quarantine-us-east-1 (from environment)
+2025-06-29 07:42:55,223 INFO ✓ APP_ENV: aws (from environment)
+2025-06-29 07:42:55,223 INFO ✓ MAX_RECOMMENDATIONS: 8 (from environment)
+2025-06-29 07:42:55,223 INFO ✓ MIN_RECOMMENDATIONS: 4 (from environment)
+2025-06-29 07:42:55,223 INFO ⚠ CONFIDENCE_THRESHOLD: using fallback value (from constants)
+2025-06-29 07:42:55,223 INFO ⚠ CATALOG_CACHE_TTL: using fallback value (from constants)
+2025-06-29 07:42:55,223 INFO ⚠ PRESIGNED_URL_CACHE_TTL: using fallback value (from constants)
+2025-06-29 07:42:55,223 INFO ⚠ MODERATION_CACHE_TTL: using fallback value (from constants)
+2025-06-29 07:42:55,223 INFO === END CONFIGURATION SOURCE LOG ===
+2025-06-29 07:42:55,223 INFO === STARTUP VALIDATION ===
+2025-06-29 07:42:55,223 INFO All required environment variables are set
+2025-06-29 07:42:55,223 INFO AWS Region: us-east-1
+2025-06-29 07:42:55,223 INFO Catalog Table: taberner-studio-catalog
+2025-06-29 07:42:55,223 INFO Catalog Bucket: taberner-studio-catalog-us-east-1
+2025-06-29 07:42:55,223 INFO Approved Bucket: taberner-studio-images-us-east-1
+2025-06-29 07:42:55,223 INFO Quarantine Bucket: taberner-studio-quarantine-us-east-1
+2025-06-29 07:42:55,223 INFO === STARTUP VALIDATION COMPLETE ===
+2025-06-29 07:42:55,224 INFO === INITIALIZING AWS CLIENTS ===
+2025-06-29 07:42:55,224 INFO Initializing AWS clients for region: us-east-1
+2025-06-29 07:42:55,238 INFO Found credentials in shared credentials file: ~/.aws/credentials
+2025-06-29 07:42:55,652 INFO AWS credentials validated for account: 672104585346
+2025-06-29 07:42:55,777 INFO AWS clients initialized successfully
+2025-06-29 07:42:55,778 INFO AWS clients initialized successfully
+2025-06-29 07:42:55,779 INFO DynamoDB table reference created: taberner-studio-catalog
+2025-06-29 07:42:56,166 INFO DynamoDB table access test successful. Item count: 1
+2025-06-29 07:42:56,170 INFO === APPLICATION MODULE LOADED ===
+2025-06-29 07:42:56,170 INFO Gunicorn should now be able to start the Flask application
+2025-06-29 07:42:56,170 INFO === STARTING FLASK APPLICATION ===
+2025-06-29 07:42:56,170 INFO Flask app will run on host: 0.0.0.0, port: 8000
+2025-06-29 07:42:56,170 INFO Debug mode: False
+2025-06-29 07:42:56,171 INFO  * Running on all addresses (0.0.0.0)
+   WARNING: This is a development server. Do not use it in a production deployment.
+ * Running on http://127.0.0.1:8000
+ * Running on http://10.0.0.208:8000 (Press CTRL+C to quit)
+2025-06-29 07:43:00,801 INFO Health check completed: healthy
+2025-06-29 07:43:00,802 INFO 127.0.0.1 - - [29/Jun/2025 07:43:00] "GET /health HTTP/1.1" 200 -
+2025-06-29 07:43:01,218 INFO 127.0.0.1 - - [29/Jun/2025 07:43:01] "GET / HTTP/1.1" 200 -
+2025-06-29 07:43:01,241 INFO 127.0.0.1 - - [29/Jun/2025 07:43:01] "GET /style.css?v=20250623w HTTP/1.1" 200 -
+2025-06-29 07:43:01,242 INFO 127.0.0.1 - - [29/Jun/2025 07:43:01] "GET /assets/Taberner-Studio-logo.png HTTP/1.1" 200 -
+2025-06-29 07:43:01,243 INFO 127.0.0.1 - - [29/Jun/2025 07:43:01] "GET /assets/mock/mock-room.jpg HTTP/1.1" 200 -
+2025-06-29 07:43:01,270 INFO 127.0.0.1 - - [29/Jun/2025 07:43:01] "GET /config.js HTTP/1.1" 200 -
+2025-06-29 07:43:01,270 INFO 127.0.0.1 - - [29/Jun/2025 07:43:01] "GET /script.js?v=20250623x HTTP/1.1" 200 -
+2025-06-29 07:43:01,452 INFO Cache miss - fetching catalog from DynamoDB
+2025-06-29 07:43:01,703 INFO 127.0.0.1 - - [29/Jun/2025 07:43:01] "GET /assets/Taberner-Studio-logo.png HTTP/1.1" 200 -
+2025-06-29 07:43:01,727 INFO Fetched 59 items from DynamoDB and cached for 600s
+2025-06-29 07:43:01,727 INFO 127.0.0.1 - - [29/Jun/2025 07:43:01] "GET /api/preferences-options HTTP/1.1" 200 -
+2025-06-29 07:43:07,671 INFO Successfully analyzed image colors: 5 colors found
+2025-06-29 07:43:10,497 INFO Room analysis complete: {'brightness': 'medium', 'color_palette': {'saturation': 'muted', 'temperature': 'warm'}, 'contrast': 'high', 'texture_complexity': 'complex', 'architectural_style': 'contemporary', 'room_type': 'bedroom'}
+2025-06-29 07:43:10,497 INFO Art recommendations: {'preferred_styles': ['Contemporary', 'Mixed Media'], 'preferred_subjects': ['Abstract', 'Portrait', 'Nature', 'Landscape'], 'size_recommendation': 'medium', 'color_guidance': '', 'reasoning': ['Contemporary spaces allow for diverse art styles', 'Muted room colors allow for more vibrant art', 'Bedrooms benefit from calming subjects']}
+2025-06-29 07:43:10,497 INFO Using contextual recommendations based on room analysis
+2025-06-29 07:43:10,497 INFO Returning cached catalog data
+2025-06-29 07:43:10,497 INFO Contextual filtering - Preferred subjects: ['Abstract', 'Portrait', 'Nature', 'Landscape'], Preferred styles: ['Contemporary', 'Mixed Media']
+2025-06-29 07:43:10,503 INFO Contextual recommendations: Found 59 candidates
+2025-06-29 07:43:10,503 INFO Top match - Color score: 106.16, Context bonus: 1.80
+2025-06-29 07:43:10,503 INFO Generated 8 contextual recommendations for uploaded image
+2025-06-29 07:43:10,503 INFO === RECOMMENDATION REQUEST COMPLETE ===
+2025-06-29 07:43:10,503 INFO Returning 8 recommendations
+2025-06-29 07:43:10,503 INFO First recommendation: Artwork Ribbon Through the Valley
+2025-06-29 07:43:10,504 INFO 127.0.0.1 - - [29/Jun/2025 07:43:10] "POST /upload-image HTTP/1.1" 200 -
+2025-06-29 07:43:11,522 INFO Generating new S3 URL for MontanaRoad.jpg
+2025-06-29 07:43:11,524 INFO 127.0.0.1 - - [29/Jun/2025 07:43:11] "GET /catalog/images/MontanaRoad.jpg HTTP/1.1" 200 -
+2025-06-29 07:43:11,524 INFO Generating new S3 URL for Church_Switzerland.jpg
+2025-06-29 07:43:11,525 INFO Generating new S3 URL for Gold_Creek_Pond.jpg
+2025-06-29 07:43:11,526 INFO 127.0.0.1 - - [29/Jun/2025 07:43:11] "GET /catalog/images/Church_Switzerland.jpg HTTP/1.1" 200 -
+2025-06-29 07:43:11,526 INFO 127.0.0.1 - - [29/Jun/2025 07:43:11] "GET /catalog/images/Gold_Creek_Pond.jpg HTTP/1.1" 200 -
+2025-06-29 07:43:11,527 INFO Generating new S3 URL for PalouseBarn2.jpg
+2025-06-29 07:43:11,528 INFO 127.0.0.1 - - [29/Jun/2025 07:43:11] "GET /catalog/images/PalouseBarn2.jpg HTTP/1.1" 200 -
+2025-06-29 07:43:11,529 INFO Generating new S3 URL for SunFlare_WA.jpeg
+2025-06-29 07:43:11,530 INFO 127.0.0.1 - - [29/Jun/2025 07:43:11] "GET /catalog/images/SunFlare_WA.jpeg HTTP/1.1" 200 -
+2025-06-29 07:43:11,530 INFO Generating new S3 URL for Tulips_WA_1.jpeg
+2025-06-29 07:43:11,531 INFO 127.0.0.1 - - [29/Jun/2025 07:43:11] "GET /catalog/images/Tulips_WA_1.jpeg HTTP/1.1" 200 -
+2025-06-29 07:43:11,532 INFO Generating new S3 URL for Palouse_Road.jpg
+2025-06-29 07:43:11,533 INFO Generating new S3 URL for PalouseRollingHills.jpg
+2025-06-29 07:43:11,534 INFO 127.0.0.1 - - [29/Jun/2025 07:43:11] "GET /catalog/images/Palouse_Road.jpg HTTP/1.1" 200 -
+2025-06-29 07:43:11,534 INFO 127.0.0.1 - - [29/Jun/2025 07:43:11] "GET /catalog/images/PalouseRollingHills.jpg HTTP/1.1" 200 -

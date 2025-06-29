@@ -43,6 +43,7 @@ from config import config
 import random
 import threading
 from functools import wraps
+import colorsys
 
 logging.basicConfig(
     level=logging.INFO,
@@ -393,6 +394,339 @@ def extract_dominant_colors(image_stream, n_colors=5):
     except Exception as e:
         app.logger.error(f"Error extracting colors: {e}")
         return []
+
+def analyze_room_characteristics(image_stream):
+    """Analyze room characteristics to suggest appropriate art styles and subjects."""
+    try:
+        # Reset stream position
+        image_stream.seek(0)
+        img = Image.open(image_stream).convert('RGB')
+        
+        # Resize for analysis
+        max_dim = 800
+        if img.width > max_dim or img.height > max_dim:
+            aspect = img.width / img.height
+            if img.width > img.height:
+                new_width = max_dim
+                new_height = int(max_dim / aspect)
+            else:
+                new_height = max_dim
+                new_width = int(max_dim * aspect)
+            img = img.resize((new_width, new_height), Image.Resampling.LANCZOS)
+        
+        # Convert to numpy array for analysis
+        img_array = np.array(img)
+        
+        # Analyze various characteristics
+        room_analysis = {
+            'brightness': analyze_brightness(img_array),
+            'color_palette': analyze_color_palette(img_array),
+            'contrast': analyze_contrast(img_array),
+            'texture_complexity': analyze_texture_complexity(img_array),
+            'architectural_style': detect_architectural_style(img_array),
+            'room_type': detect_room_type(img_array)
+        }
+        
+        # Determine appropriate art characteristics
+        art_recommendations = determine_art_characteristics(room_analysis)
+        
+        app.logger.info(f"Room analysis complete: {room_analysis}")
+        app.logger.info(f"Art recommendations: {art_recommendations}")
+        
+        return {
+            'room_analysis': room_analysis,
+            'recommended_art_characteristics': art_recommendations
+        }
+        
+    except Exception as e:
+        app.logger.error(f"Error analyzing room characteristics: {e}")
+        return None
+
+def analyze_brightness(img_array):
+    """Analyze overall brightness of the room."""
+    # Convert to grayscale and calculate mean brightness
+    gray = np.mean(img_array, axis=2)
+    brightness = np.mean(gray) / 255.0
+    
+    if brightness > 0.7:
+        return 'bright'
+    elif brightness > 0.4:
+        return 'medium'
+    else:
+        return 'dark'
+
+def analyze_color_palette(img_array):
+    """Analyze the room's color palette characteristics."""
+    # Calculate color statistics
+    img_flat = img_array.reshape(-1, 3)
+    
+    # Calculate saturation
+    hsv = np.array([colorsys.rgb_to_hsv(r/255, g/255, b/255) for r, g, b in img_flat])
+    avg_saturation = np.mean(hsv[:, 1])
+    
+    # Calculate color temperature (warm vs cool)
+    red_channel = np.mean(img_array[:, :, 0])
+    blue_channel = np.mean(img_array[:, :, 2])
+    color_temp = 'warm' if red_channel > blue_channel else 'cool'
+    
+    if avg_saturation > 0.3:
+        saturation_level = 'vibrant'
+    elif avg_saturation > 0.15:
+        saturation_level = 'moderate'
+    else:
+        saturation_level = 'muted'
+    
+    return {
+        'saturation': saturation_level,
+        'temperature': color_temp
+    }
+
+def analyze_contrast(img_array):
+    """Analyze contrast levels in the room."""
+    gray = np.mean(img_array, axis=2)
+    contrast = np.std(gray) / 255.0
+    
+    if contrast > 0.15:
+        return 'high'
+    elif contrast > 0.08:
+        return 'medium'
+    else:
+        return 'low'
+
+def analyze_texture_complexity(img_array):
+    """Analyze texture complexity using edge detection."""
+    try:
+        from scipy import ndimage
+        
+        gray = np.mean(img_array, axis=2)
+        
+        # Simple edge detection
+        sobel_x = ndimage.sobel(gray, axis=1)
+        sobel_y = ndimage.sobel(gray, axis=0)
+        edge_magnitude = np.sqrt(sobel_x**2 + sobel_y**2)
+        
+        texture_score = np.mean(edge_magnitude)
+        
+        if texture_score > 30:
+            return 'complex'
+        elif texture_score > 15:
+            return 'moderate'
+        else:
+            return 'simple'
+            
+    except ImportError:
+        # Fallback without scipy
+        return 'moderate'
+    except Exception:
+        return 'moderate'
+
+def detect_architectural_style(img_array):
+    """Detect architectural style based on visual cues."""
+    # This is a simplified heuristic-based approach
+    # In a production system, you might use a trained ML model
+    
+    gray = np.mean(img_array, axis=2)
+    
+    # Analyze line patterns (horizontal/vertical dominance)
+    horizontal_edges = np.sum(np.abs(np.diff(gray, axis=0)))
+    vertical_edges = np.sum(np.abs(np.diff(gray, axis=1)))
+    
+    edge_ratio = horizontal_edges / (vertical_edges + 1)
+    
+    # Simple heuristics based on color and structure
+    avg_brightness = np.mean(gray) / 255.0
+    
+    if avg_brightness > 0.7 and edge_ratio > 1.2:
+        return 'modern'
+    elif avg_brightness < 0.4:
+        return 'traditional'
+    elif edge_ratio < 0.8:
+        return 'rustic'
+    else:
+        return 'contemporary'
+
+def detect_room_type(img_array):
+    """Detect room type based on visual characteristics."""
+    # Simplified heuristic approach
+    # In production, this could use object detection to identify furniture
+    
+    height, width = img_array.shape[:2]
+    aspect_ratio = width / height
+    
+    # Analyze color distribution for clues
+    avg_color = np.mean(img_array, axis=(0, 1))
+    
+    # Simple heuristics
+    if aspect_ratio > 1.5:
+        return 'living_room'  # Often wider spaces
+    elif avg_color[0] > avg_color[1] and avg_color[0] > avg_color[2]:
+        return 'bedroom'  # Often warmer tones
+    else:
+        return 'general'
+
+def determine_art_characteristics(room_analysis):
+    """Determine appropriate art characteristics based on room analysis."""
+    recommendations = {
+        'preferred_styles': [],
+        'preferred_subjects': [],
+        'size_recommendation': 'medium',
+        'color_guidance': '',
+        'reasoning': []
+    }
+    
+    brightness = room_analysis['brightness']
+    color_palette = room_analysis['color_palette']
+    contrast = room_analysis['contrast']
+    texture = room_analysis['texture_complexity']
+    arch_style = room_analysis['architectural_style']
+    room_type = room_analysis['room_type']
+    
+    # Style recommendations based on architectural style
+    if arch_style == 'modern':
+        recommendations['preferred_styles'].extend(['Contemporary', 'Abstract', 'Minimalist'])
+        recommendations['preferred_subjects'].extend(['Abstract', 'Geometric', 'Cityscape'])
+        recommendations['reasoning'].append("Modern architecture pairs well with contemporary and abstract art")
+    elif arch_style == 'traditional':
+        recommendations['preferred_styles'].extend(['Classical', 'Realistic', 'Impressionist'])
+        recommendations['preferred_subjects'].extend(['Landscape', 'Portrait', 'Still Life'])
+        recommendations['reasoning'].append("Traditional spaces complement classical and realistic art styles")
+    elif arch_style == 'rustic':
+        recommendations['preferred_styles'].extend(['Folk', 'Landscape', 'Nature'])
+        recommendations['preferred_subjects'].extend(['Landscape', 'Nature', 'Animal'])
+        recommendations['reasoning'].append("Rustic environments work well with nature-inspired art")
+    else:  # contemporary
+        recommendations['preferred_styles'].extend(['Contemporary', 'Mixed Media'])
+        recommendations['preferred_subjects'].extend(['Abstract', 'Landscape', 'Portrait'])
+        recommendations['reasoning'].append("Contemporary spaces allow for diverse art styles")
+    
+    # Adjust based on brightness
+    if brightness == 'dark':
+        recommendations['color_guidance'] = 'Consider brighter, more vibrant pieces to add energy'
+        recommendations['reasoning'].append("Darker rooms benefit from brighter artwork")
+    elif brightness == 'bright':
+        recommendations['color_guidance'] = 'Subtle or bold pieces both work well'
+        recommendations['reasoning'].append("Bright rooms provide flexibility in color choices")
+    
+    # Adjust based on color palette
+    if color_palette['saturation'] == 'muted':
+        recommendations['reasoning'].append("Muted room colors allow for more vibrant art")
+    elif color_palette['saturation'] == 'vibrant':
+        recommendations['reasoning'].append("Vibrant room colors pair well with complementary or neutral art")
+    
+    # Room type specific recommendations
+    if room_type == 'bedroom':
+        recommendations['preferred_subjects'].extend(['Landscape', 'Abstract', 'Nature'])
+        recommendations['reasoning'].append("Bedrooms benefit from calming subjects")
+    elif room_type == 'living_room':
+        recommendations['preferred_subjects'].extend(['Landscape', 'Abstract', 'Portrait'])
+        recommendations['size_recommendation'] = 'large'
+        recommendations['reasoning'].append("Living rooms can accommodate larger statement pieces")
+    
+    # Remove duplicates
+    recommendations['preferred_styles'] = list(set(recommendations['preferred_styles']))
+    recommendations['preferred_subjects'] = list(set(recommendations['preferred_subjects']))
+    
+    return recommendations
+
+def get_contextual_recommendations(user_colors, room_characteristics, max_recs=recommendation_config['max_recommendations']):
+    """Get recommendations that consider both colors and room context."""
+    try:
+        art_catalog = load_catalog_from_dynamodb()
+        if not art_catalog:
+            return []
+        
+        scored_artworks = []
+        
+        # Get preferred characteristics from room analysis
+        preferred_subjects = room_characteristics.get('recommended_art_characteristics', {}).get('preferred_subjects', [])
+        preferred_styles = room_characteristics.get('recommended_art_characteristics', {}).get('preferred_styles', [])
+        
+        app.logger.info(f"Contextual filtering - Preferred subjects: {preferred_subjects}, Preferred styles: {preferred_styles}")
+        
+        for artwork in art_catalog:
+            catalog_colors = artwork['attributes'].get('dominant_colors', [])
+            if not catalog_colors:
+                continue
+            
+            # Calculate color similarity score (lower is better)
+            color_score = float(calculate_color_similarity_score(user_colors, catalog_colors))
+            
+            # Calculate context bonus (higher is better)
+            context_bonus = float(calculate_context_bonus(artwork, preferred_subjects, preferred_styles))
+            
+            # Combined score: color score (lower better) - context bonus (higher better)
+            # This way, good context matches get prioritized
+            total_score = color_score - (context_bonus * 50.0)  # Weight context bonus
+            
+            scored_artworks.append({
+                'artwork': artwork,
+                'score': total_score,
+                'color_score': color_score,
+                'context_bonus': context_bonus
+            })
+        
+        # Sort by total score (ascending, lower is better)
+        scored_artworks.sort(key=lambda x: x['score'])
+        
+        app.logger.info(f"Contextual recommendations: Found {len(scored_artworks)} candidates")
+        if scored_artworks:
+            app.logger.info(f"Top match - Color score: {scored_artworks[0]['color_score']:.2f}, Context bonus: {scored_artworks[0]['context_bonus']:.2f}")
+        
+        return scored_artworks[:max_recs]
+        
+    except Exception as e:
+        app.logger.error(f"Error in contextual recommendations: {e}")
+        # Fallback to color-only recommendations
+        return get_smart_recommendations(user_colors, max_recs)
+
+def calculate_color_similarity_score(user_colors, catalog_colors):
+    """Calculate color similarity score between user and catalog colors."""
+    try:
+        # Convert hex to RGB for comparison, ensuring all percentages are floats
+        user_rgb = {item['color']: (tuple(int(item['color'][i:i+2], 16) for i in (1, 3, 5)), safe_float(item['percentage'])) for item in user_colors}
+        catalog_rgb = {item['color']: (tuple(int(item['color'][i:i+2], 16) for i in (1, 3, 5)), safe_float(item['percentage'])) for item in catalog_colors}
+
+        # Weighted color distance score
+        total_score = 0.0
+        for uc_hex, (uc_rgb, uc_perc) in user_rgb.items():
+            for cc_hex, (cc_rgb, cc_perc) in catalog_rgb.items():
+                dist = np.linalg.norm(np.array(uc_rgb) - np.array(cc_rgb))
+                total_score += float(dist) * float(uc_perc) * float(cc_perc)
+        
+        return float(total_score)
+    except Exception:
+        return float('inf')  # Return high score if calculation fails
+
+def calculate_context_bonus(artwork, preferred_subjects, preferred_styles):
+    """Calculate context bonus based on how well artwork matches room characteristics."""
+    bonus = 0.0
+    attrs = artwork.get('attributes', {})
+    
+    # Check subject match
+    subject_attr = attrs.get('subject')
+    if isinstance(subject_attr, dict):
+        subject_label = subject_attr.get('label', '')
+        subject_confidence = safe_float(subject_attr.get('confidence', 0.0))
+    else:
+        subject_label = subject_attr or ''
+        subject_confidence = 1.0
+    
+    if subject_label in preferred_subjects:
+        bonus += subject_confidence * 2.0  # Subject match is important
+    
+    # Check style match  
+    style_attr = attrs.get('style')
+    if isinstance(style_attr, dict):
+        style_label = style_attr.get('label', '')
+        style_confidence = safe_float(style_attr.get('confidence', 0.0))
+    else:
+        style_label = style_attr or ''
+        style_confidence = 1.0
+    
+    if style_label in preferred_styles:
+        bonus += style_confidence * 1.5  # Style match is also valuable
+    
+    return float(bonus)
 
 def load_catalog_from_dynamodb():
     """Load art catalog from DynamoDB with local fallback for testing."""
@@ -1041,7 +1375,7 @@ def reset_workflow():
 @app.route('/upload-image', methods=['POST'])
 @limiter.limit("10 per minute")
 def upload_image():
-    """Handle image upload and extract colors for recommendations."""
+    """Handle image upload and extract colors and room characteristics for contextual recommendations."""
     try:
         data = request.get_json()
         if not data:
@@ -1074,16 +1408,28 @@ def upload_image():
             app.logger.error(f"Moderation failed: {reason}")
             return jsonify({'error': f"Moderation failed: {reason}"}), 400
         
+        # Create image stream for analysis
+        image_stream = io.BytesIO(image_bytes)
+        
         # Extract dominant colors from the image
-        user_colors = extract_dominant_colors(io.BytesIO(image_bytes))
+        user_colors = extract_dominant_colors(image_stream)
         if not user_colors:
             app.logger.error("Could not analyze image colors")
             return jsonify({'error': 'Could not analyze image colors.'}), 500
         
         app.logger.info(f"Successfully analyzed image colors: {len(user_colors)} colors found")
         
-        # Get recommendations based on the extracted colors
-        scored_recommendations = get_smart_recommendations(user_colors)
+        # Analyze room characteristics for contextual recommendations
+        room_characteristics = analyze_room_characteristics(image_stream)
+        
+        if room_characteristics:
+            app.logger.info("Using contextual recommendations based on room analysis")
+            # Get contextual recommendations that consider both colors and room style
+            scored_recommendations = get_contextual_recommendations(user_colors, room_characteristics)
+        else:
+            app.logger.info("Room analysis failed, falling back to color-only recommendations")
+            # Fallback to color-only recommendations
+            scored_recommendations = get_smart_recommendations(user_colors)
         
         # Extract the artwork items from the scored recommendations
         recommendations = [rec['artwork'] for rec in scored_recommendations]
@@ -1103,13 +1449,19 @@ def upload_image():
             }
             formatted_recommendations.append(formatted_rec)
         
-        app.logger.info(f"Generated {len(formatted_recommendations)} recommendations for uploaded image")
+        # Include room analysis in response for debugging/transparency
+        response_data = {
+            'recommendations': formatted_recommendations,
+            'room_analysis': room_characteristics if room_characteristics else None
+        }
+        
+        app.logger.info(f"Generated {len(formatted_recommendations)} contextual recommendations for uploaded image")
         app.logger.info("=== RECOMMENDATION REQUEST COMPLETE ===")
         app.logger.info(f"Returning {len(formatted_recommendations)} recommendations")
         if formatted_recommendations:
             app.logger.info(f"First recommendation: {formatted_recommendations[0].get('title', 'Unknown')}")
         
-        return jsonify({'recommendations': formatted_recommendations})
+        return jsonify(response_data)
         
     except Exception as e:
         app.logger.error(f"Error processing uploaded image: {e}")
