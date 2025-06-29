@@ -2053,7 +2053,7 @@ function handlePurchaseClick() {
 
 // Update purchase button with current artwork's product URL
 function updatePurchaseButton() {
-    const purchaseButton = document.getElementById('buy-now-btn');
+    const purchaseButton = document.getElementById('purchase-button');
     if (purchaseButton) {
         const currentArtwork = allArtworks[currentArtworkIndex];
         if (currentArtwork && currentArtwork.product_url) {

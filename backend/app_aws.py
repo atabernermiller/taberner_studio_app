@@ -160,10 +160,10 @@ except Exception as e:
     logger.error(f"Startup validation failed: {e}")
     raise
 
-# The static_folder argument points to the 'static' directory, which now contains the frontend.
+# The static_folder argument points to the 'frontend' directory, which contains the frontend files.
 # The static_url_path='' makes the static files available from the root URL.
 # Configure app to serve frontend files
-app = Flask(__name__, static_folder='static', static_url_path='')
+app = Flask(__name__, static_folder='../frontend', static_url_path='')
 CORS(app)
 
 # Initialize AWS clients after environment variables are loaded
@@ -682,7 +682,7 @@ def generate_presigned_url(filename):
 @app.route('/')
 def serve_index():
     """Serve the main index.html file."""
-    return send_from_directory('static', 'index.html')
+    return send_from_directory('../frontend', 'index.html')
 
 @app.route('/recommend', methods=['POST'])
 @limiter.limit("30 per minute")
@@ -1124,5 +1124,5 @@ if __name__ == '__main__':
     print("=== ABOUT TO START FLASK APP ===", file=sys.stderr)
     logger.info("=== STARTING FLASK APPLICATION ===")
     logger.info(f"Flask app will run on host: 0.0.0.0, port: 8000")
-    logger.info(f"Debug mode: True")
-    app.run(host='0.0.0.0', port=8000, debug=True) 
+    logger.info(f"Debug mode: False")
+    app.run(host='0.0.0.0', port=8000, debug=False) 

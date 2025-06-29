@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Purchase Button Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .test-section {
+            margin: 20px 0;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+        }
+        .button {
+            background-color: #007bff;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        .button:hover {
+            background-color: #0056b3;
+        }
+        .button:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+        }
+        .artwork-info {
+            margin: 10px 0;
+        }
+        .status {
+            margin: 10px 0;
+            padding: 10px;
+            border-radius: 4px;
+        }
+        .success {
+            background-color: #d4edda;
+            color: #155724;
+        }
+        .error {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+    </style>
+</head>
+<body>
+    <h1>Purchase Button Test</h1>
+    
+    <div class="test-section">
+        <h2>Test 1: Sample Artwork with Product URL</h2>
+        <div class="artwork-info">
+            <strong>Title:</strong> Wild Onaqui Mares<br>
+            <strong>Artist:</strong> Annette Taberner<br>
+            <strong>Price:</strong> $12.95<br>
+            <strong>Product URL:</strong> <span id="product-url-1">https://www.tabernerstudio.com/warehouse-open-edition-prints/art_print_products/wild-onaqui-mares?product_gallery=396495&product_id=7798645</span>
+        </div>
+        <button id="purchase-button-1" class="button">
+            <i class="fas fa-shopping-cart"></i>
+            View & Purchase
+        </button>
+        <div id="status-1" class="status" style="display: none;"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>Test 2: Sample Artwork without Product URL</h2>
+        <div class="artwork-info">
+            <strong>Title:</strong> Test Artwork<br>
+            <strong>Artist:</strong> Test Artist<br>
+            <strong>Price:</strong> $25.00<br>
+            <strong>Product URL:</strong> <span id="product-url-2">None</span>
+        </div>
+        <button id="purchase-button-2" class="button">
+            <i class="fas fa-shopping-cart"></i>
+            View & Purchase
+        </button>
+        <div id="status-2" class="status" style="display: none;"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>Test 3: Fetch from Backend API</h2>
+        <button id="fetch-catalog" class="button">Fetch Catalog from Backend</button>
+        <div id="catalog-results"></div>
+    </div>
+
+    <script>
+        // Test data
+        const testArtworks = [
+            {
+                id: "f9fe9df1-af31-419f-868e-3303474b4054",
+                title: "Wild Onaqui Mares",
+                artist: "Annette Taberner",
+                price: "12.95",
+                product_url: "https://www.tabernerstudio.com/warehouse-open-edition-prints/art_print_products/wild-onaqui-mares?product_gallery=396495&product_id=7798645"
+            },
+            {
+                id: "test-artwork",
+                title: "Test Artwork",
+                artist: "Test Artist",
+                price: "25.00",
+                product_url: null
+            }
+        ];
+
+        // Purchase button click handler
+        function handlePurchaseClick(artwork) {
+            return function() {
+                console.log('Purchase button clicked for:', artwork.title);
+                if (artwork && artwork.product_url) {
+                    console.log('Opening URL:', artwork.product_url);
+                    window.open(artwork.product_url, '_blank');
+                    showStatus(`Successfully opened product page for "${artwork.title}"`, 'success', artwork.id);
+                } else {
+                    console.warn('No product URL available for artwork:', artwork.title);
+                    showStatus(`No product URL available for "${artwork.title}"`, 'error', artwork.id);
+                }
+            };
+        }
+
+        // Show status message
+        function showStatus(message, type, artworkId) {
+            const statusElement = document.getElementById(`status-${artworkId.includes('test') ? '2' : '1'}`);
+            statusElement.textContent = message;
+            statusElement.className = `status ${type}`;
+            statusElement.style.display = 'block';
+            
+            // Hide after 3 seconds
+            setTimeout(() => {
+                statusElement.style.display = 'none';
+            }, 3000);
+        }
+
+        // Setup purchase buttons
+        function setupPurchaseButtons() {
+            testArtworks.forEach((artwork, index) => {
+                const button = document.getElementById(`purchase-button-${index + 1}`);
+                if (button) {
+                    button.onclick = handlePurchaseClick(artwork);
+                    
+                    // Disable button if no product URL
+                    if (!artwork.product_url) {
+                        button.disabled = true;
+                        button.textContent = 'No Product URL';
+                    }
+                }
+            });
+        }
+
+        // Fetch catalog from backend
+        async function fetchCatalog() {
+            const button = document.getElementById('fetch-catalog');
+            const results = document.getElementById('catalog-results');
+            
+            button.disabled = true;
+            button.textContent = 'Fetching...';
+            results.innerHTML = '<p>Loading catalog...</p>';
+            
+            try {
+                const response = await fetch('http://localhost:5000/api/catalog');
+                const data = await response.json();
+                
+                if (data.success) {
+                    const catalog = data.catalog;
+                    let html = `<h3>Catalog loaded successfully (${catalog.length} items)</h3>`;
+                    html += '<div style="max-height: 300px; overflow-y: auto;">';
+                    
+                    catalog.slice(0, 5).forEach(item => {
+                        html += `
+                            <div style="border: 1px solid #eee; margin: 10px 0; padding: 10px;">
+                                <strong>${item.title}</strong><br>
+                                Artist: ${item.artist}<br>
+                                Price: $${item.price}<br>
+                                Product URL: ${item.product_url ? 
+                                    `<a href="${item.product_url}" target="_blank">View Product</a>` : 
+                                    '<span style="color: red;">No URL</span>'
+                                }
+                            </div>
+                        `;
+                    });
+                    
+                    html += '</div>';
+                    results.innerHTML = html;
+                } else {
+                    results.innerHTML = `<p style="color: red;">Error: ${data.error}</p>`;
+                }
+            } catch (error) {
+                console.error('Error fetching catalog:', error);
+                results.innerHTML = `<p style="color: red;">Error: ${error.message}</p>`;
+            } finally {
+                button.disabled = false;
+                button.textContent = 'Fetch Catalog from Backend';
+            }
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            setupPurchaseButtons();
+            
+            // Setup fetch catalog button
+            document.getElementById('fetch-catalog').onclick = fetchCatalog;
+        });
+    </script>
+</body>
+</html> 
