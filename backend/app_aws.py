@@ -1163,6 +1163,36 @@ def recommend_unified():
             
             # Use simple filtering for fast performance
             recommendations = get_recommendations_by_filter(filters)
+            
+            # Pre-generate S3 URLs for all recommendations to avoid frontend delays
+            for rec in recommendations:
+                filename = rec.get('filename', '')
+                if filename:
+                    # Check cache first
+                    cache_key = f"s3_url_{filename}"
+                    cached_url = presigned_url_cache.get(cache_key)
+                    if cached_url:
+                        rec['image_url'] = cached_url
+                    else:
+                        # Generate new presigned URL
+                        try:
+                            image_url = s3.generate_presigned_url(
+                                'get_object',
+                                Params={
+                                    'Bucket': aws_config['catalog_bucket_name'],
+                                    'Key': filename
+                                },
+                                ExpiresIn=3600  # URL expires in 1 hour
+                            )
+                            # Cache the URL
+                            presigned_url_cache.set(cache_key, image_url)
+                            rec['image_url'] = image_url
+                        except Exception as e:
+                            app.logger.error(f"Error generating S3 URL for {filename}: {e}")
+                            rec['image_url'] = None
+                else:
+                    rec['image_url'] = None
+            
             app.logger.info(f"Generated {len(recommendations)} recommendations for preferences")
             app.logger.info("=== RECOMMENDATION REQUEST COMPLETE ===")
             app.logger.info(f"Returning {len(recommendations)} recommendations")
@@ -1540,6 +1570,32 @@ def upload_image():
         # Format the recommendations like app.py does
         formatted_recommendations = []
         for rec in recommendations:
+            # Pre-generate S3 URL to avoid frontend delays
+            filename = rec.get('filename', '')
+            image_url = None
+            if filename:
+                # Check cache first
+                cache_key = f"s3_url_{filename}"
+                cached_url = presigned_url_cache.get(cache_key)
+                if cached_url:
+                    image_url = cached_url
+                else:
+                    # Generate new presigned URL
+                    try:
+                        image_url = s3.generate_presigned_url(
+                            'get_object',
+                            Params={
+                                'Bucket': aws_config['catalog_bucket_name'],
+                                'Key': filename
+                            },
+                            ExpiresIn=3600  # URL expires in 1 hour
+                        )
+                        # Cache the URL
+                        presigned_url_cache.set(cache_key, image_url)
+                    except Exception as e:
+                        app.logger.error(f"Error generating S3 URL for {filename}: {e}")
+                        image_url = None
+            
             formatted_rec = {
                 'id': rec.get('id', ''),
                 'title': rec.get('title', ''),
@@ -1547,7 +1603,8 @@ def upload_image():
                 'description': rec.get('description', ''),
                 'price': rec.get('price', ''),
                 'product_url': rec.get('product_url', ''),
-                'filename': rec.get('filename', ''),
+                'filename': filename,
+                'image_url': image_url,  # Pre-generated S3 URL
                 'attributes': rec.get('attributes', {})
             }
             formatted_recommendations.append(formatted_rec)

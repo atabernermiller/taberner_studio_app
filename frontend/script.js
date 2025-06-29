@@ -1459,7 +1459,8 @@ async function updateArtworkDisplay(index, forceInstant, onLoadedCallback) {
     });
     
     console.log('Getting image URL for filename:', artwork.filename);
-    const imageSrc = await getImageUrl(artwork.filename);
+            // Use pre-generated image_url if available, otherwise fall back to getImageUrl
+        const imageSrc = artwork.image_url || await getImageUrl(artwork.filename);
     console.log('Image URL received:', imageSrc);
     
     const artworkImage = document.getElementById('artwork-image');
@@ -1766,11 +1767,12 @@ async function createThumbnailGallery() {
         // Process current batch in parallel
         const batchPromises = batch.map(async (artwork) => {
             try {
-                const imageUrl = await getImageUrl(artwork.filename);
+                // Use pre-generated image_url if available, otherwise fall back to getImageUrl
+                const imageUrl = artwork.image_url || await getImageUrl(artwork.filename);
                 return { artwork, imageUrl };
             } catch (error) {
                 console.warn('Failed to get image URL for', artwork.filename, 'using fallback');
-                return { artwork, imageUrl: `/catalog/images/${artwork.filename}` };
+                return { artwork, imageUrl: artwork.image_url || `/catalog/images/${artwork.filename}` };
             }
         });
         
@@ -2074,6 +2076,8 @@ async function batchLoadImageUrls(filenames) {
     
     const promises = filenames.map(async (filename) => {
         try {
+            // Note: This function is primarily for pre-loading, but with pre-generated URLs
+            // in recommendations, this should be called less frequently
             const url = await getImageUrl(filename);
             return { filename, url, success: true };
         } catch (error) {
