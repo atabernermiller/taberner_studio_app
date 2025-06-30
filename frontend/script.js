@@ -1723,8 +1723,8 @@ function displayCurrentArtwork() {
                     artworkOverlay.style.width = overlayWidth + 'px';
                     artworkOverlay.style.height = overlayHeight + 'px';
                     artworkOverlay.style.left = '50%';
-                    artworkOverlay.style.top = '50%';
-                    artworkOverlay.style.transform = 'translate(-50%, -50%)';
+                    artworkOverlay.style.top = '25%';
+                    artworkOverlay.style.transform = `translate(-50%, -50%)`;
                     console.log('Artwork overlay positioned and sized to:', overlayWidth, 'x', overlayHeight);
                 } else {
                     console.error('Artwork overlay element not found!');
@@ -1908,7 +1908,7 @@ async function updateArtworkDisplay(index, forceInstant, onLoadedCallback) {
                 overlay.style.width = overlayState.width;
                 overlay.style.height = overlayState.height;
                 overlay.style.left = '50%';
-                overlay.style.top = '50%';
+                overlay.style.top = '25%';
                 overlay.style.transform = `translate(-50%, -50%) translate(${overlayState.x}px, ${overlayState.y}px)`;
                 overlay.setAttribute('data-x', overlayState.x);
                 overlay.setAttribute('data-y', overlayState.y);
@@ -1929,8 +1929,8 @@ async function updateArtworkDisplay(index, forceInstant, onLoadedCallback) {
                 overlay.style.width = baseWidth + 'px';
                 overlay.style.height = baseHeight + 'px';
                 overlay.style.left = '50%';
-                overlay.style.top = '50%';
-                overlay.style.transform = 'translate(-50%, -50%)';
+                overlay.style.top = '25%';
+                overlay.style.transform = `translate(-50%, -50%)`;
                 overlay.setAttribute('data-x', '0');
                 overlay.setAttribute('data-y', '0');
                 overlay.removeAttribute('data-user-customized');
@@ -1993,7 +1993,7 @@ async function updateArtworkDisplay(index, forceInstant, onLoadedCallback) {
                     overlay.style.width = preservedWidth + 'px';
                     overlay.style.height = calculatedHeight + 'px';
                     overlay.style.left = '50%';
-                    overlay.style.top = '50%';
+                    overlay.style.top = '25%';
                     overlay.style.transform = `translate(-50%, -50%) translate(${overlayState.x}px, ${overlayState.y}px)`;
                     overlay.setAttribute('data-x', overlayState.x);
                     overlay.setAttribute('data-y', overlayState.y);
