@@ -23,11 +23,7 @@ RUN curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2
 COPY requirements_aws.txt .
 RUN pip install --no-cache-dir -r requirements_aws.txt
 
-# Copy frontend files to static directory (simulating buildspec.yml)
-RUN mkdir -p static
-COPY static/ static/
-
-# Copy application code
+# Copy application code (including static files that were copied by buildspec.yml)
 COPY . .
 
 # Create non-root user

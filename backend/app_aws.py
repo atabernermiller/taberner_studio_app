@@ -161,10 +161,10 @@ except Exception as e:
     logger.error(f"Startup validation failed: {e}")
     raise
 
-# The static_folder argument points to the 'frontend' directory, which contains the frontend files.
+# The static_folder argument points to the 'static' directory, which contains the frontend files.
 # The static_url_path='' makes the static files available from the root URL.
 # Configure app to serve frontend files
-app = Flask(__name__, static_folder='../frontend', static_url_path='')
+app = Flask(__name__, static_folder='static', static_url_path='')
 CORS(app)
 
 # Initialize AWS clients after environment variables are loaded
@@ -1119,7 +1119,7 @@ def generate_presigned_url(filename):
 @app.route('/')
 def serve_index():
     """Serve the main index.html file."""
-    return send_from_directory('../frontend', 'index.html')
+    return send_from_directory('static', 'index.html')
 
 @app.route('/e2e_navigation_test.html')
 def serve_e2e_test():
