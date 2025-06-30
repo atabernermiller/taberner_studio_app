@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Header Options Demo - Taberner Studio</title>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        :root {
+            --primary-bg: #0a0a0a;
+            --secondary-bg: #1a1a1a;
+            --primary-text: #f5f5f5;
+            --secondary-text: #b8b8b8;
+            --accent-color: #d4af37;
+            --accent-hover: #f4d03f;
+        }
+        
+        * {
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(135deg, var(--primary-bg) 0%, #1a1a1a 100%);
+            color: var(--primary-text);
+            min-height: 100vh;
+        }
+        
+        .demo-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+        
+        .demo-title {
+            text-align: center;
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 3rem;
+            color: var(--accent-color);
+        }
+        
+        .option-section {
+            margin-bottom: 4rem;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            overflow: hidden;
+            background: rgba(255, 255, 255, 0.02);
+        }
+        
+        .option-title {
+            background: rgba(212, 175, 55, 0.1);
+            padding: 1rem 1.5rem;
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: var(--accent-color);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .option-description {
+            padding: 1rem 1.5rem;
+            color: var(--secondary-text);
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
+        
+        .header-demo {
+            position: relative;
+            background: linear-gradient(135deg, #1a1a1a 0%, #2a2a2a 100%);
+            min-height: 200px;
+            padding: 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .demo-content {
+            text-align: center;
+            color: var(--secondary-text);
+        }
+        
+        .demo-content h3 {
+            color: var(--primary-text);
+            margin-bottom: 0.5rem;
+        }
+        
+        .mobile-indicator {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background: rgba(212, 175, 55, 0.2);
+            color: var(--accent-color);
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+        
+        .css-code {
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            padding: 1rem;
+            margin: 1rem 1.5rem;
+            font-family: 'Monaco', 'Menlo', monospace;
+            font-size: 0.8rem;
+            color: var(--secondary-text);
+            overflow-x: auto;
+        }
+        
+        .css-code strong {
+            color: var(--accent-color);
+        }
+        
+        @media (max-width: 768px) {
+            .demo-container {
+                padding: 1rem;
+            }
+            
+            .demo-title {
+                font-size: 1.5rem;
+                margin-bottom: 2rem;
+            }
+            
+            .option-section {
+                margin-bottom: 2rem;
+            }
+        }
+    </style>
+    
+    <!-- Header Option 1 Styles -->
+    <link rel="stylesheet" href="header-option-1.css">
+    
+    <!-- Header Option 2 Styles -->
+    <link rel="stylesheet" href="header-option-2.css">
+    
+    <!-- Header Option 3 Styles -->
+    <link rel="stylesheet" href="header-option-3.css">
+</head>
+<body>
+    <div class="demo-container">
+        <h1 class="demo-title">Mobile Header Options</h1>
+        
+        <!-- Option 1 -->
+        <div class="option-section">
+            <div class="option-title">Option 1: Minimal Modern</div>
+            <div class="option-description">
+                Clean, minimal design with subtle animations. Features a dark background with gold accents, 
+                smaller logo, and refined typography. Perfect for a professional, understated look.
+            </div>
+            
+            <div class="header-demo">
+                <div class="mobile-indicator">Mobile View</div>
+                <header style="margin: 0; border-radius: 0;">
+                    <div class="header-content">
+                        <img src="assets/Taberner-Studio-logo.png" alt="Taberner Studio Logo" id="logo">
+                        <h1 class="header-title">Art Recommendations</h1>
+                        <button class="back-button" style="display: flex;">
+                            <i class="fas fa-arrow-left"></i>
+                            Back
+                        </button>
+                    </div>
+                </header>
+                <div class="demo-content">
+                    <h3>Content Area</h3>
+                    <p>This shows how the header looks with content below</p>
+                </div>
+            </div>
+            
+            <div class="css-code">
+                <strong>Key Features:</strong><br>
+                • Minimal dark background with blur effect<br>
+                • Smaller, refined logo with hover animation<br>
+                • Uppercase title with letter spacing<br>
+                • Subtle gold border and shadows<br>
+                • Compact mobile spacing
+            </div>
+        </div>
+        
+        <!-- Option 2 -->
+        <div class="option-section">
+            <div class="option-title">Option 2: Gradient Premium</div>
+            <div class="option-description">
+                Premium gradient design with enhanced visual appeal. Features gradient backgrounds, 
+                gradient text effects, and more sophisticated styling for a high-end feel.
+            </div>
+            
+            <div class="header-demo">
+                <div class="mobile-indicator">Mobile View</div>
+                <header style="margin: 0; border-radius: 0;">
+                    <div class="header-content">
+                        <img src="assets/Taberner-Studio-logo.png" alt="Taberner Studio Logo" id="logo">
+                        <h1 class="header-title">Art Recommendations</h1>
+                        <button class="back-button" style="display: flex;">
+                            <i class="fas fa-arrow-left"></i>
+                            Back
+                        </button>
+                    </div>
+                </header>
+                <div class="demo-content">
+                    <h3>Content Area</h3>
+                    <p>This shows how the header looks with content below</p>
+                </div>
+            </div>
+            
+            <div class="css-code">
+                <strong>Key Features:</strong><br>
+                • Gradient background with overlay effects<br>
+                • Gradient text for the title<br>
+                • Enhanced button styling with gradients<br>
+                • Sophisticated shadows and borders<br>
+                • Premium visual hierarchy
+            </div>
+        </div>
+        
+        <!-- Option 3 -->
+        <div class="option-section">
+            <div class="option-title">Option 3: Floating Card</div>
+            <div class="option-description">
+                Modern floating card design with rounded corners and depth. Features a card-like header 
+                that appears to float above the content with subtle hover effects.
+            </div>
+            
+            <div class="header-demo">
+                <div class="mobile-indicator">Mobile View</div>
+                <header style="margin: 0.5rem 0.75rem; border-radius: 16px;">
+                    <div class="header-content">
+                        <img src="assets/Taberner-Studio-logo.png" alt="Taberner Studio Logo" id="logo">
+                        <h1 class="header-title">Art Recommendations</h1>
+                        <button class="back-button" style="display: flex;">
+                            <i class="fas fa-arrow-left"></i>
+                            Back
+                        </button>
+                    </div>
+                </header>
+                <div class="demo-content">
+                    <h3>Content Area</h3>
+                    <p>This shows how the header looks with content below</p>
+                </div>
+            </div>
+            
+            <div class="css-code">
+                <strong>Key Features:</strong><br>
+                • Floating card design with rounded corners<br>
+                • Hover animations and depth effects<br>
+                • Logo with background and hover states<br>
+                • Animated button with sliding effect<br>
+                • Modern glassmorphism approach
+            </div>
+        </div>
+    </div>
+</body>
+</html> 

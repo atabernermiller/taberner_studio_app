@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Taberner Studio art recommendations for your space">
+    <meta name="theme-color" content="#FFD700">
+    <!-- Prevent browser scroll restoration -->
+    <meta name="scroll-restoration" content="manual">
+    <title>Taberner Studio Art Recommendations</title>
+    <meta name="keywords" content="Taberner Studio art, interior design, artwork recommendations, room decoration">
+    <meta name="author" content="Taberner Studio Art Recommendations">
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="style.css?v=20250623w">
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="assets/Taberner-Studio-logo.png">
+</head>
+<body>
+    <!-- Header -->
+    <header>
+        <div class="header-content">
+            <div class="logo-container">
+                <img id="logo" src="assets/Taberner-Studio-logo.png" alt="Logo">
+                <h1 class="header-title">Taberner Studio Art Recommendations</h1>
+            </div>
+            <button id="back-button" class="back-button" style="display: none;" onclick="backToOptions()">
+                <i class="fas fa-arrow-left"></i>
+                <span>Back</span>
+            </button>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="content">
+        <!-- Upload View -->
+        <section id="upload-view" class="view active">
+            <div class="search-box">
+                <!-- Enhanced Hero Section -->
+                <div class="hero-section">
+                    <div class="hero-content">
+                        <div class="hero-badge">
+                            <i class="fas fa-sparkles"></i>
+                            Taberner Studio Matching
+                        </div>
+                        <h2 class="hero-title">Transform Your Space with Perfect Art</h2>
+                        <p class="hero-subtitle">Discover existing artwork that matches your style, complements your space, and speaks to your soul. Our Taberner Studio system analyzes your room or preferences to find the perfect pieces from our curated collection.</p>
+                        
+                        <div class="hero-features">
+                            <div class="feature-item">
+                                <i class="fas fa-magic"></i>
+                                <span>Taberner Studio Matching</span>
+                            </div>
+                            <div class="feature-item">
+                                <i class="fas fa-eye"></i>
+                                <span>Visual Preview</span>
+                            </div>
+                            <div class="feature-item">
+                                <i class="fas fa-shipping-fast"></i>
+                                <span>Curated Collection</span>
+                            </div>
+                        </div>
+                        
+                        <div class="hero-cta">
+                            <p class="cta-text">Ready to find your perfect artwork?</p>
+                            <div class="cta-buttons">
+                                <button class="button primary-button" onclick="scrollToOptions()">
+                                    <i class="fas fa-rocket"></i>
+                                    Get Started
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="hero-visual">
+                        <div class="hero-image-container">
+                            <img src="assets/mock/mock-room.jpg" alt="Beautiful room with art" class="hero-image">
+                            <div class="hero-overlay">
+                                <div class="artwork-preview">
+                                    <i class="fas fa-image"></i>
+                                    <span>See Your Art Here</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="upload-header" id="options-section">
+                    <h2 class="main-title" id="main-title-text">Choose Your Journey</h2>
+                    <p class="main-subtitle" id="main-subtitle-text">Two powerful ways to discover your perfect artwork</p>
+                    <div class="divider"></div>
+                </div>
+                
+                <!-- Option Cards Container -->
+                <div class="options-container">
+                    <!-- Option 1: Upload Room Photo -->
+                    <div class="option-card" id="upload-option">
+                        <div class="option-icon">
+                            <i class="fas fa-camera"></i>
+                        </div>
+                        <h3>Upload Room Photo</h3>
+                        <p>Get recommendations for existing artwork based on your actual room's style, colors, and layout.</p>
+                        <div class="option-features">
+                            <span class="feature-tag">Most Accurate</span>
+                            <span class="feature-tag">Visual Preview</span>
+                        </div>
+                        <button class="button option-button" onclick="showUploadForm()">
+                            <i class="fas fa-upload"></i>
+                            Upload Photo
+                        </button>
+                    </div>
+
+                    <!-- Option 2: Art Preferences -->
+                    <div class="option-card" id="preferences-option">
+                        <div class="option-icon">
+                            <i class="fas fa-palette"></i>
+                        </div>
+                        <h3>Art Preferences</h3>
+                        <p>Tell us your style preferences and get curated recommendations from our existing collection.</p>
+                        <div class="option-features">
+                            <span class="feature-tag">No Photo Required</span>
+                            <span class="feature-tag">Style-Based</span>
+                        </div>
+                        <button class="button option-button" onclick="showPreferencesForm()">
+                            <i class="fas fa-sliders-h"></i>
+                            Set Preferences
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Upload Form (Hidden by default) -->
+                <div id="upload-form-container" class="form-container" style="display: none;">
+                    <div class="form-header">
+                        <h3 class="form-title">Upload Your Room Photo</h3>
+                        <p class="form-subtitle">We'll analyze your space to find the perfect artwork match</p>
+                    </div>
+                    
+                    <form id="upload-form">
+                        <div class="upload-area" id="upload-area">
+                            <i class="fas fa-cloud-upload-alt upload-icon"></i>
+                            <div class="upload-text">Drop your room photo here</div>
+                            <div class="upload-hint">or click to browse files</div>
+                            <input type="file" id="room-photo" accept="image/*" style="display: none;">
+                        </div>
+                        
+                        <!-- Recommendations will be generated automatically after upload -->
+                    </form>
+                </div>
+
+                <!-- Preferences Form (Hidden by default) -->
+                <div id="preferences-form-container" class="form-container" style="display: none;">
+                    <div class="form-header">
+                        <h3 class="form-title">Tell Us Your Preferences</h3>
+                        <p class="form-subtitle">We'll match you with the perfect artwork from our collection</p>
+                    </div>
+                    
+                    <form id="preferences-form">
+                        <div class="filter-group">
+                            <label for="subject-select">Subject:</label>
+                            <select id="subject-select">
+                                <option value="">Any Subject</option>
+                                <option value="landscape">Landscape</option>
+                                <option value="portrait">Portrait</option>
+                                <option value="still-life">Still Life</option>
+                                <option value="abstract">Abstract</option>
+                                <option value="nature">Nature</option>
+                            </select>
+                        </div>
+                        <button type="submit" class="button">
+                            <i class="fas fa-search"></i>
+                            Find Artwork
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </section>
+
+        <!-- Results View -->
+        <section id="results-area" class="view" style="display: none;">
+            <div class="results-header">
+                <h2 class="results-title">Here are some artworks we think you'll love!</h2>
+            </div>
+            
+            <!-- Interactive Showroom -->
+            <div class="showroom-container">
+                <div class="showroom-header">
+                    <p class="drag-hint">Drag and resize the artwork to see how it looks in your room</p>
+                </div>
+                
+                <div class="virtual-showroom" id="virtual-showroom">
+                    <img id="room-image" src="" alt="Your room" style="display: none;">
+                    <div id="artwork-overlay">
+                        <img id="artwork-image" src="" alt="Artwork" style="width: 100%; height: 100%; object-fit: cover;">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Product Details -->
+            <div class="product-details" id="product-details">
+                <div class="product-info">
+                    <h3 id="artwork-title" class="product-title">Abstract Harmony</h3>
+                    <p id="artwork-description" class="product-description">A stunning abstract composition that brings harmony and sophistication to any space. This piece features a perfect balance of warm and cool tones, creating a calming yet engaging atmosphere.</p>
+                    <div class="product-meta">
+                        <div class="price-info">
+                            <span class="price-label">Starting from</span>
+                            <span class="price-amount" id="artwork-price">$12.95</span>
+                        </div>
+                        <div class="product-actions">
+                            <button class="button primary-button" id="purchase-button">
+                                <i class="fas fa-shopping-cart"></i>
+                                View & Purchase
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Thumbnail Gallery -->
+            <div class="thumbnail-section">
+                <div class="thumbnail-gallery" id="thumbnail-gallery">
+                    <!-- Thumbnails will be populated by JavaScript -->
+                </div>
+            </div>
+            
+            <!-- Action Buttons -->
+            <div class="results-actions" id="results-actions">
+                <button class="button secondary-button" onclick="resetToOptions()">
+                    <i class="fas fa-arrow-left"></i>
+                    Try Another Search
+                </button>
+            </div>
+        </section>
+    </main>
+
+    <!-- JavaScript -->
+    <script src="https://cdn.jsdelivr.net/npm/interactjs@1.10.17/dist/interact.min.js"></script>
+    <script src="config.js"></script>
+    <script src="script.js?v=20250623x"></script>
+</body>
+</html> 

@@ -1117,6 +1117,7 @@ def generate_presigned_url(filename):
 # --- Routes ---
 
 @app.route('/')
+@limiter.limit("1000 per hour")  # Higher limit for index page to allow health checks and deployment
 def serve_index():
     """Serve the main index.html file."""
     return send_from_directory('static', 'index.html')
@@ -1432,6 +1433,7 @@ def ratelimit_handler(e):
     return jsonify(error="ratelimit exceeded", description=str(e.description)), 429
 
 @app.route('/health')
+@limiter.limit("1000 per hour")  # Higher limit for health checks to allow deployment
 def health_check():
     """Health check endpoint with basic diagnostics."""
     try:
