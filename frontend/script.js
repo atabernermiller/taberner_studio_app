@@ -2439,19 +2439,8 @@ function handlePurchaseClick(filename, title, price) {
         const artwork = allArtworks.find(art => art.filename === filename);
         
         if (artwork && artwork.product_url) {
-            // Enhanced purchase dialog with artwork details
-            const confirmPurchase = confirm(
-                `Purchase Artwork?\n\n` +
-                `Title: ${title}\n` +
-                `Price: $${price}\n\n` +
-                `This will redirect you to our secure checkout process.\n` +
-                `Continue with purchase?`
-            );
-            
-            if (confirmPurchase) {
-                // Open the product URL in a new tab
-                window.open(artwork.product_url, '_blank');
-            }
+            // Directly open the product URL in a new tab without confirmation
+            window.open(artwork.product_url, '_blank');
         } else {
             // Fallback for artworks without product URLs
             alert(
