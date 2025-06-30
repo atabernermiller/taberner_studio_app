@@ -1135,6 +1135,12 @@ function displayVirtualShowroomWithCards(recommendations, type = 'upload') {
     const virtualShowroom = document.getElementById('virtual-showroom');
     const thumbnailGallery = document.getElementById('thumbnail-gallery');
     
+    // Show the results header for upload workflow
+    const resultsHeader = document.querySelector('.results-header');
+    if (resultsHeader) {
+        resultsHeader.style.display = 'block';
+    }
+    
     // Show the virtual showroom
     if (virtualShowroom) {
         virtualShowroom.style.display = 'block';
@@ -1197,6 +1203,12 @@ function displayPreferenceCards(recommendations, type = 'preferences') {
     
     const virtualShowroom = document.getElementById('virtual-showroom');
     const thumbnailGallery = document.getElementById('thumbnail-gallery');
+    
+    // Hide the results header for preferences workflow
+    const resultsHeader = document.querySelector('.results-header');
+    if (resultsHeader) {
+        resultsHeader.style.display = 'none';
+    }
     
     // Hide the virtual showroom for card layout
     if (virtualShowroom) {
