@@ -114,7 +114,7 @@ function updateDragHintText(workflowType) {
     const dragHint = document.querySelector('.drag-hint');
     if (dragHint) {
         if (workflowType === 'preferences') {
-            dragHint.textContent = 'Drag and resize the artwork to see how it looks in the room below';
+            dragHint.textContent = '';
         } else {
             dragHint.textContent = 'Drag and resize the artwork to see how it looks in your room';
         }
