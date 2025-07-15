@@ -53,9 +53,20 @@ function getImageUrl(filename) {
 
 // Smooth scroll to options
 function scrollToOptions() {
-    document.getElementById('options-section').scrollIntoView({
-        behavior: 'smooth'
-    });
+    console.log('=== SCROLL TO OPTIONS FUNCTION CALLED ===');
+    console.log('Attempting to scroll to options section');
+    const optionsSection = document.getElementById('options-section');
+    console.log('Options section element:', optionsSection);
+    console.log('Options section exists:', !!optionsSection);
+    if (optionsSection) {
+        console.log('Scrolling to options section');
+        optionsSection.scrollIntoView({
+            behavior: 'smooth'
+        });
+        console.log('Scroll command executed');
+    } else {
+        console.error('Options section not found!');
+    }
 }
 
 // Enhanced loading states
@@ -463,33 +474,58 @@ function initializeUpload() {
     
     // Click to upload
     uploadArea.addEventListener('click', () => {
+        console.log('=== UPLOAD AREA CLICKED ===');
+        console.log('Upload area clicked, triggering file input');
+        console.log('File input element:', fileInput);
+        console.log('File input exists:', !!fileInput);
         fileInput.click();
+        console.log('File input click triggered');
     });
     
     // Drag and drop functionality
     uploadArea.addEventListener('dragover', (e) => {
+        console.log('=== DRAG OVER EVENT ===');
+        console.log('Drag over event triggered');
         e.preventDefault();
         uploadArea.classList.add('dragover');
+        console.log('Dragover class added');
     });
     
     uploadArea.addEventListener('dragleave', () => {
+        console.log('=== DRAG LEAVE EVENT ===');
+        console.log('Drag leave event triggered');
         uploadArea.classList.remove('dragover');
+        console.log('Dragover class removed');
     });
     
     uploadArea.addEventListener('drop', (e) => {
+        console.log('=== DROP EVENT ===');
+        console.log('Drop event triggered');
+        console.log('Dropped files:', e.dataTransfer.files);
         e.preventDefault();
         uploadArea.classList.remove('dragover');
+        console.log('Dragover class removed');
         
         const files = e.dataTransfer.files;
         if (files.length > 0) {
+            console.log('File dropped, calling handleFileUpload with:', files[0].name);
             handleFileUpload(files[0]);
+        } else {
+            console.log('No files dropped');
         }
     });
     
     // File input change - this triggers the upload automatically
     fileInput.addEventListener('change', (e) => {
+        console.log('=== FILE INPUT CHANGE EVENT ===');
+        console.log('File input change event triggered');
+        console.log('Files selected:', e.target.files.length);
+        console.log('Selected file:', e.target.files[0]);
         if (e.target.files.length > 0) {
+            console.log('Calling handleFileUpload with file:', e.target.files[0].name);
             handleFileUpload(e.target.files[0]);
+        } else {
+            console.log('No files selected');
         }
     });
     
@@ -498,7 +534,12 @@ function initializeUpload() {
     
     if (preferencesForm) {
         preferencesForm.addEventListener('submit', (e) => {
+            console.log('=== PREFERENCES FORM SUBMIT ===');
+            console.log('Preferences form submit event triggered');
+            console.log('Form element:', preferencesForm);
+            console.log('Event:', e);
             e.preventDefault();
+            console.log('Default prevented, calling handlePreferencesSubmit');
             handlePreferencesSubmit(e);
         });
     }
@@ -653,10 +694,15 @@ function handleFileUpload(file) {
 
 // Handle preferences form submission
 function handlePreferencesSubmit(event) {
+    console.log('=== PREFERENCES FORM SUBMIT HANDLER ===');
+    console.log('Event:', event);
+    console.log('Form element:', event.target);
     event.preventDefault();
     
     // Get form data
     const subjectSelect = document.getElementById('subject-select');
+    console.log('Subject select element:', subjectSelect);
+    console.log('Selected subject value:', subjectSelect ? subjectSelect.value : 'null');
     
     // Send as arrays with plural keys to match backend
     const preferences = {
@@ -673,6 +719,10 @@ function handlePreferencesSubmit(event) {
 
 // Get recommendations by preferences
 function getRecommendationsByPreferences(preferences) {
+    console.log('=== GET RECOMMENDATIONS BY PREFERENCES ===');
+    console.log('Preferences:', preferences);
+    console.log('Making API call to /recommend');
+    
     fetch('/recommend', {
         method: 'POST',
         headers: {
@@ -2280,17 +2330,32 @@ function initializeEventListeners() {
     // Add event listeners for navigation buttons
     const getStartedBtn = document.getElementById('get-started-btn');
     if (getStartedBtn) {
-        getStartedBtn.addEventListener('click', scrollToOptions);
+        getStartedBtn.addEventListener('click', () => {
+            console.log('=== GET STARTED BUTTON CLICKED ===');
+            console.log('Get started button clicked');
+            console.log('Button element:', getStartedBtn);
+            scrollToOptions();
+        });
     }
     
     const backToLandingBtn = document.getElementById('back-to-landing');
     if (backToLandingBtn) {
-        backToLandingBtn.addEventListener('click', goBackToLanding);
+        backToLandingBtn.addEventListener('click', () => {
+            console.log('=== BACK TO LANDING BUTTON CLICKED ===');
+            console.log('Back to landing button clicked');
+            console.log('Button element:', backToLandingBtn);
+            goBackToLanding();
+        });
     }
     
     const resetBtn = document.getElementById('reset-btn');
     if (resetBtn) {
-        resetBtn.addEventListener('click', resetToOptions);
+        resetBtn.addEventListener('click', () => {
+            console.log('=== RESET BUTTON CLICKED ===');
+            console.log('Reset button clicked');
+            console.log('Button element:', resetBtn);
+            resetToOptions();
+        });
     }
     
     // Add navigation event listeners for debugging
@@ -2431,6 +2496,9 @@ function showOptionsView() {
 
 // Handle purchase button click
 function handlePurchaseClick(filename, title, price) {
+    console.log('=== HANDLE PURCHASE CLICK FUNCTION CALLED ===');
+    console.log('Parameters:', { filename, title, price });
+    
     // If called from preference cards, use the passed parameters
     if (filename && title && price) {
         console.log('Purchase button clicked for:', { filename, title, price });
@@ -2462,18 +2530,31 @@ function handlePurchaseClick(filename, title, price) {
 
 // Update purchase button with current artwork's product URL
 function updatePurchaseButton() {
-    const purchaseButton = document.getElementById('buy-now-btn');
+    const purchaseButton = document.getElementById('purchase-button');
+    console.log('=== UPDATE PURCHASE BUTTON ===');
+    console.log('Looking for purchase button with ID: purchase-button');
+    console.log('Purchase button element:', purchaseButton);
+    
     if (purchaseButton) {
         const currentArtwork = allArtworks[currentArtworkIndex];
+        console.log('Current artwork:', currentArtwork);
+        
         if (currentArtwork && currentArtwork.product_url) {
-            purchaseButton.onclick = handlePurchaseClick;
+            purchaseButton.onclick = () => {
+                console.log('=== PURCHASE BUTTON CLICKED ===');
+                console.log('Opening product URL:', currentArtwork.product_url);
+                window.open(currentArtwork.product_url, '_blank');
+            };
             purchaseButton.disabled = false;
             console.log('Updated purchase button with URL:', currentArtwork.product_url);
         } else {
             purchaseButton.onclick = null;
             purchaseButton.disabled = true;
             console.warn('No product URL available, purchase button disabled');
+            console.log('Current artwork product_url:', currentArtwork ? currentArtwork.product_url : 'null');
         }
+    } else {
+        console.error('Purchase button element not found!');
     }
 }
 
